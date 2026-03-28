@@ -4,6 +4,8 @@ import Link from 'next/link';
 import ContentControl from '../../../ContentControl/ContentControl';
 import WishlistEmpty from '../../../Assets/WishlistEmpty'
 import Server, { userAxios, ServerId } from '../../../Config/Server';
+import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 function WishlistComp({ products, setUpdate }) {
     const { setQuickVw, QuickVw, userLogged, setUserLogged, setCartTotal } = useContext(ContentControl)
@@ -48,14 +50,14 @@ function WishlistComp({ products, setUpdate }) {
                                                                             localStorage.removeItem('token')
                                                                         } else {
                                                                             if (res.data.found) {
-                                                                                alert("Already in cart")
+                                                                                toast.error("Already in cart")
                                                                             } else {
-                                                                                alert("Product added to cart")
+                                                                                toast.success("Product added to cart")
                                                                                 setCartTotal(amt => amt + obj.price)
                                                                             }
                                                                         }
                                                                     }).catch((err) => {
-                                                                        alert("Something Wrong")
+                                                                        toast.error("Something Wrong")
                                                                     })
                                                                 })
                                                             }}><i className="fa-solid fa-cart-plus"></i></button>
@@ -75,7 +77,7 @@ function WishlistComp({ products, setUpdate }) {
                                                             product: item.data.product
                                                         })
                                                     }).catch(() => {
-                                                        alert('Facing An Error')
+                                                        toast.error('Facing An Error')
                                                     })
                                                 }}>
                                                     QUICK VIEW
@@ -90,7 +92,15 @@ function WishlistComp({ products, setUpdate }) {
                                             </Link>
 
                                             <button className='RemoveBtn' onClick={() => {
-                                                if (window.confirm(`Do you want remove ${obj.item.name}`)) {
+                                                Swal.fire({
+  title: `Do you want remove ${obj.item.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                                     userAxios((server) => {
                                                         server.put('/users/removeItemWihslist', {
                                                             proId: obj.item._id
@@ -106,10 +116,12 @@ function WishlistComp({ products, setUpdate }) {
                                                                 setUpdate(update => !update)
                                                             }
                                                         }).catch(() => {
-                                                            alert("Sorry for facing error")
+                                                            toast.error("Sorry for facing error")
                                                         })
                                                     })
-                                                }
+                                                
+  }
+})
                                             }}>
                                                 REMOVE
                                             </button>

@@ -7,6 +7,8 @@ import { useState } from 'react'
 import { adminAxios, ServerId } from '../../../Config/Server'
 import ExtraModals from './ExtraModals'
 import SectionMadals from './SectionMadals'
+import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 function LayoutsComp({ setLoaded, loaded }) {
 
@@ -293,7 +295,15 @@ function LayoutsComp({ setLoaded, loaded }) {
                               <td className='col-2'>
 
                                 <button className='cateActionBtn' onClick={() => {
-                                  if (window.confirm(`Do you want remove ${obj.title}`)) {
+                                  Swal.fire({
+  title: `Do you want remove ${obj.title}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                     adminAxios((server) => {
                                       server.put('/admin/removeSlider', {
                                         for: 'sliderOne',
@@ -305,10 +315,12 @@ function LayoutsComp({ setLoaded, loaded }) {
                                           GetAllLayouts()
                                         }
                                       }).catch((err) => {
-                                        alert("We Are Facing Error")
+                                        toast.error("We Are Facing Error")
                                       })
                                     })
-                                  }
+                                  
+  }
+})
                                 }}>Delete</button>
                               </td>
                             </tr>
@@ -352,7 +364,15 @@ function LayoutsComp({ setLoaded, loaded }) {
                               <td className='col-2'>
 
                                 <button className='cateActionBtn' onClick={() => {
-                                  if (window.confirm(`Do you want remove`)) {
+                                  Swal.fire({
+  title: `Do you want remove`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                     adminAxios((server) => {
                                       server.put('/admin/removeSlider', {
                                         for: 'sliderTwo',
@@ -364,10 +384,12 @@ function LayoutsComp({ setLoaded, loaded }) {
                                           GetAllLayouts()
                                         }
                                       }).catch((err) => {
-                                        alert("We Are Facing Error")
+                                        toast.error("We Are Facing Error")
                                       })
                                     })
-                                  }
+                                  
+  }
+})
                                 }}>Delete</button>
                               </td>
                             </tr>
@@ -409,7 +431,15 @@ function LayoutsComp({ setLoaded, loaded }) {
                             <td className='col-2'>
 
                               <button className='cateActionBtn' onClick={() => {
-                                if (window.confirm(`Do you want remove`)) {
+                                Swal.fire({
+  title: `Do you want remove`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                   adminAxios((server) => {
                                     server.delete('/admin/deleteBanner').then((res) => {
                                       if (res.data.login) {
@@ -418,10 +448,12 @@ function LayoutsComp({ setLoaded, loaded }) {
                                         GetAllLayouts()
                                       }
                                     }).catch((err) => {
-                                      alert("We Are Facing Error")
+                                      toast.error("We Are Facing Error")
                                     })
                                   })
-                                }
+                                
+  }
+})
                               }}>Delete</button>
                             </td>
                           </tr>
@@ -465,7 +497,15 @@ function LayoutsComp({ setLoaded, loaded }) {
                                   }}>View</button>
 
                                   <button className='cateActionBtn' onClick={() => {
-                                    if (window.confirm(`Do you want remove ${obj.name}`)) {
+                                    Swal.fire({
+  title: `Do you want remove ${obj.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                       adminAxios((server) => {
                                         server.put('/admin/removeItemRowOne', {
                                           section: 'sectionone',
@@ -479,10 +519,12 @@ function LayoutsComp({ setLoaded, loaded }) {
                                             GetAllLayouts()
                                           }
                                         }).catch((err) => {
-                                          alert("We Are Facing Error")
+                                          toast.error("We Are Facing Error")
                                         })
                                       })
-                                    }
+                                    
+  }
+})
                                   }}>Remove</button>
                                 </td>
                               </tr>
@@ -533,7 +575,15 @@ function LayoutsComp({ setLoaded, loaded }) {
                                   }}>View</button>
 
                                   <button className='cateActionBtn' onClick={() => {
-                                    if (window.confirm(`Do you want remove ${obj.name}`)) {
+                                    Swal.fire({
+  title: `Do you want remove ${obj.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                       adminAxios((server) => {
                                         server.put('/admin/removeItemRowOne', {
                                           section: 'sectiontwo',
@@ -547,10 +597,12 @@ function LayoutsComp({ setLoaded, loaded }) {
                                             GetAllLayouts()
                                           }
                                         }).catch((err) => {
-                                          alert("We Are Facing Error")
+                                          toast.error("We Are Facing Error")
                                         })
                                       })
-                                    }
+                                    
+  }
+})
                                   }}>Remove</button>
                                 </td>
                               </tr>
@@ -581,7 +633,15 @@ function LayoutsComp({ setLoaded, loaded }) {
                                   }}>View</button>
 
                                   <button className='cateActionBtn' onClick={() => {
-                                    if (window.confirm(`Do you want remove ${obj.name}`)) {
+                                    Swal.fire({
+  title: `Do you want remove ${obj.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                       adminAxios((server) => {
                                         server.put('/admin/removeItemRowTwo', {
                                           section: 'sectiontwo',
@@ -595,10 +655,12 @@ function LayoutsComp({ setLoaded, loaded }) {
                                             GetAllLayouts()
                                           }
                                         }).catch((err) => {
-                                          alert("We Are Facing Error")
+                                          toast.error("We Are Facing Error")
                                         })
                                       })
-                                    }
+                                    
+  }
+})
                                   }}>Remove</button>
                                 </td>
                               </tr>
@@ -649,7 +711,15 @@ function LayoutsComp({ setLoaded, loaded }) {
                                   }}>View</button>
 
                                   <button className='cateActionBtn' onClick={() => {
-                                    if (window.confirm(`Do you want remove ${obj.name}`)) {
+                                    Swal.fire({
+  title: `Do you want remove ${obj.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                       adminAxios((server) => {
                                         server.put('/admin/removeItemRowOne', {
                                           section: 'sectionthree',
@@ -663,10 +733,12 @@ function LayoutsComp({ setLoaded, loaded }) {
                                             GetAllLayouts()
                                           }
                                         }).catch((err) => {
-                                          alert("We Are Facing Error")
+                                          toast.error("We Are Facing Error")
                                         })
                                       })
-                                    }
+                                    
+  }
+})
                                   }}>Remove</button>
                                 </td>
                               </tr>
@@ -697,7 +769,15 @@ function LayoutsComp({ setLoaded, loaded }) {
                                   }}>View</button>
 
                                   <button className='cateActionBtn' onClick={() => {
-                                    if (window.confirm(`Do you want remove ${obj.name}`)) {
+                                    Swal.fire({
+  title: `Do you want remove ${obj.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                       adminAxios((server) => {
                                         server.put('/admin/removeItemRowTwo', {
                                           section: 'sectionthree',
@@ -711,10 +791,12 @@ function LayoutsComp({ setLoaded, loaded }) {
                                             GetAllLayouts()
                                           }
                                         }).catch((err) => {
-                                          alert("We Are Facing Error")
+                                          toast.error("We Are Facing Error")
                                         })
                                       })
-                                    }
+                                    
+  }
+})
                                   }}>Remove</button>
                                 </td>
                               </tr>
@@ -763,7 +845,15 @@ function LayoutsComp({ setLoaded, loaded }) {
                                   }}>View</button>
 
                                   <button className='cateActionBtn' onClick={() => {
-                                    if (window.confirm(`Do you want remove ${obj.name}`)) {
+                                    Swal.fire({
+  title: `Do you want remove ${obj.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                       adminAxios((server) => {
                                         server.put('/admin/removeItemRowOne', {
                                           section: 'sectionfour',
@@ -777,10 +867,12 @@ function LayoutsComp({ setLoaded, loaded }) {
                                             GetAllLayouts()
                                           }
                                         }).catch((err) => {
-                                          alert("We Are Facing Error")
+                                          toast.error("We Are Facing Error")
                                         })
                                       })
-                                    }
+                                    
+  }
+})
                                   }}>Remove</button>
                                 </td>
                               </tr>

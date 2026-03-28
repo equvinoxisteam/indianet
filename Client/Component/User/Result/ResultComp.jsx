@@ -5,6 +5,7 @@ import Server, { ServerId, userAxios } from '../../../Config/Server';
 import style from './ResultComp.module.scss'
 import { useRouter } from 'next/router';
 import ContentControl from '@/ContentControl/ContentControl';
+import toast from 'react-hot-toast';
 
 function ResultComp({
   setPageNum, products,
@@ -316,14 +317,14 @@ function ResultComp({
                                             }))
                                           } else {
                                             if (res.data.found) {
-                                              alert("Already in cart")
+                                              toast.error("Already in cart")
                                             } else {
-                                              alert("Product added to cart")
+                                              toast.success("Product added to cart")
                                               setCartTotal(amt => amt + parseInt(obj.price))
                                             }
                                           }
                                         }).catch((err) => {
-                                          alert("Something Wrong")
+                                          toast.error("Something Wrong")
                                         })
                                       })
                                     }}><i className="fa-solid fa-cart-plus"></i></button>
@@ -344,7 +345,7 @@ function ResultComp({
                                     product: item.data.product
                                   })
                                 }).catch(() => {
-                                  alert('Facing An Error')
+                                  toast.error('Facing An Error')
                                 })
                               }}>
                                 QUICK VIEW
@@ -452,14 +453,14 @@ function ResultComp({
                                                   }))
                                                 } else {
                                                   if (res.data.found) {
-                                                    alert("Already in cart")
+                                                    toast.error("Already in cart")
                                                   } else {
-                                                    alert("Product added to cart")
+                                                    toast.success("Product added to cart")
                                                     setCartTotal(amt => amt + parseInt(obj.price))
                                                   }
                                                 }
                                               }).catch((err) => {
-                                                alert("Something Wrong")
+                                                toast.error("Something Wrong")
                                               })
                                             })
                                           }}><i className="fa-solid fa-cart-plus"></i></button>
@@ -479,7 +480,7 @@ function ResultComp({
                                           product: item.data.product
                                         })
                                       }).catch(() => {
-                                        alert('Facing An Error')
+                                        toast.error('Facing An Error')
                                       })
                                     }}>
                                       QUICK VIEW

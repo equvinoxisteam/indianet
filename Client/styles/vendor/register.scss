@@ -2,194 +2,131 @@
 
 .Vendor {
     .RegisterComp {
-        .background {
-            height: 100%;
+        .registerShell {
+            min-height: 100vh;
             width: 100%;
+            background: linear-gradient(180deg, $IndianetSurface 0%, $MainBgGray 100%);
+            padding: 1.5rem 1rem 3rem;
+            box-sizing: border-box;
+        }
 
-            .shape[type="top"] {
-                top: 45px;
-                position: fixed;
-                left: 30%;
-                height: 150px;
-                width: 150px;
-                border-radius: 50%;
-                background: linear-gradient(#1845ad, #23a2f6);
+        .registerCard {
+            max-width: 560px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(10, 102, 194, 0.12);
+            border: 1px solid $MainLtGrey;
+            padding: 1.75rem 1.5rem 2rem;
 
-                @media only screen and (max-width:1115px) {
-                    left: 25%;
-                }
-
-                @media only screen and (max-width:850px) {
-                    left: 20%;
-                }
-
-                @media only screen and (max-width:715px) {
-                    left: 15%;
-                }
-
-                @media only screen and (max-width:670px) {
-                    left: 10%;
-                }
-
-                @media only screen and (max-width:500px) {
-                    height: 100px;
-                    width: 100px;
-                    left: 5%;
-                    top: 10%;
-                }
+            @media (min-width: 576px) {
+                padding: 2rem 2.25rem;
             }
+        }
 
-            .shape[type="bottom"] {
-                position: fixed;
-                bottom: 45px;
-                right: 30%;
-                height: 150px;
-                width: 150px;
-                border-radius: 50%;
-                background: linear-gradient(to right, #ff512f, #f09819);
+        .registerSub {
+            color: $MainGrey;
+            font-size: 0.9rem;
+        }
 
-                @media only screen and (max-width:1115px) {
-                    right: 25%;
-                }
+        .registerTitle {
+            color: $MainBLack;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
 
-                @media only screen and (max-width:850px) {
-                    right: 20%;
-                }
+        h6 {
+            color: $PrimaryBlue;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
 
-                @media only screen and (max-width:715px) {
-                    right: 15%;
-                }
+        label {
+            display: block;
+            color: $MainBLack;
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
 
-                @media only screen and (max-width:670px) {
-                    right: 10%;
-                }
+        input,
+        textarea,
+        select {
+            width: 100%;
+            box-sizing: border-box;
+            color: $MainBLack;
+            font-size: 14px;
+            border: 2px solid $MainLtGrey;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background: #fff;
 
-                @media only screen and (max-width:500px) {
-                    height: 100px;
-                    width: 100px;
-                    right: 5%;
-                }
+            &:focus {
+                border-color: $PrimaryBlue;
+                box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.15);
             }
+        }
 
-            .registerForm {
-                padding-top: 15px;
-                padding-bottom: 15px;
-                max-width: 350px;
-                height: auto;
-                position: relative;
-                margin: auto;
+        input,
+        select {
+            height: 42px;
+            padding: 0 12px;
+        }
 
-                .inner {
-                    background-color: rgba(255, 255, 255, 0.13);
-                    box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
-                    backdrop-filter: blur(5px);
-                    border-radius: 5px;
-                    width: 100%;
-                    height: 100%;
-                    padding-top: 2em;
-                    padding-bottom: 2em;
-                    padding-left: 1em;
-                    padding-right: 1em;
+        textarea {
+            padding: 10px 12px;
+            min-height: 88px;
+            resize: vertical;
+        }
 
-                    h3[type="title"] {
-                        color: white;
-                        text-align: center;
-                        font-weight: bold;
-                        padding-bottom: 10px;
-                    }
+        select {
+            cursor: pointer;
+        }
 
-                    h6 {
-                        color: $MainGrey;
-                        text-align: center;
-                        font-weight: bold;
-                        text-transform: uppercase;
-                    }
+        .btn-primary-register {
+            width: 100%;
+            height: 44px;
+            border: 2px solid $PrimaryBlue;
+            background: $PrimaryBlue;
+            color: #fff;
+            font-weight: 700;
+            border-radius: 8px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
 
-                    label {
-                        color: white;
-                        font-weight: bold;
-                        font-size: 14px;
-                    }
-
-                    input {
-                        background-color: rgba(255, 255, 255, 0.07);
-                        border: none;
-                        height: 40px;
-                        border-radius: 5px;
-                        outline: none;
-                        padding-left: 10px;
-                        color: white;
-                        font-size: small;
-                        font-weight: bold;
-                        width: 100%;
-                    }
-
-                    textarea {
-                        padding: 10px;
-                        background-color: rgba(255, 255, 255, 0.07);
-                        border: none;
-                        border-radius: 5px;
-                        outline: none;
-                        padding-left: 10px;
-                        color: white;
-                        font-size: small;
-                        font-weight: bold;
-                        width: 100%;
-                    }
-
-                    select {
-                        background-color: rgba(255, 255, 255, 0.07);
-                        border: none;
-                        height: 40px;
-                        border-radius: 5px;
-                        outline: none;
-                        padding-left: 10px;
-                        color: white;
-                        font-size: small;
-                        font-weight: bold;
-                        width: 100%;
-
-                        option {
-                            background: $MainGrey;
-                            font-weight: bold;
-                        }
-                    }
-
-                    button[type='submit'] {
-                        width: 100%;
-                        height: 40px;
-                        background: white;
-                        border: 3px solid white;
-                        font-weight: bold;
-                        border-radius: 5px;
-                        color: #080710;
-                        transition: all .5s ease-in-out;
-                        -moz-transition: all .5s ease-in-out;
-
-                        &:hover {
-                            background: transparent;
-                            color: white;
-                        }
-                    }
-
-                    button[data-for="register"] {
-                        background: none;
-                        border: none;
-                        text-align: center;
-                        width: 100%;
-                        padding-top: 15px;
-                        color: white;
-                        font-size: small;
-                        font-weight: bold;
-                        cursor: text;
-
-                        span {
-                            cursor: pointer;
-                            color: #23a2f6;
-                        }
-                    }
-                }
+            &:hover {
+                background: #fff;
+                color: $PrimaryBlue;
             }
+        }
+
+        .registerFooter {
+            text-align: center;
+            margin-top: 1.25rem;
+            margin-bottom: 0;
+            font-size: 14px;
+            color: $MainGrey;
+        }
+
+        .link-login {
+            background: none;
+            border: none;
+            padding: 0;
+            color: $PrimaryBlue;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
         }
     }
 }

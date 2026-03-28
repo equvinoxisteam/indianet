@@ -105,7 +105,7 @@ function Product({ response }) {
     return (
         <Fragment>
             <Head>
-                <title>{`Aquariun - ${product.name}`}</title>
+                <title>{`Indianet - ${product.name}`}</title>
                 <meta name="description" content={product.seoDescription} />
                 <meta name="keywords" content={product.seoKeyword} />
                 <meta name="title" content={product.seoTitle} />

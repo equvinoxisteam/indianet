@@ -1,0 +1,74 @@
+// Variables & Design Tokens
+
+// Primary palette
+$primary: #4F46E5;         // Indigo
+$primary-light: #818CF8;
+$primary-dark: #3730A3;
+
+// Secondary/Accent
+$accent: #F59E0B;          // Amber
+$accent-light: #FCD34D;
+$accent-dark: #B45309;
+
+// Neutral Palette
+$neutral-50: #F8FAFC;
+$neutral-100: #F1F5F9;
+$neutral-200: #E2E8F0;
+$neutral-300: #CBD5E1;
+$neutral-500: #64748B;
+$neutral-700: #334155;
+$neutral-800: #1E293B;
+$neutral-900: #0F172A;
+
+// Status
+$success: #10B981;
+$warning: #F59E0B;
+$danger: #EF4444;
+$info: #3B82F6;
+
+// Legacy Colors (keeping for compatibility, transitioning them)
+$MainGreen: #10B981; // replacing with modern green
+$MainBLack: #0f172a;
+$Main2ndBlack: #334155;
+$MainBgGray: #f8fafc;
+$MainLtGrey: #e2e8f0;
+$MainGrey: #64748b;
+
+// Effects
+$shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+$shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+$shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+$shadow-hover: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+$shadow-inner: inset 0 2px 4px 0 rgba(0,0,0,0.06);
+
+// Border Radius
+$radius-sm: 6px;
+$radius-md: 10px;
+$radius-lg: 16px;
+$radius-xl: 24px;
+$radius-full: 9999px;
+
+// Transitions
+$transit-fast: 0.15s ease-in-out;
+$transit-normal: 0.3s ease-in-out;
+
+// Global Mixins
+@mixin flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@mixin card-hover {
+    transition: all $transit-normal;
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: $shadow-hover;
+    }
+}

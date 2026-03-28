@@ -1,17 +1,19 @@
 import { useRouter } from 'next/router'
 import React, { Fragment, useContext } from 'react'
 import Link from 'next/link'
+import BrandLogo from '@/Component/Common/BrandLogo'
 import ContentControl from '../../../ContentControl/ContentControl'
 import Script from 'next/script'
+import toast from 'react-hot-toast';
 
 function Header() {
     const { setVendorLogged } = useContext(ContentControl)
     const router = useRouter()
     return (
         <Fragment>
-            <nav className="navbar navbar-expand-md bg-dark">
+            <nav className="navbar navbar-expand-md indianet-navbar">
                 <div className="container-fluid">
-                    <Link className="navbar-brand" href="/vendor/dashboard">Vendor Panel</Link>
+                    <BrandLogo href="/vendor/dashboard" variant="light" className="navbar-brand me-3" />
                     <button className='toggleButton' data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <i className="fa-solid fa-bars fa-lg"></i>
                     </button>
@@ -33,7 +35,7 @@ function Header() {
                                 <Link className="nav-link" onClick={() => {
                                     setVendorLogged({ status: false })
                                     localStorage.removeItem('vendorToken')
-                                    alert("LogOut")
+                                    toast.error("LogOut")
                                 }} href={'/vendor/login'}>Logout</Link>
                             </li>
                         </ul>

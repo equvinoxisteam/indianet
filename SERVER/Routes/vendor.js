@@ -75,7 +75,7 @@ router.post('/sentOtpLogin', (req, res) => {
                     let mailDetails = {
                         from: process.env.MAIL_FROM,
                         to: req.body.email,
-                        subject: 'Vendor Login OTP',
+                        subject: 'Indianet - Vendor login OTP',
                         text: `your verification code is ${oldOtp.otp}`
                     }
 
@@ -91,7 +91,7 @@ router.post('/sentOtpLogin', (req, res) => {
                                 let mailDetails = {
                                     from: process.env.MAIL_FROM,
                                     to: req.body.email,
-                                    subject: 'Vendor Login OTP',
+                                    subject: 'Indianet - Vendor login OTP',
                                     text: `your verification code is ${otp}`
                                 }
 
@@ -213,13 +213,13 @@ router.put('/updateBankAccount', CheckVendor, (req, res) => {
 
 // Product
 
-router.get('/getCategories', (req, res) => [
+router.get('/getCategories', (req, res) => {
     product.getCategories().then((categories) => {
         res.status(200).json(categories)
     }).catch(() => {
         res.status(500).json('err')
     })
-])
+})
 
 router.post('/addProduct', CheckVendor, uploader.products.array("images", 20), (req, res, next) => {
     req.body.vendorId = req.query.vendorId
@@ -247,6 +247,9 @@ router.post('/addProduct', CheckVendor, uploader.products.array("images", 20), (
     req.body.mrp = parseInt(req.body.mrp)
     req.body.price = parseInt(req.body.price)
     req.body.discount = parseInt(discountPerc);
+    req.body.allowCod = req.body.allowCod === 'true' || req.body.allowCod === true
+    req.body.allowOnline = req.body.allowOnline === 'true' || req.body.allowOnline === true
+    req.body.allowRfq = req.body.allowRfq === 'true' || req.body.allowRfq === true
 
     vendor.addProduct(req.body).then((done) => {
         res.status(200).json(done)
@@ -442,6 +445,9 @@ router.put('/editProduct/:id', CheckVendor, uploader.products.array("images", 20
         data.mrp = parseInt(data.mrp)
         data.price = parseInt(data.price)
         data.discount = parseInt(discountPerc);
+        data.allowCod = data.allowCod === 'true' || data.allowCod === true
+        data.allowOnline = data.allowOnline === 'true' || data.allowOnline === true
+        data.allowRfq = data.allowRfq === 'true' || data.allowRfq === true
 
         var serverImg = JSON.parse(data.serverImg)
         data.serverImg = serverImg
@@ -514,9 +520,17 @@ router.get('/getAllOrders', CheckVendor, async (req, res) => {
 })
 
 router.get('/getOrderSpecific', CheckVendor, async (req, res) => {
-    let token = await tokenShipRocket().catch(() => {
-        res.status(500).json('err')
-    })
+    let token = null;
+    const shiprocketConfigured = Boolean(
+        process.env.SHIPROCKET_EMAIL && process.env.SHIPROCKET_PASS
+    )
+
+    if (shiprocketConfigured) {
+        token = await tokenShipRocket().catch(() => null);
+        if (!token) {
+            return res.status(500).json('err')
+        }
+    }
 
     let order_current = await vendor.getOrderSpecific(req.query).catch(() => {
         res.status(500).json('err')
@@ -524,7 +538,7 @@ router.get('/getOrderSpecific', CheckVendor, async (req, res) => {
 
     let track
 
-    if (order_current) {
+    if (order_current && token) {
         track = await trackProduct(order_current.shipment_id, token).catch(() => {
             console.log('error track')
         })

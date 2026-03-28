@@ -2,6 +2,7 @@ import React, { Fragment, useRef, useEffect } from 'react'
 import { useState } from 'react'
 import { adminAxios } from '../../../Config/Server'
 import JoditEditor from 'jodit-react';
+import toast from 'react-hot-toast';
 
 function ExtraModals({
     activeModal, setActiveModal,
@@ -105,7 +106,7 @@ function ExtraModals({
                     })
                 }
             }).catch((err) => {
-                alert("Sorry Server Has Some Problem")
+                toast.error("Sorry Server Has Some Problem")
             })
         })
     }
@@ -143,7 +144,7 @@ function ExtraModals({
                     })
                 }
             }).catch((err) => {
-                alert("Sorry Server Has Some Problem")
+                toast.error("Sorry Server Has Some Problem")
             })
         })
     }
@@ -179,7 +180,7 @@ function ExtraModals({
                     })
                 }
             }).catch((err) => {
-                alert("Sorry Server Has Some Problem")
+                toast.error("Sorry Server Has Some Problem")
             })
         })
     }

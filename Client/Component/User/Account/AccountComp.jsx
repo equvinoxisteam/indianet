@@ -9,6 +9,7 @@ import { useContext } from 'react'
 import ContentControl from '../../../ContentControl/ContentControl'
 import { useState } from 'react'
 import { userAxios, userCheck } from '../../../Config/Server'
+import toast from 'react-hot-toast';
 
 function AccountComp() {
   const navigate = useRouter()
@@ -60,13 +61,13 @@ function AccountComp() {
         } else {
           if (res.data) {
             UserUpdate()
-            alert("Done")
+            toast.success("Done")
           } else {
-            alert("Entered Password Wrong")
+            toast.error("Entered Password Wrong")
           }
         }
       }).catch(() => {
-        alert("Sorry for error")
+        toast.error("Sorry for error")
       })
     })
   }
@@ -85,15 +86,15 @@ function AccountComp() {
         } else {
           if (res.data.done) {
             UserUpdate()
-            alert("Done")
+            toast.success("Done")
           } else if (res.data.already) {
-            alert("Email Already Used")
+            toast.success("Email Already Used")
           } else if (res.data.pass) {
-            alert("Wrong Password")
+            toast.error("Wrong Password")
           }
         }
       }).catch(() => {
-        alert("Sorry for error")
+        toast.error("Sorry for error")
       })
     })
   }
@@ -119,13 +120,13 @@ function AccountComp() {
                 new: '',
                 old: ''
               })
-              alert("Done")
+              toast.success("Done")
             } else {
-              alert("Wrong Password")
+              toast.error("Wrong Password")
             }
           }
         }).catch(() => {
-          alert("Sorry for error")
+          toast.error("Sorry for error")
         })
       }
     })

@@ -38,11 +38,11 @@
                 -moz-transition: all .5s ease-in-out;
 
                 &:hover {
-                    border-color: $MainGreen;
+                    border-color: $PrimaryBlue;
                 }
 
                 &:focus {
-                    border-color: $MainGreen;
+                    border-color: $PrimaryBlue;
                 }
             }
         }
@@ -51,11 +51,11 @@
             width: 8em;
             height: 40px;
             border-radius: 3px;
-            background: $MainGreen;
+            background: $PrimaryBlue;
             color: white;
             font-weight: bold;
             font-size: 13px;
-            border: 3px solid $MainGreen;
+            border: 3px solid $PrimaryBlue;
 
             transition: all .5s ease-in-out;
             -moz-transition: all .5s ease-in-out;
@@ -89,7 +89,7 @@
                 font-size: small;
                 font-weight: bold;
                 color: $MainBLack;
-                border: 2px solid #22cc9d;
+                border: 2px solid $PrimaryBlue;
                 text-align: left;
                 background: transparent;
 
@@ -118,7 +118,7 @@
 
             .active {
                 color: white;
-                background: #22cc9d;
+                background: $PrimaryBlue;
             }
         }
     }

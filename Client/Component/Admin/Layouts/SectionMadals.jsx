@@ -3,6 +3,7 @@ import { useRef } from 'react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { adminAxios } from '../../../Config/Server'
+import toast from 'react-hot-toast';
 
 function SectionMadals({
     activeModal, setActiveModal,
@@ -112,7 +113,7 @@ function SectionMadals({
                 if (done.data.login) {
                     logOut()
                 } else {
-                    alert("Done")
+                    toast.success("Done")
 
                     GetAllLayouts()
 
@@ -124,7 +125,7 @@ function SectionMadals({
                     })
                 }
             }).catch((err) => {
-                alert("We Are Facing Error")
+                toast.error("We Are Facing Error")
             })
         })
     }
@@ -136,7 +137,7 @@ function SectionMadals({
                 if (done.data.login) {
                     logOut()
                 } else {
-                    alert("Done")
+                    toast.success("Done")
 
                     GetAllLayouts()
 
@@ -148,7 +149,7 @@ function SectionMadals({
                     })
                 }
             }).catch((err) => {
-                alert("We Are Facing Error")
+                toast.error("We Are Facing Error")
             })
         })
     }
@@ -160,7 +161,7 @@ function SectionMadals({
                 if (done.data.login) {
                     logOut()
                 } else {
-                    alert("Done")
+                    toast.success("Done")
 
                     GetAllLayouts()
 
@@ -172,7 +173,7 @@ function SectionMadals({
                     })
                 }
             }).catch((err) => {
-                alert("We Are Facing Error")
+                toast.error("We Are Facing Error")
             })
         })
     }
@@ -184,7 +185,7 @@ function SectionMadals({
                 if (done.data.login) {
                     logOut()
                 } else {
-                    alert("Done")
+                    toast.success("Done")
 
                     GetAllLayouts()
 
@@ -196,7 +197,7 @@ function SectionMadals({
                     })
                 }
             }).catch((err) => {
-                alert("We Are Facing Error")
+                toast.error("We Are Facing Error")
             })
         })
     }

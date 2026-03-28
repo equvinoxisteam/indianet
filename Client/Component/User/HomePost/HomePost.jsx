@@ -7,11 +7,15 @@ import { useContext } from 'react';
 import Link from 'next/link';
 import Server, { ServerId, userAxios } from '@/Config/Server';
 import ContentControl from '@/ContentControl/ContentControl';
+import toast from 'react-hot-toast';
 
 function HomePost({ layout }) {
-    const { sectionfour, sectionone,
-        sectiontwo, sectionthree,
-        sliderTwo, banner } = layout
+    const sectionfour = layout?.sectionfour || { title: '', subTitle: '', items: [], items2: [] }
+    const sectionone = layout?.sectionone || { title: '', subTitle: '', items: [] }
+    const sectiontwo = layout?.sectiontwo || { title: '', subTitle: '', items: [], items2: [] }
+    const sectionthree = layout?.sectionthree || { title: '', subTitle: '', items: [], items2: [] }
+    const sliderTwo = layout?.sliderTwo || { items: [], for: 'product' }
+    const banner = layout?.banner || { file: { filename: '' }, link: '' }
 
     const {
         setQuickVw, QuickVw,
@@ -57,7 +61,7 @@ function HomePost({ layout }) {
                             }}
                         >
                             {
-                                sectionone['items'].map((obj, key) => {
+                                (sectionone.items || []).map((obj, key) => {
                                     if (obj._id !== undefined) {
                                         return (
                                             <SwiperSlide key={key}>
@@ -115,7 +119,7 @@ function HomePost({ layout }) {
                     }}
                 >
                     {
-                        sliderTwo['items'].map((obj, key) => {
+                        (sliderTwo.items || []).map((obj, key) => {
                             return (
                                 <SwiperSlide key={key}>
                                     <div>
@@ -165,7 +169,7 @@ function HomePost({ layout }) {
                             }}
                         >
                             {
-                                sectiontwo['items'].map((obj, key) => {
+                                (sectiontwo.items || []).map((obj, key) => {
                                     if (obj._id !== undefined) {
                                         return (
                                             <SwiperSlide key={key}>
@@ -197,14 +201,14 @@ function HomePost({ layout }) {
                                                                                     }))
                                                                                 } else {
                                                                                     if (res.data.found) {
-                                                                                        alert("Already in cart")
+                                                                                        toast.error("Already in cart")
                                                                                     } else {
-                                                                                        alert("Product added to cart")
+                                                                                        toast.success("Product added to cart")
                                                                                         setCartTotal(amt => amt + parseInt(obj.price))
                                                                                     }
                                                                                 }
                                                                             }).catch((err) => {
-                                                                                alert("Something Wrong")
+                                                                                toast.error("Something Wrong")
                                                                             })
                                                                         })
                                                                     }}><i className="fa-solid fa-cart-plus"></i></button>
@@ -227,7 +231,7 @@ function HomePost({ layout }) {
                                                                     product: item.data.product
                                                                 })
                                                             }).catch(() => {
-                                                                alert('Facing An Error')
+                                                                toast.error('Facing An Error')
                                                             })
                                                         }}>
                                                             QUICK VIEW
@@ -277,7 +281,7 @@ function HomePost({ layout }) {
                             }}
                         >
                             {
-                                sectiontwo['items2'].map((obj, key) => {
+                                (sectiontwo.items2 || []).map((obj, key) => {
                                     if (obj._id !== undefined) {
                                         return (
                                             <SwiperSlide key={key}>
@@ -309,14 +313,14 @@ function HomePost({ layout }) {
                                                                                     }))
                                                                                 } else {
                                                                                     if (res.data.found) {
-                                                                                        alert("Already in cart")
+                                                                                        toast.error("Already in cart")
                                                                                     } else {
-                                                                                        alert("Product added to cart")
+                                                                                        toast.success("Product added to cart")
                                                                                         setCartTotal(amt => amt + parseInt(obj.price))
                                                                                     }
                                                                                 }
                                                                             }).catch((err) => {
-                                                                                alert("Something Wrong")
+                                                                                toast.error("Something Wrong")
                                                                             })
                                                                         })
                                                                     }}><i className="fa-solid fa-cart-plus"></i></button>
@@ -339,7 +343,7 @@ function HomePost({ layout }) {
                                                                     product: item.data.product
                                                                 })
                                                             }).catch(() => {
-                                                                alert('Facing An Error')
+                                                                toast.error('Facing An Error')
                                                             })
                                                         }}>
                                                             QUICK VIEW
@@ -368,7 +372,7 @@ function HomePost({ layout }) {
             </div>
 
             {
-                banner.file.length !== 0 && (
+                banner?.file?.filename && (
                     <div className="UserMainBgGrey">
                         <div className="container p-4">
                             <img style={{ marginBottom: '20px', cursor: 'pointer' }}
@@ -414,7 +418,7 @@ function HomePost({ layout }) {
                             }}
                         >
                             {
-                                sectionthree['items'].map((obj, key) => {
+                                (sectionthree.items || []).map((obj, key) => {
                                     if (obj._id !== undefined) {
                                         return (
                                             <SwiperSlide key={key}>
@@ -447,14 +451,14 @@ function HomePost({ layout }) {
                                                                                     }))
                                                                                 } else {
                                                                                     if (res.data.found) {
-                                                                                        alert("Already in cart")
+                                                                                        toast.error("Already in cart")
                                                                                     } else {
-                                                                                        alert("Product added to cart")
+                                                                                        toast.success("Product added to cart")
                                                                                         setCartTotal(amt => amt + parseInt(obj.price))
                                                                                     }
                                                                                 }
                                                                             }).catch((err) => {
-                                                                                alert("Something Wrong")
+                                                                                toast.error("Something Wrong")
                                                                             })
                                                                         })
                                                                     }}><i className="fa-solid fa-cart-plus"></i></button>
@@ -477,7 +481,7 @@ function HomePost({ layout }) {
                                                                     product: item.data.product
                                                                 })
                                                             }).catch(() => {
-                                                                alert('Facing An Error')
+                                                                toast.error('Facing An Error')
                                                             })
                                                         }}>
                                                             QUICK VIEW
@@ -527,7 +531,7 @@ function HomePost({ layout }) {
                             }}
                         >
                             {
-                                sectionthree['items2'].map((obj, key) => {
+                                (sectionthree.items2 || []).map((obj, key) => {
                                     if (obj._id !== undefined) {
                                         return (
                                             <SwiperSlide key={key}>
@@ -559,14 +563,14 @@ function HomePost({ layout }) {
                                                                                     }))
                                                                                 } else {
                                                                                     if (res.data.found) {
-                                                                                        alert("Already in cart")
+                                                                                        toast.error("Already in cart")
                                                                                     } else {
-                                                                                        alert("Product added to cart")
+                                                                                        toast.success("Product added to cart")
                                                                                         setCartTotal(amt => amt + parseInt(obj.price))
                                                                                     }
                                                                                 }
                                                                             }).catch((err) => {
-                                                                                alert("Something Wrong")
+                                                                                toast.error("Something Wrong")
                                                                             })
                                                                         })
                                                                     }}><i className="fa-solid fa-cart-plus"></i></button>
@@ -589,7 +593,7 @@ function HomePost({ layout }) {
                                                                     product: item.data.product
                                                                 })
                                                             }).catch(() => {
-                                                                alert('Facing An Error')
+                                                                toast.error('Facing An Error')
                                                             })
                                                         }}>
                                                             QUICK VIEW
@@ -647,7 +651,7 @@ function HomePost({ layout }) {
                             }}
                         >
                             {
-                                sectionfour['items'].map((obj, key) => {
+                                (sectionfour.items || []).map((obj, key) => {
                                     if (obj._id !== undefined) {
                                         return (
                                             <SwiperSlide key={key}>

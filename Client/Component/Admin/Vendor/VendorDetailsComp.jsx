@@ -3,12 +3,16 @@ import { useRouter } from 'next/router'
 import { useContext, useState } from 'react'
 import { useEffect } from 'react'
 import { adminAxios } from '../../../Config/Server'
+import toast from 'react-hot-toast';
 
 function VendorDetailsComp({ vendorId }) {
   const { setAdminLogged } = useContext(ContentControl)
   let router = useRouter()
   const [data, setData] = useState({
     _id: '',
+    companyName: "",
+    sellingElsewhere: "",
+    sellingElsewhereDetail: "",
     adharName: "",
     adharNumber: "",
     email: "",
@@ -51,9 +55,9 @@ function VendorDetailsComp({ vendorId }) {
           }
         }).catch((err) => {
           if (err.response.data['status'] === 404) {
-            alert("Vendor Not Found")
+            toast.error("Vendor Not Found")
           } else {
-            alert("Error")
+            toast.error("Error")
           }
 
           router.push('/admin/vendors')
@@ -67,7 +71,17 @@ function VendorDetailsComp({ vendorId }) {
       <div className="VendorDetailsComp">
         <div className="row">
           <div className="col-md-6">
-            <label>Name</label>
+            <label>Company / business</label>
+            <input value={data.companyName || ''} type="text" readOnly disabled />
+          </div>
+          <div className="col-md-6">
+            <label>Sells elsewhere</label>
+            <input value={data.sellingElsewhere === 'Other' && data.sellingElsewhereDetail
+              ? `Other — ${data.sellingElsewhereDetail}`
+              : (data.sellingElsewhere || '—')} type="text" readOnly disabled />
+          </div>
+          <div className="col-md-6">
+            <label>Name (Aadhaar)</label>
             <input value={data.adharName} type="text" readOnly disabled />
           </div>
 

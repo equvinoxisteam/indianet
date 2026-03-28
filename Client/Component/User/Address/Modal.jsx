@@ -1,6 +1,7 @@
 import { userAxios } from '@/Config/Server'
 import React, { useEffect, useState } from 'react'
 import Xicon from '@/Assets/Xicon'
+import toast from 'react-hot-toast';
 
 function Modal({ Address, setUpdate, setUserLogged }) {
     const [formData, setFormData] = useState({
@@ -42,10 +43,10 @@ function Modal({ Address, setUpdate, setUserLogged }) {
                                 localStorage.removeItem('token')
                             } else {
                                 setUpdate(update => !update)
-                                alert("Updated")
+                                toast.success("Updated")
                             }
                         }).catch(() => {
-                            alert("Error")
+                            toast.error("Error")
                         })
                     })
                 } else {
@@ -65,18 +66,18 @@ function Modal({ Address, setUpdate, setUserLogged }) {
                                     city: '',
                                     state: ''
                                 })
-                                alert("Done")
+                                toast.success("Done")
                             }
                         }).catch(() => {
-                            alert("Error")
+                            toast.error("Error")
                         })
                     })
                 }
             } else {
-                alert("Number Must 10 Digit")
+                toast.error("Number Must 10 Digit")
             }
         } else {
-            alert("PinCode Must 6 Digit")
+            toast.error("PinCode Must 6 Digit")
         }
     }
     return (

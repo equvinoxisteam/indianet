@@ -5,6 +5,8 @@ import CartEmptyIcon from '../../../Assets/CartEmpty'
 import { useContext } from 'react'
 import ContentControl from '../../../ContentControl/ContentControl'
 import { useRouter } from 'next/router'
+import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 function CartComp({ products, setUpdate, amount, setOrderType }) {
 
@@ -75,7 +77,15 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                   <div className='quantityDiv'>
                                     <button className='btnMinus' onClick={() => {
                                       if (obj.quantity - 1 === 0) {
-                                        if (window.confirm(`Do you want remove ${obj.item.name}`)) {
+                                        Swal.fire({
+  title: `Do you want remove ${obj.item.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                           userAxios((server) => {
                                             server.put('/users/removeItemCart', {
                                               proId: obj.item._id
@@ -87,10 +97,12 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                                 setUpdate(update => !update)
                                               }
                                             }).catch(() => {
-                                              alert("Sorry for facing error")
+                                              toast.error("Sorry for facing error")
                                             })
                                           })
-                                        }
+                                        
+  }
+})
                                       } else {
                                         userAxios((server) => {
                                           server.put('/users/changeQuantityCart', {
@@ -104,7 +116,7 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                               setUpdate(update => !update)
                                             }
                                           }).catch(() => {
-                                            alert("Sorry for facing error")
+                                            toast.error("Sorry for facing error")
                                           })
                                         })
                                       }
@@ -126,7 +138,7 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                             setUpdate(update => !update)
                                           }
                                         }).catch(() => {
-                                          alert("Sorry for facing error")
+                                          toast.error("Sorry for facing error")
                                         })
                                       })
                                     }}>+</button>
@@ -134,7 +146,15 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                 ) : (
                                   <div className="StockBtnDiv">
                                     <button onClick={() => {
-                                      if (window.confirm(`Do you want remove ${obj.item.name}`)) {
+                                      Swal.fire({
+  title: `Do you want remove ${obj.item.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                         userAxios((server) => {
                                           server.put('/users/removeItemCart', {
                                             proId: obj.item._id
@@ -146,10 +166,12 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                               setUpdate(update => !update)
                                             }
                                           }).catch(() => {
-                                            alert("Sorry for facing error")
+                                            toast.error("Sorry for facing error")
                                           })
                                         })
-                                      }
+                                      
+  }
+})
                                     }}>No Stock</button>
                                   </div>
                                 )
@@ -157,7 +179,15 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
 
                               <div className="RemoveBtnDiv">
                                 <button onClick={() => {
-                                  if (window.confirm(`Do you want remove ${obj.item.name}`)) {
+                                  Swal.fire({
+  title: `Do you want remove ${obj.item.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                     userAxios((server) => {
                                       server.put('/users/removeItemCart', {
                                         proId: obj.item._id
@@ -169,10 +199,12 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                           setUpdate(update => !update)
                                         }
                                       }).catch(() => {
-                                        alert("Sorry for facing error")
+                                        toast.error("Sorry for facing error")
                                       })
                                     })
-                                  }
+                                  
+  }
+})
                                 }}>Remove</button>
                               </div>
 
@@ -255,7 +287,15 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                       <div className='quantityDiv'>
                                         <button className='btnMinus' onClick={() => {
                                           if (obj.quantity - 1 === 0) {
-                                            if (window.confirm(`Do you want remove ${obj.item.name}`)) {
+                                            Swal.fire({
+  title: `Do you want remove ${obj.item.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                               userAxios((server) => {
                                                 server.put('/users/removeItemCart', {
                                                   proId: obj.item._id
@@ -267,10 +307,12 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                                     setUpdate(update => !update)
                                                   }
                                                 }).catch(() => {
-                                                  alert("Sorry for facing error")
+                                                  toast.error("Sorry for facing error")
                                                 })
                                               })
-                                            }
+                                            
+  }
+})
                                           } else {
                                             userAxios((server) => {
                                               server.put('/users/changeQuantityCart', {
@@ -285,7 +327,7 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                                   setUpdate(update => !update)
                                                 }
                                               }).catch(() => {
-                                                alert("Sorry for facing error")
+                                                toast.error("Sorry for facing error")
                                               })
                                             })
                                           }
@@ -305,7 +347,7 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                                 setUpdate(update => !update)
                                               }
                                             }).catch(() => {
-                                              alert("Sorry for facing error")
+                                              toast.error("Sorry for facing error")
                                             })
                                           })
                                         }}>+</button>
@@ -313,7 +355,15 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                     ) : (
                                       <div className="StockBtnDiv">
                                         <button onClick={() => {
-                                          if (window.confirm(`Do you want remove ${obj.item.name}`)) {
+                                          Swal.fire({
+  title: `Do you want remove ${obj.item.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                             userAxios((server) => {
                                               server.put('/users/removeItemCart', {
                                                 proId: obj.item._id
@@ -325,10 +375,12 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                                   setUpdate(update => !update)
                                                 }
                                               }).catch(() => {
-                                                alert("Sorry for facing error")
+                                                toast.error("Sorry for facing error")
                                               })
                                             })
-                                          }
+                                          
+  }
+})
                                         }}>No Stock</button>
                                       </div>
 
@@ -337,7 +389,15 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
 
                                   <div className="RemoveBtnDiv">
                                     <button onClick={() => {
-                                      if (window.confirm(`Do you want remove ${obj.item.name}`)) {
+                                      Swal.fire({
+  title: `Do you want remove ${obj.item.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                         userAxios((server) => {
                                           server.put('/users/removeItemCart', {
                                             proId: obj.item._id
@@ -349,10 +409,12 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
                                               setUpdate(update => !update)
                                             }
                                           }).catch(() => {
-                                            alert("Sorry for facing error")
+                                            toast.error("Sorry for facing error")
                                           })
                                         })
-                                      }
+                                      
+  }
+})
                                     }}>Remove</button>
                                   </div>
 

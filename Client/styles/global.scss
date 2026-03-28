@@ -1,3 +1,5 @@
+@import './variables';
+
 // User
 
 @import './user/product.scss';
@@ -37,7 +39,14 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: 'Poppins';
+    font-family: 'Inter', system-ui, sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    background: $neutral-50;
+    color: $neutral-800;
+    -webkit-font-smoothing: antialiased;
 }
 
 .color-white {
@@ -102,6 +111,7 @@
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
+    appearance: none;
     margin: 0;
 }
 
@@ -176,4 +186,72 @@ input[type=number] {
         margin-left: 1em;
         margin-right: 1em;
     }
+}
+
+// MODERN UTILITIES
+.btn-primary {
+    background: $primary;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: $radius-md;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all $transit-fast;
+    &:hover {
+        background: $primary-dark;
+        box-shadow: $shadow-md;
+    }
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+}
+
+.btn-secondary {
+    background: white;
+    color: $neutral-700;
+    border: 1px solid $neutral-300;
+    padding: 0.6rem 1.2rem;
+    border-radius: $radius-md;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all $transit-fast;
+    &:hover {
+        background: $neutral-50;
+        border-color: $neutral-400;
+    }
+}
+
+.card {
+    background: white;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-sm;
+    border: 1px solid $neutral-100;
+    padding: 1.5rem;
+    @include card-hover;
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border: 1px solid $neutral-300;
+    border-radius: $radius-md;
+    outline: none;
+    transition: border-color $transit-fast, box-shadow $transit-fast;
+    &:focus {
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+}
+
+.badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: $radius-full;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    &.badge-success { background: rgba($success, 0.1); color: darken($success, 10%); }
+    &.badge-warning { background: rgba($warning, 0.1); color: darken($warning, 15%); }
+    &.badge-primary { background: rgba($primary, 0.1); color: $primary-dark; }
 }

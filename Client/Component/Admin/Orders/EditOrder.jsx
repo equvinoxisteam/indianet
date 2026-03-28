@@ -2,6 +2,7 @@ import ContentControl from '@/ContentControl/ContentControl'
 import { useRouter } from 'next/router'
 import { useContext } from 'react'
 import { adminAxios } from '../../../Config/Server'
+import toast from 'react-hot-toast';
 
 function EditOrder({ Order, setOrder }) {
     const { setAdminLogged } = useContext(ContentControl)
@@ -23,10 +24,10 @@ function EditOrder({ Order, setOrder }) {
                     localStorage.removeItem("adminToken")
                     navigate.push('/admin/login')
                 } else {
-                    alert('Done')
+                    toast.success('Done')
                 }
             }).catch(() => {
-                alert('Sorry for facing error')
+                toast.error('Sorry for facing error')
             })
         })
     }

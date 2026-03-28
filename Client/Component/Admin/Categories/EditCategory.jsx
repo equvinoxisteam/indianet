@@ -3,6 +3,7 @@ import { useRef } from 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import { adminAxios, ServerId } from '../../../Config/Server'
+import toast from 'react-hot-toast';
 
 function EditCategory({ editModal, setEditModal, setCategories, editCategory, logOut }) {
     const [thumbPrev, setThumbPrev] = useState(ServerId + '/category/' + editCategory.uni_id1 + editCategory.uni_id2 + '/' + editCategory.file.originalname)
@@ -56,7 +57,7 @@ function EditCategory({ editModal, setEditModal, setCategories, editCategory, lo
                             console.log('err')
                         })
 
-                        alert("Edited")
+                        toast.success("Edited")
 
                         setEditModal({
                             ...editModal,
@@ -66,7 +67,7 @@ function EditCategory({ editModal, setEditModal, setCategories, editCategory, lo
                     })
                 }
             }).catch((err) => {
-                alert('Facing An Error')
+                toast.error('Facing An Error')
             })
         })
 

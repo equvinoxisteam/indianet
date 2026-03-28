@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useEffect } from 'react'
 import { useRef } from 'react'
 import { adminAxios } from '../../../Config/Server'
+import toast from 'react-hot-toast';
 
 function Modal({ setMainModal, MainModal, getCupons, logOut }) {
     let modalRef = useRef()
@@ -43,7 +44,7 @@ function Modal({ setMainModal, MainModal, getCupons, logOut }) {
                     if (res.data.login) {
                         logOut()
                     } else {
-                        alert("Added")
+                        toast.success("Added")
                         setMainModal({
                             ...MainModal,
                             active: false,
@@ -52,7 +53,7 @@ function Modal({ setMainModal, MainModal, getCupons, logOut }) {
                         getCupons()
                     }
                 }).catch(() => {
-                    alert("Error")
+                    toast.error("Error")
                 })
             })
         }

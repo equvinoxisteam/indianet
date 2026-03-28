@@ -62,7 +62,7 @@ function Footer() {
                 </div>
 
                 <div className={style.CopyRightArea}>
-                    <p className='pt-4 text-center text-small font-normal UserGrayMain'>&#169; {year} All Rights Reserved.</p>
+                    <p className='pt-4 text-center text-small font-normal UserGrayMain'>&#169; {year} Indianet. All Rights Reserved.</p>
                 </div>
             </div>
             <Script

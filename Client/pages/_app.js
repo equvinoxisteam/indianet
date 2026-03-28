@@ -1,9 +1,10 @@
-import Loading from '@/Component/Loading/Loading';
 import Server, { adminCheck, userCheck, vendorCheck } from '@/Config/Server';
 import ContentControl from '@/ContentControl/ContentControl';
 import '@/styles/global.scss'
-import { Router, useRouter } from 'next/router';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 
 export default function App({ Component, pageProps }) {
 
@@ -55,6 +56,15 @@ export default function App({ Component, pageProps }) {
   //Account Manage
 
   useEffect(() => {
+    // Unregister any active service workers left over from PWA build tests
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+
     if (check[1] === 'vendor') {
       // Vendor
 
@@ -63,7 +73,7 @@ export default function App({ Component, pageProps }) {
         setVendorLogged(data)
         if (data.status) {
           if (check[2] === 'login' || check[2] === 'register') {
-            document.body.style.background = 'transparent'
+            document.body.style.background = '#f0f5fa'
             router.push('/vendor/dashboard')
           }
         }
@@ -76,7 +86,7 @@ export default function App({ Component, pageProps }) {
         setAdminLogged(data)
         if (data.status) {
           if (check[2] === 'login') {
-            document.body.style.background = 'transparent'
+            document.body.style.background = '#f0f5fa'
             router.push('/admin/dashboard')
           }
         }
@@ -111,25 +121,11 @@ export default function App({ Component, pageProps }) {
     }
   }, [router.asPath])
 
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    Router.events.on('routeChangeStart', () => {
-      setLoading(true)
-    })
-
-    Router.events.on('routeChangeComplete', () => {
-      setLoading(false)
-    })
-  })
-
-  if (loading) {
-    return (
-      <Loading />
-    )
-  }
-
   return (
+    <>
+    <Head>
+      <meta name="apple-mobile-web-app-title" content="Indianet" />
+    </Head>
     <ContentControl.Provider value={
       {
         QuickVw, setQuickVw,
@@ -141,8 +137,10 @@ export default function App({ Component, pageProps }) {
         setAdminLogged, adminLogged
       }
     }>
+      <Toaster position="top-center" reverseOrder={false} />
       <Component {...pageProps} />
     </ContentControl.Provider>
+    </>
   )
 
 }

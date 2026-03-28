@@ -1,7 +1,6 @@
-# Multi Vendor Ecommerce
-Multi Vendor ecommerce website for online shopping, it's
-allows multi vendor features to allow sellers to sell on this
-website.
+# Indianet
+
+Indianet is a multi-vendor ecommerce platform for online shopping. Sellers can register as vendors, and administrators manage the marketplace from a dedicated admin panel.
 
 ## Main Features
 
@@ -31,21 +30,21 @@ Make sure you have installed all of the following prerequisites on your developm
 
 ## Technology Used
 
-#nextjs #reactjs #scss 
+#nextjs #reactjs #scss
 
-#nodejs #expressjs #mongodb #jsonwebtoken authentication 
+#nodejs #expressjs #mongodb #jsonwebtoken authentication
 
 #javascript
 
 ## Environment Variables
 
-To run this project, you will need to add the following environment variables to your .env file in server directory
+To run this project, add environment variables to a `.env` file in the `SERVER` directory (see `SERVER/.env.example`). Typical values:
 
 `PORT` = `5000`
 
-`DB_URL`
+`DB_URL` (e.g. `mongodb://127.0.0.1:27017`)
 
-`DB_NAME`
+`DB_NAME` (e.g. `indianet`)
 
 `JWT_SECRET`
 
@@ -59,61 +58,34 @@ To run this project, you will need to add the following environment variables to
 
 `MAIL_PASS`
 
-`MAIL_FROM‎` = `Ecommerce <email@gmail.com>`
+`MAIL_FROM` = `Indianet <email@gmail.com>`
 
-`ADMIN_MAIL`
+`ADMIN_MAIL` (notification recipient)
+
+`ADMIN_EMAIL` and `ADMIN_PASSWORD` — used on server start to upsert the MongoDB `admin` user for `/admin/login` (change `ADMIN_PASSWORD` in production).
 
 `RAZORPAY_ID`
 
 `RAZORPAY_SECREt`
 
+The **Client** uses `.env.local` with `ServerId` and `ServerUrl` pointing at your API (for example `http://localhost:5000` and `http://localhost:5000/api`).
+
 ## Run Locally
 
-Clone the project
+### Start backend
 
 ```bash
-  git clone https://github.com/ansonbenny/MultiVendor-Ecommerce.git
+cd MultiVendor-Ecommerce/SERVER
+npm install
+npm start
 ```
 
-##To Start BackEnd
-
-Go to the server directory
+### Start frontend
 
 ```bash
-  cd MultiVendor-Ecommerce/SERVER
+cd MultiVendor-Ecommerce/Client
+npm install
+npm run dev
 ```
 
-Install dependencies
-
-```bash
-  npm install
-```
-
-Start
-
-```bash
-  npm start
-```
-
-##To Start FrontEnd
-
-Go to the client directory
-
-```bash
-  cd MultiVendor-Ecommerce/Client
-```
-
-Install dependencies
-
-```bash
-  npm install
-```
-
-Start
-
-```bash
-  npm run dev
-```
-
-## 🔗 Links
-[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/anson-benny-502961238/)
+Open the app at the URL shown (usually `http://localhost:3000`). Store, vendor, and admin UIs are routes in the same Next.js app (`/`, `/vendor/...`, `/admin/...`).

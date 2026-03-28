@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken'
 import slugify from 'slug-generator'
 import layout from "../Helpers/layout.js";
 import admin from "../Helpers/admin.js";
+import rfqHelper from "../Helpers/rfq.js";
 import tokenShipRocket from '../ShipRocket/token.js'
 import trackProduct, { orderStatusControl } from "../ShipRocket/trackProduct.js";
 import addPickupAddress from "../ShipRocket/addPickupAddress.js";
@@ -126,6 +127,9 @@ router.post('/addProduct', CheckAdmin, uploader.products.array("images", 20), (r
     req.body.price = parseInt(req.body.price)
     req.body.discount = parseInt(discountPerc);
     req.body.vendor = false
+    req.body.allowCod = req.body.allowCod === 'true' || req.body.allowCod === true
+    req.body.allowOnline = req.body.allowOnline === 'true' || req.body.allowOnline === true
+    req.body.allowRfq = req.body.allowRfq === 'true' || req.body.allowRfq === true
 
     admin.addProduct(req.body).then((done) => {
         res.status(200).json(done)
@@ -159,6 +163,9 @@ router.put('/editProduct/:id', CheckAdmin, uploader.products.array("images", 20)
         data.mrp = parseInt(data.mrp)
         data.price = parseInt(data.price)
         data.discount = parseInt(discountPerc);
+        data.allowCod = data.allowCod === 'true' || data.allowCod === true
+        data.allowOnline = data.allowOnline === 'true' || data.allowOnline === true
+        data.allowRfq = data.allowRfq === 'true' || data.allowRfq === true
 
         var serverImg = JSON.parse(data.serverImg)
         data.serverImg = serverImg
@@ -581,45 +588,27 @@ router.post('/addTwoRowSection', CheckAdmin, (req, res) => {
 })
 
 router.get('/getLayouts', CheckAdmin, async (req, res) => {
-    let sectionone = await layout.getSectionsCategory('sectionone').catch((err) => {
-        res.status(500).json('err')
-    })
+    try {
+        const sectionone = await layout.getSectionsCategory('sectionone')
+        const sectionfour = await layout.getSectionsRowOne('sectionfour')
+        const sectiontwo = await layout.getSectionsRowTwo('sectiontwo')
+        const sectionthree = await layout.getSectionsRowTwo('sectionthree')
+        const sliderOne = await layout.getSliderOrBanner('sliderOne')
+        const sliderTwo = await layout.getSliderOrBanner('sliderTwo')
+        const banner = await layout.getSliderOrBanner('banner')
 
-    let sectionfour = await layout.getSectionsRowOne('sectionfour').catch((err) => {
+        res.status(200).json({
+            sectionone,
+            sectionfour,
+            sectiontwo,
+            sectionthree,
+            sliderOne,
+            sliderTwo,
+            banner
+        })
+    } catch (err) {
         res.status(500).json('err')
-    })
-
-    let sectiontwo = await layout.getSectionsRowTwo('sectiontwo').catch((err) => {
-        res.status(500).json('err')
-    })
-
-    let sectionthree = await layout.getSectionsRowTwo('sectionthree').catch((err) => {
-        res.status(500).json('err')
-    })
-
-    let sliderOne = await layout.getSliderOrBanner('sliderOne').catch((err) => {
-        res.status(500).json('err')
-    })
-
-    let sliderTwo = await layout.getSliderOrBanner('sliderTwo').catch((err) => {
-        res.status(500).json('err')
-    })
-
-    let banner = await layout.getSliderOrBanner('banner').catch((err) => {
-        res.status(500).json('err')
-    })
-
-    let response = {
-        sectionone: sectionone,
-        sectionfour: sectionfour,
-        sectiontwo: sectiontwo,
-        sectionthree: sectionthree,
-        sliderOne: sliderOne,
-        sliderTwo: sliderTwo,
-        banner: banner
     }
-
-    res.status(200).json(response)
 })
 
 router.put('/removeItemRowOne', CheckAdmin, (req, res) => {
@@ -744,9 +733,17 @@ router.get('/getAllOrders', CheckAdmin, async (req, res) => {
 })
 
 router.get('/getOrderSpecific', CheckAdmin, async (req, res) => {
-    let token = await tokenShipRocket().catch(() => {
-        res.status(500).json('err')
-    })
+    let token = null;
+    const shiprocketConfigured = Boolean(
+        process.env.SHIPROCKET_EMAIL && process.env.SHIPROCKET_PASS
+    )
+
+    if (shiprocketConfigured) {
+        token = await tokenShipRocket().catch(() => null);
+        if (!token) {
+            return res.status(500).json('err')
+        }
+    }
 
     let order_current = await admin.getOrderSpecific(req.query).catch(() => {
         res.status(500).json('err')
@@ -754,7 +751,7 @@ router.get('/getOrderSpecific', CheckAdmin, async (req, res) => {
 
     let track
 
-    if (order_current) {
+    if (order_current && token) {
         track = await trackProduct(order_current.shipment_id, token).catch(() => {
             console.log('error track')
         })
@@ -806,16 +803,22 @@ router.get('/getVendors', CheckAdmin, async (req, res) => {
 })
 
 router.put('/acceptVendor', CheckAdmin, async (req, res) => {
-    let token = await tokenShipRocket().catch(() => {
-        res.status(500).json('err')
-    })
+    const email = req.body.email
+    const shiprocketConfigured = Boolean(
+        process.env.SHIPROCKET_EMAIL && process.env.SHIPROCKET_PASS
+    )
 
-    addPickupAddress(req.body.address, token).then(() => {
-        admin.acceptVendor(req.body.email).then(() => {
-            res.status(200).json('done')
-        }).catch(() => {
-            res.status(500).json('err')
-        })
+    if (shiprocketConfigured && req.body.address) {
+        try {
+            const token = await tokenShipRocket()
+            await addPickupAddress(req.body.address, token)
+        } catch (e) {
+            console.error('ShipRocket pickup (acceptVendor):', e?.message || e)
+        }
+    }
+
+    admin.acceptVendor(email).then(() => {
+        res.status(200).json('done')
     }).catch(() => {
         res.status(500).json('err')
     })
@@ -882,6 +885,53 @@ router.get('/getOneVendorProducts', CheckAdmin, async (req, res) => {
             status: 404
         })
     }
+})
+
+// RFQ Management
+
+router.get('/getRfqs', CheckAdmin, async (req, res) => {
+    let total = await rfqHelper.getTotalRfqs(req.query).catch(() => {
+        res.status(500).json('err')
+    })
+
+    let rfqs = await rfqHelper.getAllRfqs(req.query, 10).catch(() => {
+        res.status(500).json('err')
+    })
+
+    if (Array.isArray(rfqs)) {
+        res.status(200).json({
+            total: total,
+            rfqs: rfqs
+        })
+    }
+})
+
+router.get('/getRfqDetails', CheckAdmin, (req, res) => {
+    if (req.query.rfqId && req.query.rfqId.length === 24) {
+        rfqHelper.getOneRfq(req.query.rfqId).then((rfq) => {
+            res.status(200).json(rfq)
+        }).catch(() => {
+            res.status(500).json('err')
+        })
+    } else {
+        res.status(500).json('err')
+    }
+})
+
+router.put('/updateRfq', CheckAdmin, (req, res) => {
+    rfqHelper.updateRfqStatus(req.body).then(() => {
+        res.status(200).json('done')
+    }).catch(() => {
+        res.status(500).json('err')
+    })
+})
+
+router.delete('/deleteRfq', CheckAdmin, (req, res) => {
+    rfqHelper.deleteRfq(req.body.rfqId).then(() => {
+        res.status(200).json('done')
+    }).catch(() => {
+        res.status(500).json('err')
+    })
 })
 
 export default router;

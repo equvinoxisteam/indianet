@@ -296,7 +296,10 @@ export default {
                     pickup_location: data.pickup_location,
                     variant: data.variant,
                     variantDetails: data.variantDetails,
-                    currVariantSize: data.currVariantSize
+                    currVariantSize: data.currVariantSize,
+                    allowCod: data.allowCod,
+                    allowOnline: data.allowOnline,
+                    allowRfq: data.allowRfq
                 }
             }).then((done) => {
                 resolve()

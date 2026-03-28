@@ -5,6 +5,8 @@ import { adminAxios } from '../../../Config/Server'
 import Loading from '@/Component/Loading/Loading'
 import { useRouter } from 'next/router'
 import ContentControl from '@/ContentControl/ContentControl'
+import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 function Cupons({ loaded, setLoaded }) {
   const { setAdminLogged } = useContext(ContentControl)
@@ -92,7 +94,15 @@ function Cupons({ loaded, setLoaded }) {
                             <td>{obj.min}</td>
                             <td>{obj.discount} %</td>
                             <td><button className='ActionBtn' onClick={() => {
-                              if (window.confirm(`Do you want delete cupon ${obj.code}`)) {
+                              Swal.fire({
+  title: `Do you want delete cupon ${obj.code}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                 adminAxios((server) => {
                                   server.delete('/admin/deleteCupon', {
                                     data: {
@@ -102,14 +112,16 @@ function Cupons({ loaded, setLoaded }) {
                                     if (res.data.login) {
                                       logOut()
                                     } else {
-                                      alert("Deleted")
+                                      toast.success("Deleted")
                                       getCupons()
                                     }
                                   }).catch(() => {
-                                    alert("Error")
+                                    toast.error("Error")
                                   })
                                 })
-                              }
+                              
+  }
+})
                             }}>Delete</button></td>
                           </tr>
                         )

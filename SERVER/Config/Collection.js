@@ -11,5 +11,6 @@ export default {
     REVIEWS: 'reviews',
     VENDORS: 'vendors',
     ADDRESS: 'address',
-    ADMIN: 'admin'
+    ADMIN: 'admin',
+    RFQ: 'rfq'
 }

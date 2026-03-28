@@ -1,24 +1,25 @@
 import React from 'react'
 import { useState } from 'react'
 import Server from '../../../Config/Server'
+import toast from 'react-hot-toast';
 
 function CheckPinModal() {
     const [pin, setPin] = useState('')
     function formHandle(e) {
         e.preventDefault()
         if (pin.length !== 6) {
-            alert("Pin Code Must Six Digit")
+            toast.error("Pin Code Must Six Digit")
         } else {
             Server.post('/users/checkPincode',{
                 pin : pin
             }).then((data)=>{
                 if(data.data){
-                    alert('Delivery Available On Your Selected Pin Code')
+                    toast.error('Delivery Available On Your Selected Pin Code')
                 }else{
-                    alert('Delivery Not Available On Your Selected Pin Code')
+                    toast.error('Delivery Not Available On Your Selected Pin Code')
                 }
             }).catch(()=>{
-                alert("Facing an error")
+                toast.error("Facing an error")
             })
         }
     }

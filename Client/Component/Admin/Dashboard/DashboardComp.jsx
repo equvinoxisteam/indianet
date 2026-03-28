@@ -2,6 +2,7 @@ import { adminAxios } from '@/Config/Server'
 import ContentControl from '@/ContentControl/ContentControl'
 import { useRouter } from 'next/router'
 import React, { useContext, useEffect, useState } from 'react'
+import toast from 'react-hot-toast';
 
 function DashboardComp() {
     const { setAdminLogged } = useContext(ContentControl)
@@ -28,7 +29,7 @@ function DashboardComp() {
                     setResponse(res.data)
                 }
             }).catch((err) => {
-                alert("error")
+                toast.error("error")
             })
         })
     }, [])

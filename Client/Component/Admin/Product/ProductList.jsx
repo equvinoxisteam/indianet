@@ -5,6 +5,8 @@ import { Fragment, useContext } from 'react'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import Server, { adminAxios, ServerId } from '../../../Config/Server'
+import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 function ProductList({ loaded, setLoaded }) {
 
@@ -149,7 +151,15 @@ function ProductList({ loaded, setLoaded }) {
                                                                 navigate.push('/admin/products/edit/' + obj._id)
                                                             }}><i className="fa-solid fa-pen-to-square"></i></button>
                                                             <button className='Delete' onClick={() => {
-                                                                if (window.confirm(`Do You Want Delete ${obj.name}`)) {
+                                                                Swal.fire({
+  title: `Do You Want Delete ${obj.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                                                     adminAxios((server) => {
                                                                         server.delete(`/admin/deleteProduct/${obj._id}`, {
                                                                             data: {
@@ -159,14 +169,16 @@ function ProductList({ loaded, setLoaded }) {
                                                                             if (res.data.login) {
                                                                                 logOut()
                                                                             } else {
-                                                                                alert("Product Deleted")
+                                                                                toast.success("Product Deleted")
                                                                                 setUpdate(!update)
                                                                             }
                                                                         }).catch((err) => {
-                                                                            alert("Sorry Server Has Some Problem")
+                                                                            toast.error("Sorry Server Has Some Problem")
                                                                         })
                                                                     })
-                                                                }
+                                                                
+  }
+})
                                                             }}><i className="fa-solid fa-trash"></i></button>
                                                         </div>
                                                     </div>

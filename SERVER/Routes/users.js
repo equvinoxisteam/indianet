@@ -1,6 +1,7 @@
 import express, { response } from "express";
 import product from "../Helpers/product.js";
 import user from "../Helpers/user.js";
+import rfqHelper from "../Helpers/rfq.js";
 import jwt from 'jsonwebtoken'
 import nodeMailer from "../Helpers/nodeMailer.js";
 import getOTP from "../Helpers/getOTP.js";
@@ -320,45 +321,27 @@ router.get('/getAllCategories', (req, res) => {
 })
 
 router.get('/getLayouts', async (req, res) => {
-    let sectionone = await layout.getSectionsCategory('sectionone').catch((err) => {
-        res.status(500).json('err')
-    })
+    try {
+        const sectionone = await layout.getSectionsCategory('sectionone')
+        const sectionfour = await layout.getSectionsRowOne('sectionfour')
+        const sectiontwo = await layout.getSectionsRowTwo('sectiontwo')
+        const sectionthree = await layout.getSectionsRowTwo('sectionthree')
+        const sliderOne = await layout.getSliderOrBanner('sliderOne')
+        const sliderTwo = await layout.getSliderOrBanner('sliderTwo')
+        const banner = await layout.getSliderOrBanner('banner')
 
-    let sectionfour = await layout.getSectionsRowOne('sectionfour').catch((err) => {
+        res.status(200).json({
+            sectionone,
+            sectionfour,
+            sectiontwo,
+            sectionthree,
+            sliderOne,
+            sliderTwo,
+            banner
+        })
+    } catch (err) {
         res.status(500).json('err')
-    })
-
-    let sectiontwo = await layout.getSectionsRowTwo('sectiontwo').catch((err) => {
-        res.status(500).json('err')
-    })
-
-    let sectionthree = await layout.getSectionsRowTwo('sectionthree').catch((err) => {
-        res.status(500).json('err')
-    })
-
-    let sliderOne = await layout.getSliderOrBanner('sliderOne').catch((err) => {
-        res.status(500).json('err')
-    })
-
-    let sliderTwo = await layout.getSliderOrBanner('sliderTwo').catch((err) => {
-        res.status(500).json('err')
-    })
-
-    let banner = await layout.getSliderOrBanner('banner').catch((err) => {
-        res.status(500).json('err')
-    })
-
-    let response = {
-        sectionone: sectionone,
-        sectionfour: sectionfour,
-        sectiontwo: sectiontwo,
-        sectionthree: sectionthree,
-        sliderOne: sliderOne,
-        sliderTwo: sliderTwo,
-        banner: banner
     }
-
-    res.status(200).json(response)
 })
 
 // Account 
@@ -374,7 +357,7 @@ router.post('/sentOtpSignUp', (req, res) => {
                     let mailDetails = {
                         from: process.env.MAIL_FROM,
                         to: req.body.email,
-                        subject: 'Test mail',
+                        subject: 'Indianet - Email verification',
                         text: `your verification code is ${data.otp}`
                     }
 
@@ -391,7 +374,7 @@ router.post('/sentOtpSignUp', (req, res) => {
                                 let mailDetails = {
                                     from: process.env.MAIL_FROM,
                                     to: req.body.email,
-                                    subject: 'Test mail',
+                                    subject: 'Indianet - Email verification',
                                     text: `your verification code is ${otp}`
                                 }
 
@@ -423,7 +406,7 @@ router.post('/resentOtpSignUp', (req, res) => {
             let mailDetails = {
                 from: process.env.MAIL_FROM,
                 to: req.body.email,
-                subject: 'Test mail',
+                subject: 'Indianet - Email verification',
                 text: `your verification code is ${data.otp}`
             }
 
@@ -440,7 +423,7 @@ router.post('/resentOtpSignUp', (req, res) => {
                         let mailDetails = {
                             from: process.env.MAIL_FROM,
                             to: req.body.email,
-                            subject: 'Test mail',
+                            subject: 'Indianet - Email verification',
                             text: `your verification code is ${otp}`
                         }
 
@@ -533,7 +516,7 @@ router.post('/sentOtpForgot', (req, res) => {
                     let mailDetails = {
                         from: process.env.MAIL_FROM,
                         to: req.body.email,
-                        subject: 'Test mail',
+                        subject: 'Indianet - Email verification',
                         text: `your verification code is ${data.otp} for forgot password`
                     }
 
@@ -550,7 +533,7 @@ router.post('/sentOtpForgot', (req, res) => {
                                 let mailDetails = {
                                     from: process.env.MAIL_FROM,
                                     to: req.body.email,
-                                    subject: 'Test mail',
+                                    subject: 'Indianet - Email verification',
                                     text: `your verification code is ${otp} for forgot password`
                                 }
 
@@ -588,7 +571,7 @@ router.post('/resentOtpForgot', (req, res) => {
                     let mailDetails = {
                         from: process.env.MAIL_FROM,
                         to: req.body.email,
-                        subject: 'Test mail',
+                        subject: 'Indianet - Email verification',
                         text: `your verification code is ${data.otp} for forgot password`
                     }
 
@@ -605,7 +588,7 @@ router.post('/resentOtpForgot', (req, res) => {
                                 let mailDetails = {
                                     from: process.env.MAIL_FROM,
                                     to: req.body.email,
-                                    subject: 'Test mail',
+                                    subject: 'Indianet - Email verification',
                                     text: `your verification code is ${otp} for forgot password`
                                 }
 
@@ -705,9 +688,9 @@ router.put('/changePassword', CheckUser, (req, res) => {
 })
 
 router.get('/getAllAddress', CheckUser, (req, res) => {
-    user.getAllAddress(req.body.userId).then((address) => [
+    user.getAllAddress(req.body.userId).then((address) => {
         res.status(200).json(address)
-    ]).catch(() => {
+    }).catch(() => {
         res.status(500).json("err")
     })
 })
@@ -856,9 +839,19 @@ router.get('/findCupon', (req, res) => {
 })
 
 router.post('/checkPincode', async (req, res) => {
+    const shiprocketConfigured = Boolean(
+        process.env.SHIPROCKET_EMAIL && process.env.SHIPROCKET_PASS
+    )
+    
+    if (!shiprocketConfigured) {
+        // If shiprocket is not configured, we assume all pincodes are serviceable
+        return res.status(200).json(true)
+    }
+
     let token = await tokenShipRocket().catch(() => {
         res.status(500).json('err')
     })
+    if (!token) return;
 
     const parameterGenerator = new URLSearchParams({
         pickup_postcode: 110001,
@@ -876,7 +869,24 @@ router.post('/checkPincode', async (req, res) => {
     })
 })
 
-router.post('/createRazorpayPayment', CheckUser, (req, res) => {
+router.post('/createRazorpayPayment', CheckUser, async (req, res) => {
+    let { userId, totalAmount, order } = req.body;
+
+    if (order && order.type === 'cart') {
+        let cartData = await user.getCartItems(userId).catch(() => null);
+        if (cartData && cartData.result) {
+            let hasOnlineDisabled = cartData.result.some(x => x.item && (x.item.allowOnline === false || x.item.allowOnline === 'false'));
+            if (hasOnlineDisabled) {
+                return res.status(400).json('online_not_allowed');
+            }
+        }
+    } else if (order && order.type === 'buy') {
+        let productData = await product.getOneProduct(order.proId).catch(() => null);
+        if (productData && (productData.allowOnline === false || productData.allowOnline === 'false')) {
+            return res.status(400).json('online_not_allowed');
+        }
+    }
+
     generateRazorpay(Math.trunc(req.body.totalAmount * 100), (razOrderId) => {
         if (razOrderId) {
             res.status(200).json({
@@ -891,9 +901,17 @@ router.post('/createRazorpayPayment', CheckUser, (req, res) => {
 })
 
 router.post('/order-item-razorpay', async (req, res) => {
-    let token = await tokenShipRocket().catch(() => {
-        res.status(500).json('err')
-    })
+    const shiprocketConfigured = Boolean(
+        process.env.SHIPROCKET_EMAIL && process.env.SHIPROCKET_PASS
+    )
+
+    let token = null;
+    if (shiprocketConfigured) {
+        token = await tokenShipRocket().catch(() => null);
+        if (!token) {
+            return res.status(500).json('err')
+        }
+    }
 
     let OrderId = `${Date.now() + Math.random()}`
 
@@ -938,9 +956,12 @@ router.post('/order-item-razorpay', async (req, res) => {
                     res.status(500).json('err')
                 })
 
-                orderItems.order = await ShipRocketOrder('Prepaid', orderItems.order, token).catch(() => {
-                    res.status(500).json('err')
-                })
+                if (token) {
+                    orderItems.order = await ShipRocketOrder('Prepaid', orderItems.order, token).catch(() => {
+                        console.log('ShipRocketOrder err');
+                        return orderItems.order;
+                    });
+                }
 
                 user.createOrder(orderItems).then(() => {
                     user.emtyCart(razorpayRes.userId).then(() => {
@@ -960,9 +981,12 @@ router.post('/order-item-razorpay', async (req, res) => {
                     res.status(500).json('err')
                 })
 
-                orderItems.order = await ShipRocketOrder('Prepaid', orderItems.order, token).catch(() => {
-                    res.status(500).json('err')
-                })
+                if (token) {
+                    orderItems.order = await ShipRocketOrder('Prepaid', orderItems.order, token).catch(() => {
+                        console.log('ShipRocketOrder err');
+                        return orderItems.order;
+                    });
+                }
 
                 user.createOrder(orderItems).then(() => {
                     res.status(200).json('done')
@@ -978,9 +1002,17 @@ router.post('/order-item-razorpay', async (req, res) => {
 })
 
 router.post('/order-item-cod', async (req, res) => {
-    let token = await tokenShipRocket().catch(() => {
-        res.status(500).json('err')
-    })
+    const shiprocketConfigured = Boolean(
+        process.env.SHIPROCKET_EMAIL && process.env.SHIPROCKET_PASS
+    )
+
+    let token = null;
+    if (shiprocketConfigured) {
+        token = await tokenShipRocket().catch(() => null);
+        if (!token) {
+            return res.status(500).json('err')
+        }
+    }
 
     let OrderId = `${Date.now() + Math.random()}`
 
@@ -1006,6 +1038,14 @@ router.post('/order-item-cod', async (req, res) => {
 
     if (order['order'].type === 'cart') {
 
+        let cartData = await user.getCartItems(userId).catch(() => null);
+        if (cartData && cartData.result) {
+            let hasCodDisabled = cartData.result.some(x => x.item && (x.item.allowCod === false || x.item.allowCod === 'false'));
+            if (hasCodDisabled) {
+                return res.status(400).json('cod_not_allowed');
+            }
+        }
+
         let orderItems = await user.getCartProduct4Order({
             userId: userId,
             payment_id: OrderId
@@ -1013,9 +1053,12 @@ router.post('/order-item-cod', async (req, res) => {
             res.status(500).json('err')
         })
 
-        orderItems.order = await ShipRocketOrder('Postpaid', orderItems.order, token).catch(() => {
-            res.status(500).json('err')
-        })
+                if (token) {
+                    orderItems.order = await ShipRocketOrder('Postpaid', orderItems.order, token).catch(() => {
+                        console.log('ShipRocketOrder err');
+                        return orderItems.order;
+                    });
+                }
 
         user.createOrder(orderItems).then(() => {
             user.emtyCart(userId).then(() => {
@@ -1028,6 +1071,11 @@ router.post('/order-item-cod', async (req, res) => {
             res.status(500).json('err')
         })
     } else {
+        let productData = await product.getOneProduct(order['order'].proId).catch(() => null);
+        if (productData && (productData.allowCod === false || productData.allowCod === 'false')) {
+            return res.status(400).json('cod_not_allowed');
+        }
+
         let orderItems = await user.getBuyProduct4Order({
             userId: userId,
             payment_id: OrderId
@@ -1035,9 +1083,12 @@ router.post('/order-item-cod', async (req, res) => {
             res.status(500).json('err')
         })
 
-        orderItems.order = await ShipRocketOrder('Postpaid', orderItems.order, token).catch(() => {
-            res.status(500).json('err')
-        })
+                if (token) {
+                    orderItems.order = await ShipRocketOrder('Postpaid', orderItems.order, token).catch(() => {
+                        console.log('ShipRocketOrder err');
+                        return orderItems.order;
+                    });
+                }
 
         user.createOrder(orderItems).then(() => {
             res.status(200).json('done')
@@ -1064,9 +1115,17 @@ router.get('/getOrders', CheckUser, async (req, res) => {
 })
 
 router.get('/getSpecificOrder', CheckUser, async (req, res) => {
-    let token = await tokenShipRocket().catch(() => {
-        res.status(500).json('err')
-    })
+    let token = null;
+    const shiprocketConfigured = Boolean(
+        process.env.SHIPROCKET_EMAIL && process.env.SHIPROCKET_PASS
+    )
+
+    if (shiprocketConfigured) {
+        token = await tokenShipRocket().catch(() => null);
+        if (!token) {
+            return res.status(500).json('err')
+        }
+    }
 
     let order_current = await user.getSpecificOrder(req.query).catch(() => {
         res.status(500).json('err')
@@ -1076,7 +1135,7 @@ router.get('/getSpecificOrder', CheckUser, async (req, res) => {
 
     let track
 
-    if (order_current) {
+    if (order_current && token) {
         invoice = await getInvoice(order_current.order_id_shiprocket, token).catch(() => {
             console.log('error invoice')
         })
@@ -1139,7 +1198,7 @@ router.put('/cancelOrder', CheckUser, (req, res) => {
         nodeMailer.sendMail({
             from: process.env.MAIL_FROM,
             to: process.env.ADMIN_MAIL,
-            subject: 'PRODUCT CANCELLED',
+            subject: 'Indianet - Product cancelled',
             text: `PRODUCT CANCELLED SECRET ORDER ID ${req.body.secretOrderId}`
         }).catch(() => {
             console.log('MAIL FAIL')
@@ -1168,12 +1227,53 @@ router.post('/returnOrder', CheckUser, (req, res) => {
         nodeMailer.sendMail({
             from: process.env.MAIL_FROM,
             to: process.env.ADMIN_MAIL,
-            subject: 'PRODUCT RETURN',
+            subject: 'Indianet - Product return',
             text: `${req.body.name} PRODUCT RETURN REQUESTED SECRET ORDER ID ${req.body.secretOrderId}`
         }).catch(() => {
             console.log('MAIL FAIL')
         })
         res.status(200).json('done')
+    }).catch(() => {
+        res.status(500).json('err')
+    })
+})
+
+// RFQ
+
+router.post('/submitRfq', CheckUser, (req, res) => {
+    let details = {
+        userId: req.body.userId,
+        userName: req.body.userName,
+        userEmail: req.body.userEmail,
+        userNumber: req.body.userNumber,
+        productId: req.body.productId,
+        productName: req.body.productName,
+        productSlug: req.body.productSlug,
+        productImage: req.body.productImage,
+        vendorId: req.body.vendorId || null,
+        quantity: parseInt(req.body.quantity) || 1,
+        message: req.body.message || ''
+    }
+
+    rfqHelper.createRfq(details).then((done) => {
+        // Email admin about new RFQ
+        nodeMailer.sendMail({
+            from: process.env.MAIL_FROM,
+            to: process.env.ADMIN_MAIL,
+            subject: 'Indianet - New RFQ Request',
+            text: `New RFQ from ${details.userName} (${details.userEmail}, Phone: ${details.userNumber}) for product: ${details.productName}, Qty: ${details.quantity}. Message: ${details.message || 'N/A'}`
+        }).catch(() => {
+            console.log('RFQ MAIL FAIL')
+        })
+        res.status(200).json('done')
+    }).catch(() => {
+        res.status(500).json('err')
+    })
+})
+
+router.get('/getMyRfqs', CheckUser, (req, res) => {
+    rfqHelper.getUserRfqs(req.query.userId).then((rfqs) => {
+        res.status(200).json(rfqs)
     }).catch(() => {
         res.status(500).json('err')
     })

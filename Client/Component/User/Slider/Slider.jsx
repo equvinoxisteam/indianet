@@ -6,7 +6,8 @@ import style from './Slider.module.scss'
 
 function Slider({ layout }) {
 
-    const { sliderOne } = layout
+    const sliderOne = layout?.sliderOne || { items: [], for: 'product' }
+    const items = Array.isArray(sliderOne.items) ? sliderOne.items : []
 
     return (
         <div className={style.UserSlider}>
@@ -22,7 +23,7 @@ function Slider({ layout }) {
                 >
 
                     {
-                        sliderOne['items'].map((obj, key) => {
+                        items.map((obj, key) => {
                             return (
                                 <SwiperSlide key={key}>
                                     <div>

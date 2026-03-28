@@ -11,8 +11,8 @@ export default function ProductAdd() {
     return (
         <Fragment>
             <Head>
-                <title>Aquariun - Admin Add Product</title>
-                <meta name="description" content="Aquariun Admin" />
+                <title>Indianet - Admin Add Product</title>
+                <meta name="description" content="Indianet Admin" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main className='Admin'>

@@ -256,9 +256,9 @@ export default {
                 details.items2 = items2
 
                 resolve(details)
-            }).catch((err) => [
+            }).catch((err) => {
                 reject(err)
-            ])
+            })
         })
     },
     removeRowOneSection: (details) => {

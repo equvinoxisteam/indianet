@@ -1,5 +1,6 @@
 import React from 'react'
 import Xicon from '@/Assets/Xicon'
+import toast from 'react-hot-toast';
 
 function Modal({ setOrderDetails, savedAddress }) {
     return (
@@ -43,7 +44,7 @@ function Modal({ setOrderDetails, savedAddress }) {
                                                                     state: obj.state
                                                                 }))
 
-                                                                alert("Selected")
+                                                                toast.error("Selected")
                                                             }} >Select</button>
                                                     </div>
                                                 </div>

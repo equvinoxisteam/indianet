@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Fragment, useContext, useEffect, useState } from 'react'
+import toast from 'react-hot-toast';
 const Header = dynamic(() => import('@/Component/Vendor/Header/Header'))
 const EditProductComp = dynamic(() => import('@/Component/Vendor/Product/EditProduct'), {
     ssr: false
@@ -58,7 +59,7 @@ export default function EditProduct() {
                         }
                     }).catch((err) => {
                         setLoaded(true)
-                        alert("Sorry you selected product not available")
+                        toast.error("Sorry you selected product not available")
                         router.push('/vendor/products')
                     })
                 })
@@ -77,8 +78,8 @@ export default function EditProduct() {
     return (
         <Fragment>
             <Head>
-                <title>Aquariun - Vendor Edit Product</title>
-                <meta name="description" content="Aquariun Vendor" />
+                <title>Indianet - Vendor Edit Product</title>
+                <meta name="description" content="Indianet Vendor" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main className='Vendor'>

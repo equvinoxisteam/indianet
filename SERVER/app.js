@@ -5,7 +5,8 @@ import vendor from './Routes/vendor.js'
 import cors from 'cors'
 import db from "./Config/Connection.js";
 import bodyParser from 'body-parser'
-import * as dotenv from 'dotenv' 
+import * as dotenv from 'dotenv'
+import { seedDefaultAdmin } from './Helpers/seedAdmin.js'
 dotenv.config()
 
 var app = express()
@@ -14,7 +15,10 @@ var port = process.env.PORT || 5000
 
 db.connect((err) => {
     if (err) console.log("Connection Error : ", err)
-    else console.log('Database Connected')
+    else {
+        console.log('Database Connected')
+        seedDefaultAdmin(db.get()).catch((e) => console.error(e))
+    }
 })
 
 app.use(cors())

@@ -3,6 +3,7 @@ import { useRef } from 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import { adminAxios } from '../../../Config/Server'
+import toast from 'react-hot-toast';
 
 function HeaderModal({
     extraModal,
@@ -78,7 +79,7 @@ function HeaderModal({
                     })
                 }
             }).catch((err) => {
-                alert('Facing An Error')
+                toast.error('Facing An Error')
             })
         })
 
@@ -94,7 +95,7 @@ function HeaderModal({
                 } else {
                     GetCategories()
 
-                    alert("Added")
+                    toast.success("Added")
 
                     setExtraModal({
                         ...extraModal,
@@ -104,7 +105,7 @@ function HeaderModal({
                     })
                 }
             }).catch((e) => {
-                alert("Facing an Error")
+                toast.error("Facing an Error")
             })
         })
     }
@@ -116,7 +117,7 @@ function HeaderModal({
                 if (done.data.login) {
                     logOut()
                 } else {
-                    alert("Added")
+                    toast.success("Added")
 
                     GetCategories()
 
@@ -129,7 +130,7 @@ function HeaderModal({
                 }
 
             }).catch(() => {
-                alert("Facing An Error")
+                toast.error("Facing An Error")
             })
         })
     }

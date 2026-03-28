@@ -2,15 +2,22 @@
 
 .Admin {
     .Login {
-        background: $MainBgGray;
-        padding: 1em;
-
-        @media only screen and (min-width: 767px) {
-            padding-left: 35%;
-            padding-right: 35%;
-        }
+        background: linear-gradient(180deg, $IndianetSurface 0%, $MainBgGray 100%);
+        min-height: 100vh;
+        padding: 2em 1em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         form {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(10, 102, 194, 0.12);
+            border: 1px solid $MainLtGrey;
             h4 {
                 font-weight: bold;
                 color: $MainBLack;
@@ -30,8 +37,14 @@
                 font-size: small;
                 outline: none;
                 height: 33px;
-                border: 2px solid $MainGreen;
-                border-radius: 3px;
+                border: 2px solid $MainLtGrey;
+                border-radius: 6px;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+                &:focus {
+                    border-color: $PrimaryBlue;
+                    box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.2);
+                }
             }
 
             .passGrid {
@@ -49,10 +62,10 @@
 
             button[type='submit']{
                 width: 100%;
-                border: 2px solid $MainBLack;
+                border: 2px solid $PrimaryBlue;
                 color: white;
                 font-weight: bold;
-                background: $MainBLack;
+                background: $PrimaryBlue;
                 height: 33px;
                 margin-top: 10px;
                 border-radius: 3px;
@@ -62,7 +75,7 @@
 
                 &:hover{
                     background: white;
-                    color: $MainBLack;
+                    color: $PrimaryBlue;
                 }
             }
         }

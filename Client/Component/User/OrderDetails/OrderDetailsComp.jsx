@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { ServerId, userAxios } from '../../../Config/Server'
 import ContentControl from '../../../ContentControl/ContentControl'
 import Modal from './Modal'
+import toast from 'react-hot-toast';
 
 function OrderDetailsComp({ order, setLoaded, setLogError, setUpdate }) {
 
@@ -38,7 +39,7 @@ function OrderDetailsComp({ order, setLoaded, setLogError, setUpdate }) {
           setUpdate(update => !update)
         }
       }).catch((err) => {
-        alert('error')
+        toast.error('error')
       })
     })
   }
@@ -69,7 +70,7 @@ function OrderDetailsComp({ order, setLoaded, setLogError, setUpdate }) {
             <div className="col-7 col-md-9 col-lg-10">
               <button className='copyBtn' onClick={() => {
                 navigator.clipboard.writeText(order.secretOrderId)
-                alert("Copied")
+                toast.success("Copied")
               }}>
                 copy Id
               </button>

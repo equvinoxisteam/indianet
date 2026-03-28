@@ -1,8 +1,10 @@
 import Eye from '@/Assets/Eye'
 import EyeHide from '@/Assets/EyeHide'
+import BrandLogo from '@/Component/Common/BrandLogo'
 import Server from '@/Config/Server'
 import { useRouter } from 'next/router'
 import React, { useRef, useState } from 'react'
+import toast from 'react-hot-toast';
 
 function Login() {
     const [formData, setFormData] = useState({
@@ -21,10 +23,10 @@ function Login() {
                 localStorage.setItem('adminToken', res.data.admin)
                 navigate.push('/admin/dashboard')
             } else {
-                alert("Email Or Password Wrong")
+                toast.success("Email Or Password Wrong")
             }
         }).catch(() => {
-            alert("Error")
+            toast.error("Error")
         })
     }
 
@@ -32,6 +34,10 @@ function Login() {
         <div>
             <div className='Login'>
                 <form onSubmit={formHandle} >
+                    <div className="text-center mb-3">
+                        <BrandLogo href="/" />
+                        <p className="small text-muted mb-0 mt-2">Admin sign in</p>
+                    </div>
                     <h4>Login</h4>
                     <div className="row">
                         <div className="col-12">

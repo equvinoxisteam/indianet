@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Fragment, useContext, useEffect, useState } from 'react'
+import toast from 'react-hot-toast';
 const Header = dynamic(() => import('@/Component/Admin/Header/Header'))
 const EditOrder = dynamic(() => import('@/Component/Admin/Orders/EditOrder'))
 
@@ -63,7 +64,7 @@ export default function OrderEdit() {
                         setOrder(order.data)
                     }
                 }).catch(() => {
-                    alert('errr')
+                    toast.error('errr')
                     setLoaded(true)
                     router.push('/admin/orders')
                 })
@@ -74,8 +75,8 @@ export default function OrderEdit() {
     return (
         <Fragment>
             <Head>
-                <title>Aquariun - Admin Edit Order</title>
-                <meta name="description" content="Aquariun Admin" />
+                <title>Indianet - Admin Edit Order</title>
+                <meta name="description" content="Indianet Admin" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main className='Admin'>

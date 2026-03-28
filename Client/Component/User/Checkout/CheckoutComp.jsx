@@ -136,7 +136,9 @@ function CheckoutComp({
                         if (orderDetails.payType === 'online') {
                             userAxios((server) => {
                                 server.post('/users/createRazorpayPayment', {
-                                    totalAmount: orderDetails.totalAmount
+                                    totalAmount: orderDetails.totalAmount,
+                                    userId: userLogged._id,
+                                    order: orderDetails.order
                                 }).then((data) => {
                                     if (data.data.login) {
                                         setLoading(false)
@@ -154,8 +156,13 @@ function CheckoutComp({
                                         setLoading(false)
                                         razorpay(data.data)
                                     }
-                                }).catch(() => {
-                                    alert("Error")
+                                }).catch((err) => {
+                                    setLoading(false)
+                                    if (err.response && err.response.data === 'online_not_allowed') {
+                                        toast.error("Online payment disabled for some products")
+                                    } else {
+                                        toast.error("Error creating payment")
+                                    }
                                 })
                             })
                         } else {
@@ -176,20 +183,23 @@ function CheckoutComp({
                                     }
                                 }))
                                 navigate.push('/ordersuccess') // done page
-                            }).catch((data) => {
+                            }).catch((err) => {
                                 setLoading(false)
-
-                                setOrderType(type => ({
-                                    ...type,
-                                    order: false,
-                                    type: '',
-                                    exAction: true,
-                                    exActionData: {
-                                        failed: true,
-                                        success: false
-                                    }
-                                }))
-                                navigate.push('/orderfailed') // fail page
+                                if (err.response && err.response.data === 'cod_not_allowed') {
+                                    toast.error("COD is not allowed for some products in your order")
+                                } else {
+                                    setOrderType(type => ({
+                                        ...type,
+                                        order: false,
+                                        type: '',
+                                        exAction: true,
+                                        exActionData: {
+                                            failed: true,
+                                            success: false
+                                        }
+                                    }))
+                                    navigate.push('/orderfailed') // fail page
+                                }
                             })
                         }
                     } else {

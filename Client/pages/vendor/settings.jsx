@@ -36,8 +36,8 @@ export default function Settings() {
     return (
         <Fragment>
             <Head>
-                <title>Aquariun - Vendor Settings</title>
-                <meta name="description" content="Aquariun Vendor" />
+                <title>Indianet - Vendor Settings</title>
+                <meta name="description" content="Indianet Vendor" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main className='Vendor'>

@@ -12,6 +12,7 @@ import { useState } from 'react'
 import { useEffect } from 'react'
 import ContentControl from '../../../ContentControl/ContentControl'
 import { useRouter } from 'next/router'
+import toast from 'react-hot-toast';
 
 function OrdersComp({ setSearch, search, Orders, setOrders, total, setTotal, setLogError }) {
     const navigate = useRouter()
@@ -188,7 +189,7 @@ function OrdersComp({ setSearch, search, Orders, setOrders, total, setTotal, set
                                                                 }
                                                             }).catch(() => {
                                                                 setLogError(false)
-                                                                alert("Error")
+                                                                toast.error("Error")
                                                             })
                                                         })
                                                     }}>Load More</button>

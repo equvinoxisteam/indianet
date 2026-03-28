@@ -3,7 +3,8 @@
 .Login {
     position: fixed;
     z-index: 10000;
-    background: rgba(191, 191, 191, 0.2);
+    background: rgba(26, 35, 50, 0.45);
+    backdrop-filter: blur(4px);
     width: 100%;
     height: 100%;
     padding-left: 30%;
@@ -35,7 +36,9 @@
         width: 100%;
         height: auto;
         background: white;
-        border-radius: 5px;
+        border-radius: 12px;
+        box-shadow: 0 12px 40px rgba(10, 102, 194, 0.15);
+        border: 1px solid $MainLtGrey;
         padding: 2em;
         padding-top: 2em;
         bottom: 10%;
@@ -56,13 +59,19 @@
                     height: 35px;
                     width: 100%;
                     border: 2px solid $MainGreen;
+                    border-radius: 6px;
                     outline: none;
                     padding-left: 10px;
-                    transition: all .5s ease-in-out;
-                    -moz-transition: all .5s ease-in-out;
+                    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                    -moz-transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
                     &:hover {
                         border-color: $Main2ndGreen;
+                    }
+
+                    &:focus {
+                        border-color: $PrimaryBlue;
+                        box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.2);
                     }
                 }
 
@@ -158,13 +167,19 @@
                     height: 35px;
                     width: 100%;
                     border: 2px solid $MainGreen;
+                    border-radius: 6px;
                     outline: none;
                     padding-left: 10px;
-                    transition: all .5s ease-in-out;
-                    -moz-transition: all .5s ease-in-out;
+                    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                    -moz-transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
                     &:hover {
                         border-color: $Main2ndGreen;
+                    }
+
+                    &:focus {
+                        border-color: $PrimaryBlue;
+                        box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.2);
                     }
                 }
 

@@ -3,8 +3,10 @@ import { useRef, useContext } from 'react'
 import { useState, useEffect } from 'react'
 import EyeIcon from '../../../Assets/Eye'
 import EyeHideIcon from '../../../Assets/EyeHide'
+import BrandLogo from '@/Component/Common/BrandLogo'
 import Server from '../../../Config/Server'
 import ContentControl from '../../../ContentControl/ContentControl'
+import toast from 'react-hot-toast';
 
 function Login({ LoginModal, setLoginModal }) {
 
@@ -80,7 +82,7 @@ function Login({ LoginModal, setLoginModal }) {
                         } else {
                             if (response.data.status) {
                                 if (response.data.user) {
-                                    alert('SignUp Successful')
+                                    toast.success('SignUp Successful')
                                     extraErrorRef.current.style.display = 'none'
                                     setLoginModal(obj => ({
                                         ...obj,
@@ -147,7 +149,7 @@ function Login({ LoginModal, setLoginModal }) {
                         if (res.data.status) {
                             setUserLogged(res.data)
                             setLoginModal({ ...LoginModal, active: false })
-                            alert("Login successful")
+                            toast.success("Login successful")
                         } else {
                             extraErrorRef.current.style.display = 'block'
                             setExtraError('Wrong user data')
@@ -193,7 +195,7 @@ function Login({ LoginModal, setLoginModal }) {
                     } else {
                         if (res.data.status) {
                             extraErrorRef.current.style.display = 'none'
-                            alert("Done")
+                            toast.success("Done")
                             setLoginModal({
                                 ...LoginModal,
                                 active: true,
@@ -245,6 +247,12 @@ function Login({ LoginModal, setLoginModal }) {
         <div className='Login'>
             <div className="Item" ref={modalRef}>
                 <div className="Main">
+                    <div className="text-center pb-3">
+                        <BrandLogo href="/" />
+                        <p className="small text-muted mb-0 mt-2" style={{ fontSize: '0.85rem' }}>
+                            Sign in to your Indianet account
+                        </p>
+                    </div>
 
                     {
                         LoginModal.member ? (

@@ -3,6 +3,8 @@ import ContentControl from '@/ContentControl/ContentControl'
 import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
 import Server, { adminAxios, ServerId } from '../../../Config/Server'
+import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 function VendorProduct({ vendorId, loaded, setLoaded }) {
   let router = useRouter()
@@ -39,9 +41,9 @@ function VendorProduct({ vendorId, loaded, setLoaded }) {
         }
       }).catch((err) => {
         if (err.response.data['status'] === 404) {
-          alert("Vendor Not Found")
+          toast.error("Vendor Not Found")
         } else {
-          alert("Error")
+          toast.error("Error")
         }
         setLoaded(true)
         router.push('/admin/vendors')
@@ -122,7 +124,15 @@ function VendorProduct({ vendorId, loaded, setLoaded }) {
                               window.open(`/p/${obj.slug}/${obj._id}`, '_blank')
                             }}>view</button>
                             <button className="ActionBtn" onClick={() => {
-                              if (window.confirm(`Do You Want Delete ${obj.name}`)) {
+                              Swal.fire({
+  title: `Do You Want Delete ${obj.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                 adminAxios((server) => {
                                   server.delete(`/admin/deleteProduct/${obj._id}`, {
                                     data: {
@@ -133,14 +143,16 @@ function VendorProduct({ vendorId, loaded, setLoaded }) {
                                       logOut()
                                     } else {
                                       setLoaded(false)
-                                      alert("Product Deleted")
+                                      toast.success("Product Deleted")
                                       getProducts()
                                     }
                                   }).catch((err) => {
-                                    alert("Sorry Server Has Some Problem")
+                                    toast.error("Sorry Server Has Some Problem")
                                   })
                                 })
-                              }
+                              
+  }
+})
                             }}>delete</button>
                           </td>
                         </tr>
@@ -169,7 +181,7 @@ function VendorProduct({ vendorId, loaded, setLoaded }) {
                         setTotal(res.data.total)
                       }
                     }).catch(() => {
-                      alert("Error")
+                      toast.error("Error")
                     })
                   })
                 }}>Load More</button>

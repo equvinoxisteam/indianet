@@ -2,6 +2,7 @@ import { useRef, useContext, useEffect } from 'react'
 import { userAxios } from '../../../Config/Server'
 import ContentControl from '../../../ContentControl/ContentControl'
 import { useState } from 'react'
+import toast from 'react-hot-toast';
 
 function ReviewModal({ setReviewModal, showReviewModal, proId, getReviews }) {
 
@@ -39,14 +40,14 @@ function ReviewModal({ setReviewModal, showReviewModal, proId, getReviews }) {
                     setUserLogged({ status: false })
                     localStorage.removeItem('token')
                     setReviewModal({ ...showReviewModal, active: false })
-                    alert('Please Login')
+                    toast.error('Please Login')
                 } else {
                     getReviews()
-                    alert('Review Added')
+                    toast.success('Review Added')
                     setReviewModal({ ...showReviewModal, active: false })
                 }
             }).catch(() => {
-                alert('Error')
+                toast.error('Error')
             })
         })
     }

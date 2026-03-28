@@ -37,6 +37,9 @@ function AddProduct() {
             seoTitle: '',
             seoKeyword: '',
             variant: [],
+            allowCod: true,
+            allowOnline: true,
+            allowRfq: false,
             uni_id_1: Date.now() + Math.random()
         }
     )
@@ -90,6 +93,9 @@ function AddProduct() {
         formData.append("seoKeyword", productDetails.seoKeyword)
         formData.append("seoTitle", productDetails.seoTitle)
         formData.append('return', productDetails.return)
+        formData.append('allowCod', productDetails.allowCod)
+        formData.append('allowOnline', productDetails.allowOnline)
+        formData.append('allowRfq', productDetails.allowRfq)
 
         formData.append('images', thumb);
 
@@ -175,6 +181,36 @@ function AddProduct() {
                             }} >
                                 <option value="true">Available</option>
                                 <option value="false">Not Available</option>
+                            </select>
+                        </div>
+
+                        <div className='col-md-4'>
+                            <label>Cash on Delivery (COD)</label><br />
+                            <select value={productDetails.allowCod} onChange={(e) => {
+                                setProductDetails({ ...productDetails, allowCod: e.target.value === 'true' })
+                            }} >
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+
+                        <div className='col-md-4'>
+                            <label>Online Payment</label><br />
+                            <select value={productDetails.allowOnline} onChange={(e) => {
+                                setProductDetails({ ...productDetails, allowOnline: e.target.value === 'true' })
+                            }} >
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+
+                        <div className='col-md-4'>
+                            <label>Request for Quote (RFQ)</label><br />
+                            <select value={productDetails.allowRfq} onChange={(e) => {
+                                setProductDetails({ ...productDetails, allowRfq: e.target.value === 'true' })
+                            }} >
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
                             </select>
                         </div>
 

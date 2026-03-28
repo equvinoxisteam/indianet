@@ -10,6 +10,7 @@ import { useContext, useState } from 'react'
 import ContentControl from '../../../ContentControl/ContentControl'
 import Modal from './Modal'
 import { userAxios } from '@/Config/Server'
+import toast from 'react-hot-toast';
 
 function AddressComp({ address, setUpdate }) {
     const [editAddress, setEditAddress] = useState({})
@@ -141,10 +142,10 @@ function AddressComp({ address, setUpdate }) {
                                                                                             localStorage.removeItem('token')
                                                                                         } else {
                                                                                             setUpdate(update => !update)
-                                                                                            alert("Updated")
+                                                                                            toast.success("Updated")
                                                                                         }
                                                                                     }).catch(() => {
-                                                                                        alert("Error")
+                                                                                        toast.error("Error")
                                                                                     })
                                                                                 })
                                                                             }} >Delete</a></li>

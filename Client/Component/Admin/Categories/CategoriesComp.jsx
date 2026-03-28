@@ -8,6 +8,8 @@ import ExtraModal from './ExtraModal'
 import Loading from '@/Component/Loading/Loading'
 import ContentControl from '@/ContentControl/ContentControl'
 import { useRouter } from 'next/router'
+import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 function CategoriesComp({ loaded, setLoaded }) {
     const { setAdminLogged } = useContext(ContentControl)
@@ -227,14 +229,22 @@ function CategoriesComp({ loaded, setLoaded }) {
                                                                                 })
                                                                             }
                                                                         }).catch(() => {
-                                                                            alert("Facing an error")
+                                                                            toast.error("Facing an error")
                                                                         })
                                                                     })
 
                                                                 }}>Edit</button>
 
                                                                 <button className='cateActionBtn' onClick={() => {
-                                                                    if (window.confirm("Do you want delete " + obj.name)) {
+                                                                    Swal.fire({
+  title: "Do you want delete " + obj.name,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                                                         adminAxios((server) => {
                                                                             server.delete('/admin/deleteCategory/' + obj._id, {
                                                                                 data: {
@@ -253,10 +263,12 @@ function CategoriesComp({ loaded, setLoaded }) {
                                                                                     })
                                                                                 })
                                                                             }).catch(() => {
-                                                                                alert("Sorry We Facing Some Error")
+                                                                                toast.error("Sorry We Facing Some Error")
                                                                             })
                                                                         })
-                                                                    }
+                                                                    
+  }
+})
                                                                 }}>Delete</button>
                                                             </td>
                                                         </tr>
@@ -291,7 +303,15 @@ function CategoriesComp({ loaded, setLoaded }) {
                                                             <td className='col-4'>{obj.name}</td>
                                                             <td className='col-4'>
                                                                 <button className='cateActionBtn' onClick={() => {
-                                                                    if (window.confirm("Do you want delete " + obj.name)) {
+                                                                    Swal.fire({
+  title: "Do you want delete " + obj.name,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                                                         adminAxios((server) => {
                                                                             server.put('/admin/deleteMainSubCategory/' + obj._id, {
                                                                                 name: obj.name,
@@ -305,10 +325,12 @@ function CategoriesComp({ loaded, setLoaded }) {
                                                                                     GetCategories()
                                                                                 }
                                                                             }).catch(() => {
-                                                                                alert("Sorry We Facing Some Error")
+                                                                                toast.error("Sorry We Facing Some Error")
                                                                             })
                                                                         })
-                                                                    }
+                                                                    
+  }
+})
                                                                 }}>Delete</button>
                                                             </td>
                                                         </tr>
@@ -350,7 +372,15 @@ function CategoriesComp({ loaded, setLoaded }) {
                                                             <td className='col-3'>{obj.name}</td>
                                                             <td className='col-3'>
                                                                 <button className='cateActionBtn' onClick={() => {
-                                                                    if (window.confirm("Do you want delete " + obj.name)) {
+                                                                    Swal.fire({
+  title: "Do you want delete " + obj.name,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                                                         adminAxios((server) => {
                                                                             server.put('/admin/deleteSubCategory/' + obj._id, {
                                                                                 name: obj.name,
@@ -366,10 +396,12 @@ function CategoriesComp({ loaded, setLoaded }) {
                                                                                     GetCategories()
                                                                                 }
                                                                             }).catch(() => {
-                                                                                alert("Sorry We Facing Some Error")
+                                                                                toast.error("Sorry We Facing Some Error")
                                                                             })
                                                                         })
-                                                                    }
+                                                                    
+  }
+})
                                                                 }}>Delete</button>
                                                             </td>
                                                         </tr>

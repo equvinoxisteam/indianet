@@ -51,8 +51,8 @@ export default function Orders() {
     return (
         <Fragment>
             <Head>
-                <title>Aquariun - Vendor Orders</title>
-                <meta name="description" content="Aquariun Vendor" />
+                <title>Indianet - Vendor Orders</title>
+                <meta name="description" content="Indianet Vendor" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main className='Vendor'>

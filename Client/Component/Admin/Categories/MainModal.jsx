@@ -2,6 +2,7 @@ import React from 'react'
 import { useRef, useState } from 'react'
 import { useEffect } from 'react'
 import { adminAxios } from '../../../Config/Server'
+import toast from 'react-hot-toast';
 
 function MainModal({ mainModal, setMainModal, setCategories, logOut }) {
     const [thumbPrev, setThumbPrev] = useState()
@@ -46,7 +47,7 @@ function MainModal({ mainModal, setMainModal, setCategories, logOut }) {
                 if (done.data.login) {
                     logOut()
                 } else {
-                    alert("Added")
+                    toast.success("Added")
 
                     adminAxios((server) => {
                         server.get('/admin/getCatgories').then((data) => {
@@ -67,7 +68,7 @@ function MainModal({ mainModal, setMainModal, setCategories, logOut }) {
                     })
                 }
             }).catch((err) => {
-                alert('Facing An Error')
+                toast.error('Facing An Error')
             })
         })
 

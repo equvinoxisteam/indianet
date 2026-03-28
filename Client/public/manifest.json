@@ -1,12 +1,19 @@
 {
-    "theme_color": "#000",
-    "background_color": "#fff",
-    "display": "fullscreen",
+    "name": "Indianet — B2B Marketplace",
+    "short_name": "Indianet",
+    "description": "Indianet wholesale & multi-vendor marketplace",
+    "theme_color": "#0a66c2",
+    "background_color": "#f5f8fc",
+    "display": "standalone",
     "scope": "/",
     "start_url": "/",
-    "name": "E Fish",
-    "short_name": "E Fish",
     "icons": [
+        {
+            "src": "/logo_bg.jpg",
+            "sizes": "192x192",
+            "type": "image/jpeg",
+            "purpose": "any maskable"
+        },
         {
             "src": "/icon-192x192.png",
             "sizes": "192x192",

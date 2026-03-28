@@ -1,5 +1,6 @@
 import { vendorAxios } from "@/Config/Server"
 import { useState } from "react"
+import toast from 'react-hot-toast';
 
 function SettingsComp({ venderLogged, setVendorLogged }) {
     const [formData, setFormData] = useState({
@@ -34,7 +35,7 @@ function SettingsComp({ venderLogged, setVendorLogged }) {
                                 email: venderLogged.email,
                                 number: venderLogged.number
                             })
-                            alert("Email Already Use")
+                            toast.success("Email Already Use")
                         } else {
                             setVendorLogged({
                                 ...venderLogged,
@@ -46,7 +47,7 @@ function SettingsComp({ venderLogged, setVendorLogged }) {
                                 ...formData,
                                 email: formData.email.toLowerCase(),
                             })
-                            alert("Updated")
+                            toast.success("Updated")
                         }
                     }
                 }).catch(() => {
@@ -55,11 +56,11 @@ function SettingsComp({ venderLogged, setVendorLogged }) {
                         email: venderLogged.email,
                         number: venderLogged.number
                     })
-                    alert("Error")
+                    toast.error("Error")
                 })
             })
         } else {
-            alert("Mobile Number Must 10 Digit")
+            toast.error("Mobile Number Must 10 Digit")
         }
     }
 
@@ -89,7 +90,7 @@ function SettingsComp({ venderLogged, setVendorLogged }) {
                         bankBranchName: formData.bankBranchName,
                         bankBranchNumber: formData.bankBranchNumber,
                     })
-                    alert("Updated")
+                    toast.success("Updated")
                 }
             }).catch(() => {
                 setFormData({
@@ -101,7 +102,7 @@ function SettingsComp({ venderLogged, setVendorLogged }) {
                     bankBranchName: venderLogged.bankBranchName,
                     bankBranchNumber: venderLogged.bankBranchNumber,
                 })
-                alert("Error")
+                toast.error("Error")
             })
         })
     }

@@ -1,9 +1,8 @@
+import RegisterComp from '@/Component/Vendor/Register/RegisterComp'
 import ContentControl from '@/ContentControl/ContentControl'
-import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Fragment, useContext, useEffect } from 'react'
-const RegisterComp = dynamic(() => import('@/Component/Vendor/Register/RegisterComp'))
 
 export default function Register() {
     const { venderLogged } = useContext(ContentControl)
@@ -11,7 +10,7 @@ export default function Register() {
 
     useEffect(() => {
         if (venderLogged.status) {
-            document.body.style.background = 'transparent'
+            document.body.style.background = '#f0f5fa'
             navigate.push('/vendor/dashboard')
         }
     }, [venderLogged])
@@ -19,8 +18,8 @@ export default function Register() {
     return (
         <Fragment>
             <Head>
-                <title>Aquariun - Vendor Register</title>
-                <meta name="description" content="Aquariun Vendor" />
+                <title>Indianet - Vendor Register</title>
+                <meta name="description" content="Indianet Vendor" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main className='Vendor'>

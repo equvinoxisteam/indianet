@@ -2,6 +2,8 @@ import { useRouter } from 'next/router'
 import { useContext } from 'react'
 import { vendorAxios, ServerId } from '../../../Config/Server'
 import ContentControl from '../../../ContentControl/ContentControl'
+import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 function ProductsComp({
   responseServer, setResponse,
@@ -85,7 +87,15 @@ function ProductsComp({
                           navigate.push(`/vendor/products/edit/${obj._id}`)
                         }}>edit</button>
                         <button data-for="actionBtn" onClick={() => {
-                          if (window.confirm(`Do you want delete ${obj.name}`)) {
+                          Swal.fire({
+  title: `Do you want delete ${obj.name}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                             vendorAxios((server) => {
                               server.delete('/vendor/deleteProduct', {
                                 data: {
@@ -99,13 +109,15 @@ function ProductsComp({
                                   navigate.push('/vendor/login')
                                 } else {
                                   setUpdate(update => !update)
-                                  alert("Deleted")
+                                  toast.success("Deleted")
                                 }
                               }).catch(() => {
-                                alert("Error")
+                                toast.error("Error")
                               })
                             })
-                          }
+                          
+  }
+})
                         }}>delete</button>
                       </td>
                     </tr>

@@ -3,7 +3,9 @@ import ContentControl from '@/ContentControl/ContentControl'
 import { useRouter } from 'next/router'
 import { useContext, useState } from 'react'
 import { useEffect } from 'react'
-import { adminAxios } from '../../../Config/Server'
+import { adminAxios, apiUnreachableMessage } from '../../../Config/Server'
+import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 function Vendors({ loaded, setLoaded }) {
 
@@ -40,9 +42,9 @@ function Vendors({ loaded, setLoaded }) {
           setVendors(res.data.vendors)
           setTotal(res.data.total)
         }
-      }).catch(() => {
+      }).catch((err) => {
         setLoaded(true)
-        alert("Error")
+        toast.error(apiUnreachableMessage(err) || 'Error')
       })
     })
   }
@@ -78,6 +80,7 @@ function Vendors({ loaded, setLoaded }) {
                 <table className="table align-middle">
                   <thead>
                     <tr>
+                      <th>Company</th>
                       <th>Name</th>
                       <th>Email</th>
                       <th>Number</th>
@@ -91,6 +94,7 @@ function Vendors({ loaded, setLoaded }) {
                       vendors.map((obj, key) => {
                         return (
                           <tr key={key}>
+                            <td>{obj.companyName || '—'}</td>
                             <td>{obj.adharName}</td>
                             <td>{obj.email}</td>
                             <td>{obj.number}</td>
@@ -125,18 +129,26 @@ function Vendors({ loaded, setLoaded }) {
                                       if (res.data.login) {
                                         logOut()
                                       } else {
-                                        alert("Done")
+                                        toast.success("Done")
                                         getVendors(false)
                                       }
-                                    }).catch(() => {
-                                      alert("Error")
+                                    }).catch((err) => {
+                                      toast.error(apiUnreachableMessage(err) || 'Error')
                                     })
                                   })
                                 }}>Accept</button>}
 
                               {
                                 obj.accept ? <button className='ActionBtn' onClick={() => {
-                                  if (window.confirm(`Do you want delete vendor ${obj.adharName}`)) {
+                                  Swal.fire({
+  title: `Do you want delete vendor ${obj.adharName}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                     adminAxios((server) => {
                                       server.delete('/admin/deleteVendor', {
                                         data: {
@@ -147,16 +159,26 @@ function Vendors({ loaded, setLoaded }) {
                                         if (res.data.login) {
                                           logOut()
                                         } else {
-                                          alert("Done")
+                                          toast.success("Done")
                                           getVendors(true)
                                         }
-                                      }).catch(() => {
-                                        alert("Error")
+                                      }).catch((err) => {
+                                        toast.error(apiUnreachableMessage(err) || 'Error')
                                       })
                                     })
-                                  }
+                                  
+  }
+})
                                 }}>Delete</button> : <button className='ActionBtn' onClick={() => {
-                                  if (window.confirm(`Do you want delete vendor ${obj.adharName}`)) {
+                                  Swal.fire({
+  title: `Do you want delete vendor ${obj.adharName}`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes'
+}).then((result) => {
+  if (result.isConfirmed) {
                                     adminAxios((server) => {
                                       server.delete('/admin/deleteVendor', {
                                         data: {
@@ -167,14 +189,16 @@ function Vendors({ loaded, setLoaded }) {
                                         if (res.data.login) {
                                           logOut()
                                         } else {
-                                          alert("Done")
+                                          toast.success("Done")
                                           getVendors(false)
                                         }
-                                      }).catch(() => {
-                                        alert("Error")
+                                      }).catch((err) => {
+                                        toast.error(apiUnreachableMessage(err) || 'Error')
                                       })
                                     })
-                                  }
+                                  
+  }
+})
                                 }}>Delete</button>
                               }
                             </td>
@@ -205,8 +229,8 @@ function Vendors({ loaded, setLoaded }) {
                             setVendors([...vendors, ...res.data.vendors])
                             setLoaded(true)
                           }
-                        }).catch(() => {
-                          alert("Error")
+                        }).catch((err) => {
+                          toast.error(apiUnreachableMessage(err) || 'Error')
                           setLoaded(true)
                         })
                       })
@@ -226,8 +250,8 @@ function Vendors({ loaded, setLoaded }) {
                             setVendors([...vendors, ...res.data.vendors])
                             setLoaded(true)
                           }
-                        }).catch(() => {
-                          alert("Error")
+                        }).catch((err) => {
+                          toast.error(apiUnreachableMessage(err) || 'Error')
                           setLoaded(true)
                         })
                       })

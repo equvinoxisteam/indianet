@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Fragment, useContext, useEffect, useState } from 'react'
+import toast from 'react-hot-toast';
 const Header = dynamic(() => import('@/Component/Vendor/Header/Header'))
 const OrderDetails = dynamic(() => import('@/Component/Vendor/Orders/OrderDetails'))
 
@@ -36,7 +37,7 @@ export default function Order() {
                             setOrder(order.data)
                         }
                     }).catch((err) => {
-                        alert('err')
+                        toast.error('err')
                         setLoaded(true)
                         navigate.push('/vendor/orders')
                     })
@@ -51,8 +52,8 @@ export default function Order() {
     return (
         <Fragment>
             <Head>
-                <title>Aquariun - Vendor Order Details</title>
-                <meta name="description" content="Aquariun Vendor" />
+                <title>Indianet - Vendor Order Details</title>
+                <meta name="description" content="Indianet Vendor" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main className='Vendor'>

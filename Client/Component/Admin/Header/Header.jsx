@@ -1,6 +1,7 @@
 import Script from 'next/script'
 import React, { Fragment } from 'react'
 import Link from 'next/link'
+import BrandLogo from '@/Component/Common/BrandLogo'
 
 function Header() {
   return (
@@ -9,7 +10,7 @@ function Header() {
 
         <nav className="navbar navbar-expand-md ">
           <div className="container container-fluid">
-            <Link className="navbar-brand font-bold" href={'/admin/dashboard'}>ADMIN PANEL</Link>
+            <BrandLogo href="/admin/dashboard" variant="light" className="navbar-brand font-bold" />
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
               <span><i className="fa-solid fa-bars"></i></span>
             </button>
@@ -32,6 +33,9 @@ function Header() {
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" href="/admin/orders">Orders</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" href="/admin/rfq">RFQs</Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" href="/admin/vendors">Vendors</Link>

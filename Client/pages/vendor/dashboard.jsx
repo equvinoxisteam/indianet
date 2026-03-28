@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Fragment, useContext, useEffect, useState } from 'react'
+import toast from 'react-hot-toast';
 const Header = dynamic(() => import('@/Component/Vendor/Header/Header'))
 const DashboardComp = dynamic(() => import('@/Component/Vendor/Dashboard/DashboardComp'))
 
@@ -41,7 +42,7 @@ export default function Dashboard() {
             setResponse(res.data)
           }
         }).catch(() => {
-          alert("error")
+          toast.error("error")
         })
       })
     } else {
@@ -55,8 +56,8 @@ export default function Dashboard() {
   return (
     <Fragment>
       <Head>
-        <title>Aquariun - Vendor Dashboard</title>
-        <meta name="description" content="Aquariun Vendor" />
+        <title>Indianet - Vendor Dashboard</title>
+        <meta name="description" content="Indianet Vendor" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main className='Vendor'>

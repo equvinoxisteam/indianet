@@ -9,8 +9,8 @@ export default function Cupons() {
     return (
         <Fragment>
             <Head>
-                <title>Aquariun - Admin Cupons</title>
-                <meta name="description" content="Aquariun Admin" />
+                <title>Indianet - Admin Cupons</title>
+                <meta name="description" content="Indianet Admin" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main className='Admin'>

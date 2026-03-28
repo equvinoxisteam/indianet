@@ -7,6 +7,7 @@ import { useEffect } from 'react'
 import ContentControl from '../../../ContentControl/ContentControl'
 import Login from '../Login/Login'
 import Server from '@/Config/Server'
+import BrandLogo from '@/Component/Common/BrandLogo'
 import { useRouter } from 'next/router'
 
 function Header() {
@@ -98,9 +99,7 @@ function Header() {
                         <div className="container">
                             <div className="row">
                                 <div className="col-3 pt-2">
-                                    <Link className='LinkTagNonDec' href="/">
-                                        <h5 className='UserGreenMain'>E Fish</h5>
-                                    </Link>
+                                    <BrandLogo href="/" />
                                 </div>
                                 <div className="col-5">
                                     <div>
@@ -342,10 +341,8 @@ function Header() {
                                         <i className="fa-solid fa-bars fa-xl UserBlackMain"></i>
                                     </button>
                                 </div>
-                                <div className="col-6">
-                                    <Link className='LinkTagNonDec' href="/">
-                                        <h3 className="UserGreenMain text-center">E Fish</h3>
-                                    </Link>
+                                <div className="col-6 d-flex justify-content-center align-items-center">
+                                    <BrandLogo href="/" />
                                 </div>
                                 <div className='col-3 text-end'>
                                     <h6 style={{ cursor: 'pointer' }} onClick={() => {

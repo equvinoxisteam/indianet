@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRef } from 'react'
 import { userAxios } from '../../../Config/Server'
 import ContentControl from '../../../ContentControl/ContentControl'
+import toast from 'react-hot-toast';
 
 function Modal({ order, setReturnModal, returnModal, setLogError, setUpdate }) {
     const modalRef = useRef()
@@ -48,7 +49,7 @@ function Modal({ order, setReturnModal, returnModal, setLogError, setUpdate }) {
 
                     setUpdate(update => !update)
 
-                    alert("Return Requested")
+                    toast.error("Return Requested")
 
                     setReturnModal({
                         ...returnModal,
@@ -56,7 +57,7 @@ function Modal({ order, setReturnModal, returnModal, setLogError, setUpdate }) {
                     })
                 }
             }).catch(() => {
-                alert("Error")
+                toast.error("Error")
             })
         })
     }
