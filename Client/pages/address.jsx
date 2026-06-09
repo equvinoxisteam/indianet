@@ -21,7 +21,7 @@ export default function Address() {
 
     const [logError, setLogError] = useState(false)
 
-    const [loaded, setLoaded] = useState(false)
+    const [loaded, setLoaded] = useState(userLogged.status)
 
     const [address, setAddress] = useState({})
 
@@ -72,18 +72,12 @@ export default function Address() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main>
+                <Header />
                 {
-                    loaded ? (
-                        <>
-                            <Header />
-                            {
-                                logError ? <LoginError />
-                                    : <AddressComp address={address} setUpdate={setUpdate} />
-                            }
-                            <Footer />
-                        </>
-                    ) : <Loading />
+                    logError ? <LoginError />
+                        : <AddressComp address={address} setUpdate={setUpdate} />
                 }
+                <Footer />
             </main>
         </Fragment>
     )

@@ -122,4 +122,69 @@
             }
         }
     }
+
+    // Modern overrides
+    background: $surface-bg;
+
+    .MainCard {
+        border: 1px solid $neutral-200;
+        border-radius: $radius-lg;
+        box-shadow: $shadow-sm;
+        padding: 2rem;
+
+        .SubTitle {
+            border-bottom: 1px solid $neutral-200;
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        form {
+            input,
+            select {
+                height: 44px;
+                border: 1px solid $neutral-200;
+                border-radius: $radius-md;
+                background: white;
+                color: $neutral-800;
+                transition: border-color $transit-fast, box-shadow $transit-fast;
+
+                &:focus {
+                    border-color: rgba($brand-orange, 0.45);
+                    box-shadow: 0 0 0 3px rgba($brand-orange, 0.1);
+                }
+            }
+        }
+
+        button {
+            border-radius: $radius-md;
+        }
+    }
+
+    .Menu {
+        .BtnDiv {
+            button {
+                width: 100%;
+                height: 42px;
+                border: 1px solid $neutral-200;
+                border-radius: $radius-md;
+                background: white;
+                color: $neutral-700;
+                font-size: 0.82rem;
+                text-transform: none;
+                transition: all $transit-fast;
+
+                &:hover {
+                    background: $neutral-50;
+                    border-color: rgba($brand-orange, 0.35);
+                    color: $brand-orange-dark;
+                }
+            }
+
+            .active {
+                background: linear-gradient(135deg, $primary, $primary-dark);
+                border-color: transparent;
+                color: white;
+            }
+        }
+    }
 }

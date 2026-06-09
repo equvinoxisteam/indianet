@@ -8,7 +8,7 @@ function OrderSuccess() {
         <div className={style.OrderSuccess + ' pt-4 pb-3'}>
             <div className="container container-fluid">
                 <div className={style.RoundBorder}>
-                    <TickIcon color={'#22cc9d'} />
+                    <TickIcon color={'#1A3C5E'} />
                 </div>
 
                 <h5>Success</h5>

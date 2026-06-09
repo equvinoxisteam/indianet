@@ -31,20 +31,22 @@ export default (
                         obj.variantSize === 'XL' ? 'Size ' + obj.variantSize : ''}`,
                     sku: obj.product.toString(),
                     discount: obj.discount,
-                    tax: 0,
+                    // GST amount for this order item (computed server-side). Fallback to 0 for legacy orders.
+                    tax: obj.gstAmount ?? 0,
                     hsn: 121,
                     units: obj.quantity,
                 }],
                 "payment_method": payment, //or Postpaid
-                "shipping_charges": 0,
+                // Shipping charges for this order line (computed server-side). Fallback to 0 for legacy orders.
+                "shipping_charges": obj.shippingAmount ?? 0,
                 "giftwrap_charges": 0,
                 "transaction_charges": 0,
                 "total_discount": 0,
                 "sub_total": obj.price,
-                "length": 10,
-                "breadth": 15,
-                "height": 20,
-                "weight": 2.5
+                "length": obj.lengthCm ?? 10,
+                "breadth": obj.breadthCm ?? 15,
+                "height": obj.heightCm ?? 20,
+                "weight": obj.weightKg ?? 2.5
             })
 
             params = params.toString()

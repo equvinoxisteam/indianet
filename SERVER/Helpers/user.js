@@ -2,6 +2,20 @@ import db from '../Config/Connection.js'
 import collections from '../Config/Collection.js'
 import bcrypt from 'bcrypt'
 import { ObjectId } from 'mongodb'
+import estimateShippingCost from '../ShipRocket/estimateShipping.js'
+
+const GST_RATE = 0.18
+
+function toFiniteNumber(v, fallback = null) {
+    const n = Number(v)
+    return Number.isFinite(n) ? n : fallback
+}
+
+function computeGstAmount(baseAmount) {
+    const n = toFiniteNumber(baseAmount, 0)
+    // Keep 2 decimals to match payment amounts & ShipRocket expectations.
+    return Math.round(n * GST_RATE * 100) / 100
+}
 
 export default {
     CheckUser: (details) => {
@@ -133,6 +147,21 @@ export default {
                 _id: ObjectId(userId)
             }).then((user) => {
                 resolve(user)
+            }).catch((err) => {
+                reject(err)
+            })
+        })
+    },
+    updateUserProfileImage: (userId, fileName) => {
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.USERS).updateOne({
+                _id: ObjectId(userId)
+            }, {
+                $set: {
+                    profileImage: fileName
+                }
+            }).then((done) => {
+                resolve(done)
             }).catch((err) => {
                 reject(err)
             })
@@ -694,112 +723,157 @@ export default {
             }
         })
     },
-    getCartTotalPriceCheckout: (userId, discount) => {
+    getCartTotalPriceCheckout: (userId, discount, delivery_pincode, payType = 'cod') => {
         return new Promise(async (resolve, reject) => {
-            let amount = await db.get().collection(collections.CART).aggregate([
-                {
-                    $match: {
-                        user: userId
-                    }
-                }, {
-                    $unwind: '$items'
-                }, {
-                    $project: {
-                        user: userId,
-                        item: {
-                            $toObjectId: '$items.proId'
-                        },
-                        quantity: '$items.quantity',
-                        price: {
-                            $toInt: '$items.price'
-                        },
-                        mrp: {
-                            $toInt: '$items.mrp'
+            try {
+                const discountMin = parseInt(discount?.min ?? 0)
+                const discountPercent = Number(discount?.discount)
+                // discount.discount comes as "15" for 15% in current codebase.
+                // Support both "15" and "0.15".
+                const discountFraction = Number.isFinite(discountPercent)
+                    ? (discountPercent > 1 ? discountPercent / 100 : discountPercent)
+                    : 0
+
+                const lines = await db.get().collection(collections.CART).aggregate([
+                    { $match: { user: userId } },
+                    { $unwind: '$items' },
+                    {
+                        $project: {
+                            quantity: '$items.quantity',
+                            unitPrice: { $toInt: '$items.price' },
+                            mrpUnit: { $toInt: '$items.mrp' },
+                            proId: { $toObjectId: '$items.proId' }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: collections.PRODUCTS,
+                            localField: 'proId',
+                            foreignField: '_id',
+                            as: 'product'
+                        }
+                    },
+                    { $project: { quantity: 1, unitPrice: 1, mrpUnit: 1, product: { $arrayElemAt: ['$product', 0] } } },
+                    { $match: { product: { $exists: true }, 'product.available': 'true' } },
+                    {
+                        $project: {
+                            quantity: 1,
+                            unitPrice: 1,
+                            mrpUnit: 1,
+                            vendorId: '$product.vendorId',
+                            weightKg: '$product.weightKg',
+                            lengthCm: '$product.lengthCm',
+                            breadthCm: '$product.breadthCm',
+                            heightCm: '$product.heightCm'
                         }
                     }
-                }, {
-                    $lookup: {
-                        from: collections.PRODUCTS,
-                        localField: 'item',
-                        foreignField: '_id',
-                        as: 'product'
+                ]).toArray().catch((err) => {
+                    reject(err)
+                })
+
+                const trunc1 = (n) => Math.trunc(Number(n) * 10) / 10
+
+                if (!lines || lines.length === 0) {
+                    resolve({
+                        _id: '',
+                        totalPrice: 0,
+                        totalDiscount: 0,
+                        totalMrp: 0,
+                        shippingAmount: 0,
+                        gstAmount: 0
+                    })
+                    return
+                }
+
+                let subtotal = 0
+                let totalDiscount = 0
+                let totalMrp = 0
+
+                for (const line of lines) {
+                    const qty = toFiniteNumber(line.quantity, 0)
+                    const unitPrice = toFiniteNumber(line.unitPrice, 0)
+                    const mrpUnit = toFiniteNumber(line.mrpUnit, 0)
+
+                    const sellingUnit = unitPrice >= discountMin
+                        ? unitPrice - (unitPrice * discountFraction)
+                        : unitPrice
+
+                    const lineSelling = sellingUnit * qty
+                    const lineMrp = mrpUnit * qty
+                    subtotal += lineSelling
+                    totalMrp += lineMrp
+                    totalDiscount += (lineMrp - lineSelling)
+                }
+
+                const gstAmount = computeGstAmount(subtotal)
+                let shippingAmount = 0
+
+                if (delivery_pincode) {
+                    const vendorGroups = {}
+                    for (const line of lines) {
+                        const vid = String(line.vendorId || '')
+                        if (!vid) continue
+                        if (!vendorGroups[vid]) vendorGroups[vid] = []
+                        vendorGroups[vid].push(line)
                     }
-                }, {
-                    $project: {
-                        user: 1,
-                        item: { $arrayElemAt: ['$product', 0] },
-                        quantity: 1,
-                        price: 1,
-                        mrp: 1
-                    }
-                }, {
-                    $match: {
-                        item: { $exists: true },
-                        "item.available": "true"
-                    }
-                }, {
-                    $project: {
-                        user: 1,
-                        price: {
-                            $cond: {
-                                if: {
-                                    $gte: ['$price', parseInt(discount.min)]
-                                }, then: {
-                                    $subtract: ['$price', {
-                                        $multiply: ['$price', parseFloat(`.${discount.discount}`)]
-                                    }]
-                                }, else: "$price"
+
+                    const vendorIds = Object.keys(vendorGroups)
+                    const vendorObjectIds = vendorIds
+                        .map((id) => {
+                            try {
+                                return ObjectId(id)
+                            } catch {
+                                return null
                             }
-                        },
-                        mrp: 1,
+                        })
+                        .filter(Boolean)
+
+                    const vendors = vendorObjectIds.length
+                        ? await db.get().collection(collections.VENDORS).find({ _id: { $in: vendorObjectIds } }).toArray()
+                        : []
+
+                    const pinCodeByVendor = {}
+                    for (const v of vendors) {
+                        pinCodeByVendor[String(v._id)] = v.pinCode
                     }
-                }, {
-                    $group: {
-                        _id: '$user',
-                        totalPrice: {
-                            $sum: '$price'
-                        },
-                        totalDiscount: {
-                            $sum: {
-                                $subtract: ['$mrp', '$price']
-                            }
-                        },
-                        totalMrp: {
-                            $sum: {
-                                $toInt: '$mrp'
-                            }
-                        }
-                    }
-                }, {
-                    $project: {
-                        _id: 1,
-                        totalPrice: {
-                            $trunc: ['$totalPrice', 1]
-                        },
-                        totalDiscount: {
-                            $trunc: ['$totalDiscount', 1]
-                        },
-                        totalMrp: 1,
+
+                    for (const vid of vendorIds) {
+                        const vendorPinCode = pinCodeByVendor[vid]
+                        if (!vendorPinCode) continue
+
+                        const items = vendorGroups[vid]
+                        const totalWeightKg = items.reduce((sum, it) => sum + (toFiniteNumber(it.weightKg, 2.5) * toFiniteNumber(it.quantity, 0)), 0)
+                        const lengthCm = Math.max(...items.map((it) => toFiniteNumber(it.lengthCm, 10)))
+                        const breadthCm = Math.max(...items.map((it) => toFiniteNumber(it.breadthCm, 15)))
+                        const heightCm = Math.max(...items.map((it) => toFiniteNumber(it.heightCm, 20)))
+
+                        const estimate = await estimateShippingCost({
+                            pickup_postcode: vendorPinCode,
+                            delivery_postcode: delivery_pincode,
+                            cod: payType === 'cod',
+                            weight: totalWeightKg,
+                            length: lengthCm,
+                            breadth: breadthCm,
+                            height: heightCm
+                        })
+
+                        shippingAmount += toFiniteNumber(estimate?.shippingAmount, 0)
                     }
                 }
-            ]).toArray().catch((err) => {
-                reject(err)
-            })
 
-            if (amount.length !== 0) {
-                amount = amount[0]
-            } else {
-                amount = {
+                const totalPrice = subtotal + gstAmount + shippingAmount
 
+                resolve({
                     _id: '',
-                    totalPrice: 0,
-                    totalDiscount: 0,
-                    totalMrp: 0
-                }
+                    totalPrice: trunc1(totalPrice),
+                    totalDiscount: trunc1(totalDiscount),
+                    totalMrp: trunc1(totalMrp),
+                    shippingAmount: trunc1(shippingAmount),
+                    gstAmount: trunc1(gstAmount)
+                })
+            } catch (err) {
+                reject(err)
             }
-
-            resolve(amount)
-
         })
     },
     getCartProduct4Order: ({ userId, payment_id }, { discount }, details, OrderId, extraDiscount) => {
@@ -854,6 +928,11 @@ export default {
                         variantSize: 1,
                         proName: '$item.name',
                         pickup_location: '$item.pickup_location',
+                        // ShipRocket shipment weight/dim (stored on product)
+                        weightKg: '$item.weightKg',
+                        lengthCm: '$item.lengthCm',
+                        breadthCm: '$item.breadthCm',
+                        heightCm: '$item.heightCm',
                         secretOrderId: {
                             $concat: [OrderId, '$item.uni_id_1']
                         },
@@ -918,6 +997,10 @@ export default {
                         variantSize: 1,
                         proName: 1,
                         pickup_location: 1,
+                        weightKg: 1,
+                        lengthCm: 1,
+                        breadthCm: 1,
+                        heightCm: 1,
                         secretOrderId: 1,
                         price: {
                             $trunc: [{
@@ -956,6 +1039,10 @@ export default {
                                 variantSize: "$variantSize",
                                 proName: '$proName',
                                 pickup_location: '$pickup_location',
+                                weightKg: '$weightKg',
+                                lengthCm: '$lengthCm',
+                                breadthCm: '$breadthCm',
+                                heightCm: '$heightCm',
                                 vendorId: "$vendorId",
                                 product: '$product',
                                 secretOrderId: '$secretOrderId',
@@ -986,12 +1073,101 @@ export default {
                 reject(err)
             })
 
-            if (products) {
-                if (products.length !== 0) {
-                    resolve(products[0])
-                } else {
-                    reject()
+            if (products && products.length !== 0) {
+                const orderPayload = products[0]
+                const orderItems = Array.isArray(orderPayload.order) ? orderPayload.order : []
+
+                const shippingDetails = orderItems[0]?.details || details || {}
+                const deliveryPin = shippingDetails.pin
+                const payType = shippingDetails.payType || 'cod'
+
+                // Always compute GST per order item (18% on selling_price).
+                for (const item of orderItems) {
+                    item.gstAmount = computeGstAmount(item.selling_price)
                 }
+
+                if (deliveryPin) {
+                    const vendorGroups = {}
+                    for (const item of orderItems) {
+                        const vid = String(item.vendorId || '')
+                        if (!vid) continue
+                        if (!vendorGroups[vid]) vendorGroups[vid] = []
+                        vendorGroups[vid].push(item)
+                    }
+
+                    const vendorIds = Object.keys(vendorGroups)
+                    const vendorObjectIds = vendorIds
+                        .map((id) => {
+                            try {
+                                return ObjectId(id)
+                            } catch {
+                                return null
+                            }
+                        })
+                        .filter(Boolean)
+
+                    const vendors = vendorObjectIds.length
+                        ? await db.get().collection(collections.VENDORS).find({ _id: { $in: vendorObjectIds } }).toArray()
+                        : []
+
+                    const pinCodeByVendor = {}
+                    for (const v of vendors) {
+                        pinCodeByVendor[String(v._id)] = v.pinCode
+                    }
+
+                    for (const vid of vendorIds) {
+                        const vendorPinCode = pinCodeByVendor[vid]
+                        const items = vendorGroups[vid] || []
+                        if (!vendorPinCode || items.length === 0) {
+                            for (const it of items) it.shippingAmount = 0
+                            continue
+                        }
+
+                        const totalWeightKg = items.reduce((sum, it) => {
+                            return sum + (toFiniteNumber(it.weightKg, 2.5) * toFiniteNumber(it.quantity, 1))
+                        }, 0)
+
+                        const lengthCm = Math.max(...items.map((it) => toFiniteNumber(it.lengthCm, 10)))
+                        const breadthCm = Math.max(...items.map((it) => toFiniteNumber(it.breadthCm, 15)))
+                        const heightCm = Math.max(...items.map((it) => toFiniteNumber(it.heightCm, 20)))
+
+                        const estimate = await estimateShippingCost({
+                            pickup_postcode: vendorPinCode,
+                            delivery_postcode: deliveryPin,
+                            cod: payType === 'cod',
+                            weight: totalWeightKg,
+                            length: lengthCm,
+                            breadth: breadthCm,
+                            height: heightCm
+                        })
+
+                        const shippingTotal = toFiniteNumber(estimate?.shippingAmount, 0)
+                        const sumSelling = items.reduce((sum, it) => sum + toFiniteNumber(it.selling_price, 0), 0)
+
+                        if (sumSelling <= 0) {
+                            const per = shippingTotal / items.length
+                            items.forEach((it) => { it.shippingAmount = Math.round(per * 100) / 100 })
+                            continue
+                        }
+
+                        let allocated = 0
+                        for (let i = 0; i < items.length; i++) {
+                            const it = items[i]
+                            const ratio = toFiniteNumber(it.selling_price, 0) / sumSelling
+                            const isLast = i === items.length - 1
+                            const alloc = isLast
+                                ? (shippingTotal - allocated)
+                                : Math.round(shippingTotal * ratio * 100) / 100
+                            it.shippingAmount = alloc
+                            allocated += alloc
+                        }
+                    }
+                } else {
+                    for (const item of orderItems) item.shippingAmount = 0
+                }
+
+                orderPayload.order = orderItems
+                resolve(orderPayload)
             } else {
                 reject()
             }
@@ -1040,8 +1216,22 @@ export default {
             })
         })
     },
-    getTotalPriceProduct: ({ proId, quantity, discount, buyDetails }) => {
+    getTotalPriceProduct: ({ proId, quantity, discount, buyDetails, delivery_pincode, payType, pin }) => {
         return new Promise(async (resolve, reject) => {
+            if (!buyDetails) {
+                return resolve({
+                    _id: 'buy',
+                    totalPrice: 0,
+                    totalDiscount: 0,
+                    totalMrp: 0,
+                    shippingAmount: 0,
+                    gstAmount: 0
+                });
+            }
+            const deliveryPin = delivery_pincode ?? pin ?? buyDetails?.pin ?? buyDetails?.delivery_pincode
+            const codPayType = payType || 'cod'
+
+            const trunc1 = (n) => Math.trunc(Number(n) * 10) / 10
             let amount = await db.get().collection(collections.PRODUCTS).aggregate([
                 {
                     $match: {
@@ -1090,18 +1280,63 @@ export default {
             ]).toArray()
 
             if (amount.length !== 0) {
+                const subtotal = amount[0].price
+                const gstAmount = computeGstAmount(subtotal)
+
+                let shippingAmount = 0
+                if (deliveryPin) {
+                    const productDoc = await db.get().collection(collections.PRODUCTS).findOne({
+                        _id: ObjectId(proId),
+                        available: 'true'
+                    }).catch(() => null)
+
+                    const vendorId = productDoc?.vendorId
+                    let vendorPinCode = null
+                    try {
+                        if (vendorId) {
+                            const vendorDoc = await db.get().collection(collections.VENDORS).findOne({ _id: ObjectId(vendorId) }).catch(() => null)
+                            vendorPinCode = vendorDoc?.pinCode ?? null
+                        }
+                    } catch {
+                        vendorPinCode = null
+                    }
+
+                    if (vendorPinCode) {
+                        const totalWeightKg = toFiniteNumber(productDoc?.weightKg, 2.5) * toFiniteNumber(quantity, 1)
+                        const lengthCm = toFiniteNumber(productDoc?.lengthCm, 10)
+                        const breadthCm = toFiniteNumber(productDoc?.breadthCm, 15)
+                        const heightCm = toFiniteNumber(productDoc?.heightCm, 20)
+
+                        const estimate = await estimateShippingCost({
+                            pickup_postcode: vendorPinCode,
+                            delivery_postcode: deliveryPin,
+                            cod: codPayType === 'cod',
+                            weight: totalWeightKg,
+                            length: lengthCm,
+                            breadth: breadthCm,
+                            height: heightCm
+                        })
+
+                        shippingAmount = toFiniteNumber(estimate?.shippingAmount, 0)
+                    }
+                }
+
                 amount = {
                     _id: 'buy',
-                    totalPrice: amount[0].price,
-                    totalDiscount: amount[0].discount,
-                    totalMrp: amount[0].mrp
+                    totalPrice: trunc1(subtotal + gstAmount + shippingAmount),
+                    totalDiscount: trunc1(amount[0].discount),
+                    totalMrp: trunc1(amount[0].mrp),
+                    shippingAmount: trunc1(shippingAmount),
+                    gstAmount: trunc1(gstAmount)
                 }
             } else {
                 amount = {
                     _id: '',
                     totalPrice: 0,
                     totalDiscount: 0,
-                    totalMrp: 0
+                    totalMrp: 0,
+                    shippingAmount: 0,
+                    gstAmount: 0
                 }
             }
 
@@ -1110,6 +1345,9 @@ export default {
     },
     getBuyProduct4Order: ({ userId, payment_id }, { discount, order }, details, OrderId, extraDiscount) => {
         return new Promise(async (resolve, reject) => {
+            if (!order.buyDetails) {
+                return reject();
+            }
             let products = await db.get().collection(collections.PRODUCTS).aggregate([
                 {
                     $match: {
@@ -1121,6 +1359,11 @@ export default {
                         user: userId,
                         product: '$_id',
                         pickup_location: '$pickup_location',
+                        // ShipRocket shipment weight/dim (stored on product)
+                        weightKg: '$weightKg',
+                        lengthCm: '$lengthCm',
+                        breadthCm: '$breadthCm',
+                        heightCm: '$heightCm',
                         vendorId: '$vendorId',
                         secretOrderId: {
                             $concat: [OrderId, '$uni_id_1']
@@ -1185,6 +1428,10 @@ export default {
                         user: 1,
                         quantity: 1,
                         pickup_location: 1,
+                        weightKg: 1,
+                        lengthCm: 1,
+                        breadthCm: 1,
+                        heightCm: 1,
                         vendorId: 1,
                         product: 1,
                         proName: 1,
@@ -1226,6 +1473,10 @@ export default {
                                 product: '$product',
                                 proName: '$proName',
                                 pickup_location: '$pickup_location',
+                                weightKg: '$weightKg',
+                                lengthCm: '$lengthCm',
+                                breadthCm: '$breadthCm',
+                                heightCm: '$heightCm',
                                 vendorId: "$vendorId",
                                 secretOrderId: '$secretOrderId',
                                 price: '$price',
@@ -1254,12 +1505,57 @@ export default {
                 reject(err)
             })
 
-            if (products) {
-                if (products.length !== 0) {
-                    resolve(products[0])
-                } else {
-                    reject()
+            if (products && products.length !== 0) {
+                const orderPayload = products[0]
+                const orderItems = Array.isArray(orderPayload.order) ? orderPayload.order : []
+
+                const shippingDetails = orderItems[0]?.details || details || {}
+                const deliveryPin = shippingDetails.pin
+                const payType = shippingDetails.payType || 'cod'
+
+                for (const item of orderItems) {
+                    item.gstAmount = computeGstAmount(item.selling_price)
                 }
+
+                if (deliveryPin && orderItems.length) {
+                    const item = orderItems[0]
+                    const vendorId = String(item.vendorId || '')
+
+                    let vendorPinCode = null
+                    try {
+                        if (vendorId) {
+                            const vendorDoc = await db.get().collection(collections.VENDORS).findOne({ _id: ObjectId(vendorId) })
+                            vendorPinCode = vendorDoc?.pinCode
+                        }
+                    } catch {
+                        vendorPinCode = null
+                    }
+
+                    if (vendorPinCode) {
+                        const totalWeightKg = toFiniteNumber(item.weightKg, 2.5) * toFiniteNumber(item.quantity, 1)
+                        const lengthCm = toFiniteNumber(item.lengthCm, 10)
+                        const breadthCm = toFiniteNumber(item.breadthCm, 15)
+                        const heightCm = toFiniteNumber(item.heightCm, 20)
+
+                        const estimate = await estimateShippingCost({
+                            pickup_postcode: vendorPinCode,
+                            delivery_postcode: deliveryPin,
+                            cod: payType === 'cod',
+                            weight: totalWeightKg,
+                            length: lengthCm,
+                            breadth: breadthCm,
+                            height: heightCm
+                        })
+                        item.shippingAmount = toFiniteNumber(estimate?.shippingAmount, 0)
+                    } else {
+                        item.shippingAmount = 0
+                    }
+                } else {
+                    for (const item of orderItems) item.shippingAmount = 0
+                }
+
+                orderPayload.order = orderItems
+                resolve(orderPayload)
             } else {
                 reject()
             }

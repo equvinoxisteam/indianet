@@ -3,28 +3,92 @@ import Header from '@/Component/User/Header/Header'
 import Head from 'next/head'
 import React, { Fragment } from 'react'
 
-function shipping() {
+function Shipping() {
     return (
         <Fragment>
             <Head>
                 <title>Indianet - Shipping & Delivery</title>
-                <meta name="description" content="Indianet — online shopping marketplace" />
+                <meta name="description" content="Shipping & Delivery information for Indianet customers." />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
-            <main>
+            <main style={{ background: '#f4f7fa', minHeight: '100vh' }}>
                 <Header />
-                <div className="container container-fluid pt-2">
-                    <h5 className='font-bold UserBlackMain'>Shipping & Delivery</h5>
-                    <p className='UserBlackMain text-small'>
-                        Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
+                
+                <section style={{ background: 'linear-gradient(135deg, #1A3C5E 0%, #102A43 100%)', padding: '50px 0' }}>
+                    <div className="container">
+                        <h1 className="text-white font-bold mb-0">Shipping & Delivery</h1>
+                        <p className="text-white opacity-75 mt-2">Connecting Indian products to the global market.</p>
+                    </div>
+                </section>
 
-                        The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by Cicero are also reproduced in their exact original form, accompanied by English versions from the 1914 translation by H. Rackham.
-                    </p>
+                <div className="container py-5">
+                    <div className="row">
+                        <div className="col-12 col-lg-10 mx-auto">
+                            <div className="bg-white p-4 p-md-5 rounded shadow-sm border" style={{ borderRadius: '16px' }}>
+                                <div className="policy-section mb-5">
+                                    <h4 className="font-bold mb-3" style={{ color: '#1A3C5E' }}>1. Delivery Coverage</h4>
+                                    <p className="text-muted text-small" style={{ lineHeight: '1.7' }}>
+                                        Indianet offers worldwide shipping to over 150 countries. We work with leading international 
+                                        logistics partners (DHL, FedEx, UPS) to ensure your bulk orders are delivered safely and efficiently 
+                                        to your doorstep or closest port of entry.
+                                    </p>
+                                </div>
+
+                                <div className="policy-section mb-5">
+                                    <h4 className="font-bold mb-3" style={{ color: '#1A3C5E' }}>2. Estimated Shipping Times</h4>
+                                    <p className="text-muted text-small d-block mb-3" style={{ lineHeight: '1.7' }}>
+                                        Shipping times vary based on shipping method and destination:
+                                    </p>
+                                    <ul className="text-muted text-small" style={{ lineHeight: '2' }}>
+                                        <li><strong>Domestic (India):</strong> 3-5 business days.</li>
+                                        <li><strong>International Air:</strong> 7-10 business days.</li>
+                                        <li><strong>Sea Freight:</strong> 15-45 business days depending on port destination.</li>
+                                    </ul>
+                                </div>
+
+                                <div className="policy-section mb-5">
+                                    <h4 className="font-bold mb-3" style={{ color: '#1A3C5E' }}>3. Shipping Costs</h4>
+                                    <p className="text-muted text-small" style={{ lineHeight: '1.7' }}>
+                                        Costs are calculated at checkout based on weight, dimensions, and the final destination. 
+                                        For bulk e-commerce orders, we offer consolidated shipping to minimize expenses. 
+                                        Custom duties and taxes are typically the responsibility of the importer.
+                                    </p>
+                                </div>
+
+                                <div className="policy-section mb-5">
+                                    <h4 className="font-bold mb-3" style={{ color: '#1A3C5E' }}>4. Order Tracking</h4>
+                                    <p className="text-muted text-small" style={{ lineHeight: '1.7' }}>
+                                        Once your order is dispatched, a unique tracking identifier will be shared via email and 
+                                        available in your "My Orders" dashboard. Real-time updates bridge the gap between manufacturer 
+                                        and international buyer.
+                                    </p>
+                                </div>
+
+                                <div className="policy-section mb-5">
+                                    <h4 className="font-bold mb-3" style={{ color: '#1A3C5E' }}>5. Inspection & Claims</h4>
+                                    <p className="text-muted text-small" style={{ lineHeight: '1.7' }}>
+                                        We recommend inspecting all shipments upon arrival. Any damages or missing items must 
+                                        be reported within 48 hours for insurance claims to be processed efficiently.
+                                    </p>
+                                </div>
+
+                                <div className="p-4 rounded text-center" style={{ background: 'rgba(26, 60, 94, 0.04)', border: '1px dashed #1A3C5E' }}>
+                                    <p className="text-muted text-small mb-0">
+                                        Need shipping assistance? Reach our logistics desk at <a href="mailto:team@equvinoxis.com" style={{ color: '#1A3C5E', fontWeight: 'bold' }}>team@equvinoxis.com</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <Footer />
             </main>
+
+            <style jsx>{`
+                .policy-section h4 { border-bottom: 2px solid #f0f4f8; padding-bottom: 0.5rem; }
+            `}</style>
         </Fragment>
     )
 }
 
-export default shipping
+export default Shipping

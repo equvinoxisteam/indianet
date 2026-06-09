@@ -2,80 +2,174 @@
 
 .Admin {
     .Login {
-        background: linear-gradient(180deg, $IndianetSurface 0%, $MainBgGray 100%);
+        background: radial-gradient(circle at top left, $neutral-50 0%, $neutral-200 100%);
         min-height: 100vh;
-        padding: 2em 1em;
+        width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 2rem;
 
         form {
             width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 12px 40px rgba(10, 102, 194, 0.12);
-            border: 1px solid $MainLtGrey;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 3rem 2.5rem;
+            border-radius: $radius-lg;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid white;
+            transition: transform 0.3s ease;
+
+            &:hover {
+                transform: translateY(-5px);
+            }
+
+            .text-center {
+                margin-bottom: 2.5rem;
+
+                .authChip {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 4px 10px;
+                    border-radius: $radius-full;
+                    border: 1px solid rgba($AdminMainColor, 0.2);
+                    color: $AdminMainColor;
+                    background: rgba($AdminMainColor, 0.08);
+                    font-size: 0.72rem;
+                    font-weight: $font-weight-semibold;
+                    letter-spacing: 0.06em;
+                    text-transform: uppercase;
+                }
+                
+                p {
+                    font-weight: 600;
+                    color: $neutral-500;
+                    letter-spacing: 0.05em;
+                    text-transform: uppercase;
+                    font-size: 0.75rem;
+                    margin-top: 1rem;
+                }
+            }
+
             h4 {
-                font-weight: bold;
-                color: $MainBLack;
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: $neutral-900;
+                margin-bottom: 1.5rem;
                 text-align: center;
-                text-transform: uppercase;
+            }
+
+            .col-12 {
+                margin-bottom: 1.25rem;
             }
 
             label {
-                margin-top: 3px;
-                color: $MainBLack;
+                display: block;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: $neutral-700;
+                margin-bottom: 0.5rem;
             }
 
             input {
-                padding-left: 5px;
                 width: 100%;
-                color: $MainBLack;
-                font-size: small;
+                height: 44px;
+                padding: 0 1rem;
+                font-size: 0.95rem;
+                color: $neutral-900;
+                background: white;
+                border: 1.5px solid $neutral-200;
+                border-radius: $radius-md;
                 outline: none;
-                height: 33px;
-                border: 2px solid $MainLtGrey;
-                border-radius: 6px;
-                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                transition: all 0.2s ease;
 
                 &:focus {
-                    border-color: $PrimaryBlue;
-                    box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.2);
+                    border-color: $AdminMainColor;
+                    box-shadow: 0 0 0 4px rgba(55, 48, 163, 0.1);
                 }
             }
 
             .passGrid {
-                display: grid;
-                grid-template-columns: 85% 15%;
+                display: flex;
+                align-items: center;
+                border: 1.5px solid $neutral-200;
+                border-radius: $radius-md;
+                background: white;
+                overflow: hidden;
+                transition: all 0.2s ease;
 
-                button[data-for="pass"]{
-                    height: 33px;
-                    background: $MainGreen;
-                    border: 2px solid $MainGreen;
-                    border-radius: 3px;
-                    margin-left: -5px;
+                &:focus-within {
+                    border-color: $AdminMainColor;
+                    box-shadow: 0 0 0 4px rgba(55, 48, 163, 0.1);
+                }
+
+                input {
+                    border: none;
+                    flex: 1;
+                    height: 42px;
+                    
+                    &:focus {
+                        box-shadow: none;
+                    }
+                }
+
+                button[data-for="pass"] {
+                    width: 44px;
+                    height: 42px;
+                    background: transparent;
+                    border: none;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0;
+                    cursor: pointer;
+                    color: $neutral-400;
+                    transition: color 0.2s;
+
+                    &:hover {
+                        color: $AdminMainColor;
+                    }
+
+                    svg {
+                        width: 20px;
+                        height: 20px;
+                        path {
+                            fill: $neutral-400;
+                        }
+                    }
                 }
             }
 
-            button[type='submit']{
+            button[type='submit'] {
                 width: 100%;
-                border: 2px solid $PrimaryBlue;
+                height: 48px;
+                background: $AdminMainColor;
                 color: white;
-                font-weight: bold;
-                background: $PrimaryBlue;
-                height: 33px;
-                margin-top: 10px;
-                border-radius: 3px;
-                text-transform: uppercase;
-                transition: all .5s ease-in-out;
-                -moz-transition: all .5s ease-in-out;
+                border: none;
+                border-radius: $radius-md;
+                font-size: 1rem;
+                font-weight: 600;
+                margin-top: 1.5rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
-                &:hover{
-                    background: white;
-                    color: $PrimaryBlue;
+                &:hover {
+                    background: darken($AdminMainColor, 5%);
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                    transform: translateY(-1px);
+                }
+
+                &:active {
+                    transform: translateY(0);
+                }
+
+                &:disabled {
+                    opacity: 0.75;
+                    cursor: not-allowed;
+                    transform: none;
                 }
             }
         }

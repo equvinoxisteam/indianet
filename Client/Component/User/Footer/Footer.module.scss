@@ -1,22 +1,114 @@
 @import "../../../styles/app.module.scss";
 
+// ============================================
+// FOOTER — Premium Dark Design
+// ============================================
+
+.FooterWrapper {
+    background: $primary-extra-dark;
+    color: rgba(255,255,255,0.7);
+    margin-top: 4rem;
+    padding-top: 3rem;
+
+    @media (max-width: 767px) {
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+    }
+}
+
+.FooterBrand {
+    margin-bottom: 1rem;
+
+    .brandDesc {
+        font-size: 0.86rem;
+        color: rgba(255,255,255,0.58);
+        line-height: 1.7;
+        margin-top: 0.75rem;
+        max-width: 360px;
+
+        @media (max-width: 767px) {
+            max-width: 100%;
+            font-size: 0.82rem;
+        }
+    }
+}
+
+.brandHighlights {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+
+    li {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.5);
+        line-height: 1.5;
+        margin-bottom: 8px;
+
+        i {
+            color: $brand-orange;
+            font-size: 0.7rem;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+    }
+}
+
+.FooterSocialRow {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 0.5rem;
+    padding-top: 1.5rem;
+
+    @media (max-width: 576px) {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.socialNote {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.45);
+    margin: 0.35rem 0 0;
+    max-width: 420px;
+    line-height: 1.55;
+}
+
+.FooterHeading {
+    font-size: 0.72rem;
+    font-weight: $font-weight-bold;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 1rem;
+}
+
 .FooterItems {
     padding: 0;
     margin: 0;
     list-style: none;
-    padding-bottom: 25px;
 
     li {
-        padding-top: 10px;
+        margin-bottom: 10px;
 
         a {
-            color: $MainGrey;
+            color: rgba(255,255,255,0.6);
             text-decoration: none;
-            font-size: small;
+            font-size: 0.875rem;
+            font-weight: $font-weight-regular;
+            transition: color $transit-fast, padding-left $transit-fast;
+            display: inline-block;
 
             &:hover {
-                color: $Main2ndGreen;
-                text-decoration: none;
+                color: $brand-orange;
+                padding-left: 4px;
             }
         }
     }
@@ -25,38 +117,85 @@
 .FooterSMicons {
     padding: 0;
     margin: 0;
-    padding-top: 15px;
-    padding-bottom: 25px;
     list-style: none;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
 
-    li {
-        display: inline;
-        padding-right: 10px;
+    li button {
+        border: 1px solid rgba(255,255,255,0.15);
+        background: rgba(255,255,255,0.06);
+        color: rgba(255,255,255,0.7);
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all $transit-fast;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
 
-        button {
-            border: 1px solid $MainLtGrey;
-            background: white;
-            color: $MainBLack;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            transition: all .5s;
-            -moz-transition: all .5s;
-            transition-timing-function: ease-in-out;
-            -moz-transition-timing-function: ease-in-out;
-
-            &:hover {
-                border: 1px solid $Main2ndGreen;
-                background: $Main2ndGreen;
-                color: white;
-            }
+        &:hover {
+            background: $brand-orange;
+            border-color: $brand-orange;
+            color: white;
+            transform: translateY(-2px);
         }
     }
+}
 
+.FooterDivider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin: 2rem 0 0;
 }
 
 .CopyRightArea {
-    margin-top: 30px;
-    border-top: 1px solid $MainLtGrey;
-    padding-bottom: 20px;
+    padding: 1rem 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+
+    @media (max-width: 576px) {
+        align-items: center;
+        text-align: center;
+    }
+
+    .copyMain {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.45);
+        margin: 0;
+        font-weight: $font-weight-semibold;
+    }
+
+    .copySub {
+        font-size: 0.76rem;
+        color: rgba(255,255,255,0.35);
+        margin: 0;
+        line-height: 1.55;
+        max-width: 640px;
+
+        a {
+            color: rgba(255,255,255,0.55);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            &:hover { color: $brand-orange; }
+        }
+    }
+
+    .footerLinks {
+        margin-top: 4px;
+
+        a {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.45);
+            text-decoration: none;
+            font-weight: $font-weight-semibold;
+            transition: color $transit-fast;
+            &:hover { color: $brand-orange; }
+        }
+    }
 }

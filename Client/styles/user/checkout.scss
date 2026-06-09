@@ -1,445 +1,402 @@
 @import '../app.module.scss';
 
-.CheckoutComp {
-    padding-top: 2em;
-    padding-bottom: 3em;
+// ============================================
+// CHECKOUT PAGE — Professional B2B Style
+// ============================================
 
+.CheckoutComp {
+    padding-top: 1.5rem;
+    padding-bottom: 4rem;
+    font-family: $font-primary;
+
+    .checkoutPageHeader {
+        background: $surface-white;
+        border: 1px solid $neutral-200;
+        border-radius: $radius-lg;
+        box-shadow: $shadow-xs;
+        padding: 1rem 1.25rem;
+
+        h1 {
+            font-size: 1.2rem;
+            font-weight: $font-weight-bold;
+            color: $neutral-900;
+        }
+    }
+
+    @media (max-width: 767px) { padding-bottom: 6rem; }
+
+    // Address selection modal
     #addressModal {
         button[data-for="exit"] {
-            outline: none;
             background: none;
             border: none;
-
-            svg {
-                height: 20px;
-                width: 20px;
-            }
+            color: $neutral-500;
+            cursor: pointer;
+            transition: color $transit-fast;
+            &:hover { color: $danger; }
+            svg { height: 20px; width: 20px; }
         }
 
         .AddressCard {
-            border: 1px solid $MainLtGrey;
-            padding: 1em;
-            padding-bottom: .7em;
-            margin-bottom: 5px;
+            border: 1.5px solid $neutral-200;
+            border-radius: $radius-md;
+            padding: 1rem 1.25rem 0.75rem;
+            margin-bottom: 10px;
+            transition: border-color $transit-fast, box-shadow $transit-fast;
+            cursor: pointer;
+
+            &:hover {
+                border-color: $brand-orange;
+                box-shadow: 0 0 0 3px rgba($brand-orange, 0.08);
+            }
 
             button[data-for="select"] {
-                width: 7em;
-                font-size: small;
-                height: 2em;
+                height: 34px;
+                padding: 0 16px;
+                font-size: 0.8rem;
+                font-weight: $font-weight-semibold;
                 color: white;
-                border: 2px solid $MainBLack;
-                background: $MainBLack;
-                text-transform: uppercase;
-                border-radius: 3px;
-                transition: all .5s ease-in-out;
-                -moz-transition: all .5s ease-in-out;
-
-                &:hover {
-                    background: white;
-                    color: $MainBLack;
-                }
+                background: $primary;
+                border: none;
+                border-radius: $radius-sm;
+                cursor: pointer;
+                transition: background $transit-fast;
+                &:hover { background: $brand-orange; }
             }
         }
     }
 
-    @media only screen and (max-width: 767px) {
-        padding-bottom: 0em;
-    }
-
+    // Payment method selector
     .wrapper {
         position: relative;
-        height: auto;
-        width: 100%;
-        padding-top: 15px;
-        padding-left: 15px;
-        padding-right: 15px;
+        padding: 4px;
 
-        @media only screen and (max-width: 767px) {
-            padding-top: 0;
-            padding-bottom: 15px;
+        #option-1 { display: none; }
+
+        #option-1:checked + .BtnDiv {
+            background: rgba($brand-orange, 0.08);
+            border-color: $brand-orange;
+            label { color: $brand-orange-dark; }
         }
-
-        #option-1 {
-            height: 10px;
-            margin-left: 10px;
-            top: 27px;
-
-            @media only screen and (max-width: 767px) {
-                top: 11.5px;
-            }
-
-            position: absolute;
-            text-align: left;
-            width: 10px;
-        }
-
-        #option-1:checked+.BtnDiv {
-            background: $MainGreen;
-
-            label {
-                color: white;
-            }
-        }
-
 
         .BtnDiv {
             cursor: pointer;
-            padding-top: 3px;
-            padding-left: 20px;
-            height: 35px;
-            border: 2px solid $MainGreen;
+            padding: 9px 14px 9px 14px;
+            border: 1.5px solid $neutral-200;
             background: white;
-            border-radius: 3px;
-            transition: all .5s ease-in-out;
-            -moz-transition: all .5s ease-in-out;
+            border-radius: $radius-md;
+            transition: all $transit-fast;
+            display: flex;
+            align-items: center;
+            gap: 8px;
 
             label {
-                font-size: small;
-                color: black;
-                font-weight: bold;
+                font-size: 0.85rem;
+                color: $neutral-700;
+                font-weight: $font-weight-semibold;
                 cursor: pointer;
+                margin: 0;
+            }
+
+            &:hover {
+                border-color: $brand-orange;
+                background: rgba($brand-orange, 0.04);
             }
         }
     }
 
+    // Section label
+    .sectionLabel {
+        font-size: 0.72rem;
+        font-weight: $font-weight-bold;
+        color: $neutral-400;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        &::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: $neutral-200;
+        }
+    }
+
+    // Form card shared styles
+    %formCardBase {
+        background: $surface-white;
+        border-radius: $radius-lg;
+        border: 1px solid $neutral-200;
+        box-shadow: $shadow-sm;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+
+        .formSectionTitle {
+            font-size: 0.95rem;
+            font-weight: $font-weight-semibold;
+            color: $neutral-800;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid $neutral-100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            i { color: $brand-orange; }
+        }
+
+        label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: $font-weight-semibold;
+            color: $neutral-600;
+            margin-bottom: 5px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0 13px;
+            font-size: 0.88rem;
+            color: $neutral-800;
+            background: white;
+            border: 1.5px solid $neutral-200;
+            border-radius: $radius-md;
+            outline: none;
+            font-family: $font-primary;
+            transition: border-color $transit-fast, box-shadow $transit-fast;
+            &::placeholder { color: $neutral-400; }
+            &:hover { border-color: $neutral-400; }
+            &:focus {
+                border-color: $brand-orange;
+                box-shadow: 0 0 0 3px rgba($brand-orange, 0.10);
+            }
+        }
+
+        input, select { height: 44px; }
+
+        textarea {
+            height: 100px;
+            padding: 10px 13px;
+            resize: none;
+        }
+
+        .AddressCard {
+            border: 1.5px solid $neutral-200;
+            border-radius: $radius-md;
+            padding: 0.875rem 1rem;
+            margin-bottom: 10px;
+            transition: border-color $transit-fast;
+
+            &:hover { border-color: $brand-orange; }
+
+            button[data-for="more"] {
+                height: 32px;
+                padding: 0 14px;
+                font-size: 0.78rem;
+                font-weight: $font-weight-semibold;
+                color: white;
+                background: $primary;
+                border: none;
+                border-radius: $radius-sm;
+                cursor: pointer;
+                margin-top: 6px;
+                &:hover { background: $brand-orange; }
+            }
+
+            button[data-for="select"] {
+                height: 32px;
+                padding: 0 14px;
+                font-size: 0.78rem;
+                font-weight: $font-weight-semibold;
+                color: white;
+                background: $success;
+                border: none;
+                border-radius: $radius-sm;
+                cursor: pointer;
+                &:hover { background: darken($success, 8%); }
+            }
+        }
+    }
+
+    // Desktop layout
     .desktop {
         display: block;
         width: 100%;
         clear: both;
-
-        &:before,
-        &::after {
-            content: '';
-            display: table;
-            clear: both;
-        }
+        &::before, &::after { content: ''; display: table; clear: both; }
 
         .leftDiv {
-            width: 70%;
+            width: 65%;
             display: inline-block;
             vertical-align: top;
             float: left;
+            padding-right: 1.25rem;
 
-            @media only screen and (max-width: 991px) {
-                width: 60%;
-            }
+            @media (max-width: 991px) { width: 58%; }
 
-            .FormCard {
-                margin-top: 1em;
-                border: 1px solid $MainLtGrey;
-                padding: 2em;
-                padding-top: 3em;
-
-                .AddressCard {
-                    button[data-for="more"] {
-                        margin-top: 5px;
-                        width: 7em;
-                        font-size: small;
-                        height: 2em;
-                        color: white;
-                        border: 2px solid $MainGreen;
-                        background: $MainGreen;
-                        text-transform: uppercase;
-                        border-radius: 3px;
-                        transition: all .5s ease-in-out;
-                        -moz-transition: all .5s ease-in-out;
-
-                        &:hover {
-                            background: white;
-                            color: $MainBLack;
-                        }
-                    }
-
-                    button[data-for="select"] {
-                        width: 7em;
-                        font-size: small;
-                        height: 2em;
-                        color: white;
-                        border: 2px solid $MainBLack;
-                        background: $MainBLack;
-                        text-transform: uppercase;
-                        border-radius: 3px;
-                        transition: all .5s ease-in-out;
-                        -moz-transition: all .5s ease-in-out;
-
-                        &:hover {
-                            background: white;
-                            color: $MainBLack;
-                        }
-                    }
-                }
-
-                input {
-                    height: 40px;
-                    width: 100%;
-                    padding-left: 10px;
-                    outline: none;
-                    font-size: 15px;
-                    border: 1px solid $MainLtGrey;
-                    color: $MainGrey;
-                }
-
-                textarea {
-                    height: 115px;
-                    padding-left: 10px;
-                    padding-top: 10px;
-                    width: 100%;
-                    outline: none;
-                    font-size: 15px;
-                    border: 1px solid $MainLtGrey;
-                    color: $MainGrey;
-                }
-
-                select {
-                    height: 40px;
-                    width: 100%;
-                    padding-left: 10px;
-                    outline: none;
-                    font-size: 15px;
-                    border: 1px solid $MainLtGrey;
-                    background: white;
-                    color: $MainGrey;
-                }
-            }
-
+            .FormCard { @extend %formCardBase; }
         }
 
         .rightDiv {
-            width: 30%;
+            width: 35%;
             float: right;
             position: sticky;
-            top: 10px;
+            top: 80px;
 
-            @media only screen and (max-width: 991px) {
-                width: 40%;
-            }
+            @media (max-width: 991px) { width: 42%; }
 
             .CheckoutAmtCard {
-                margin-top: 1em;
-                border: 1px solid $MainLtGrey;
-                margin-left: 1em;
-                height: auto;
+                background: $surface-white;
+                border-radius: $radius-lg;
+                border: 1px solid $neutral-200;
+                box-shadow: $shadow-sm;
+                overflow: hidden;
+
+                .cardHeading {
+                    background: $primary;
+                    color: white;
+                    padding: 14px 18px;
+                    font-size: 0.9rem;
+                    font-weight: $font-weight-semibold;
+                }
 
                 .cuponInDiv {
-                    position: relative;
-                    padding-left: 1em;
-                    padding-right: 1em;
-                    padding-bottom: 1em;
-                    border-bottom: 1px solid $MainLtGrey;
+                    padding: 1rem;
+                    border-bottom: 1px solid $neutral-100;
 
                     input {
                         width: 100%;
-                        border: 1px solid $MainLtGrey;
+                        border: 1.5px solid $neutral-200;
+                        border-radius: $radius-md;
                         outline: none;
-                        height: 35px;
-                        font-size: 15px;
-                        padding-left: 1px;
+                        height: 40px;
+                        font-size: 0.875rem;
+                        padding: 0 12px;
+                        font-family: $font-primary;
+                        &:focus { border-color: $brand-orange; }
                     }
                 }
 
-                .subDiv {
-                    padding-left: 1em;
-                    padding-top: .7em;
-                    padding-bottom: .2em;
-                    border-bottom: 1px solid $MainLtGrey;
+                .subDiv, .lastDiv {
+                    padding: 0.9rem 1rem;
+                    border-bottom: 1px solid $neutral-100;
                 }
-
-                .lastDiv {
-                    padding-left: 1em;
-                    padding-top: .7em;
-                }
+                .lastDiv { border-bottom: none; }
 
                 .AmtDiv {
-                    padding-top: .3em;
-                    display: grid;
-                    grid-template-columns: 50% 50%;
-                    color: $MainBLack;
-                    padding-bottom: .4em;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 5px 0;
+                    font-size: 0.875rem;
+                    color: $neutral-700;
+
+                    .amtLabel { color: $neutral-500; }
+                    .amtValue { font-weight: $font-weight-semibold; color: $neutral-800; }
+                    &.total {
+                        .amtLabel { font-weight: $font-weight-bold; color: $neutral-800; font-size: 0.95rem; }
+                        .amtValue { font-weight: $font-weight-bold; color: $brand-orange; font-size: 1.1rem; }
+                    }
+                    &.discount .amtValue { color: $success; }
                 }
 
                 .orderBtnDiv {
-                    padding-left: 1em;
-                    padding-right: 1em;
-                    padding-top: 1em;
-                    padding-bottom: 1em;
+                    padding: 1rem;
+                    background: $neutral-50;
+                    border-top: 1px solid $neutral-200;
 
                     .orderBtn {
+                        @include btn-primary;
                         width: 100%;
-                        height: 2.5em;
-                        background: $Main2ndGreen;
-                        border: 3px solid $Main2ndGreen;
-                        border-radius: 3px;
-                        color: white;
-                        transition: all .5s ease-in-out;
-                        -moz-transition: all .5s ease-in-out;
-                        text-transform: uppercase;
-                        font-weight: bold;
-
-                        &:hover {
-                            background: white;
-                            color: $MainBLack;
-                        }
+                        height: 48px;
+                        border-radius: $radius-md;
+                        font-size: 0.95rem;
+                        letter-spacing: 0.02em;
                     }
                 }
-
             }
         }
     }
 
+    // Mobile layout
     .Mobile {
-
-        .FormCard {
-            margin-top: 1em;
-            border: 1px solid $MainLtGrey;
-            padding: 1em;
-            padding-top: 2em;
-
-            .AddressCard {
-                button[data-for="more"] {
-                    margin-top: 5px;
-                    width: 7em;
-                    font-size: small;
-                    height: 2em;
-                    color: white;
-                    border: 2px solid $MainGreen;
-                    background: $MainGreen;
-                    text-transform: uppercase;
-                    border-radius: 3px;
-                    transition: all .5s ease-in-out;
-                    -moz-transition: all .5s ease-in-out;
-
-                    &:hover {
-                        background: white;
-                        color: $MainBLack;
-                    }
-                }
-
-                button[data-for="select"] {
-                    width: 7em;
-                    font-size: small;
-                    height: 2em;
-                    color: white;
-                    border: 2px solid $MainBLack;
-                    background: $MainBLack;
-                    text-transform: uppercase;
-                    border-radius: 3px;
-                    transition: all .5s ease-in-out;
-                    -moz-transition: all .5s ease-in-out;
-
-                    &:hover {
-                        background: white;
-                        color: $MainBLack;
-                    }
-                }
-            }
-
-            input {
-                height: 40px;
-                width: 100%;
-                padding-left: 10px;
-                outline: none;
-                font-size: 15px;
-                border: 1px solid $MainLtGrey;
-                color: $MainGrey;
-            }
-
-            textarea {
-                height: 150px;
-                padding-left: 10px;
-                padding-top: 10px;
-                width: 100%;
-                outline: none;
-                font-size: 15px;
-                border: 1px solid $MainLtGrey;
-                color: $MainGrey;
-            }
-
-            select {
-                height: 40px;
-                width: 100%;
-                padding-left: 10px;
-                outline: none;
-                font-size: 15px;
-                border: 1px solid $MainLtGrey;
-                background: white;
-                color: $MainGrey;
-            }
-        }
+        .FormCard { @extend %formCardBase; }
 
         .CheckoutAmtCard {
-            margin-top: 1em;
-            border: 1px solid $MainLtGrey;
-            height: auto;
+            background: $surface-white;
+            border-radius: $radius-lg;
+            border: 1px solid $neutral-200;
+            box-shadow: $shadow-sm;
+            overflow: hidden;
+            margin-bottom: 1rem;
+
+            .cardHeading {
+                background: $primary;
+                color: white;
+                padding: 12px 16px;
+                font-size: 0.875rem;
+                font-weight: $font-weight-semibold;
+            }
 
             .cuponInDiv {
-                position: relative;
-                padding-left: 1em;
-                padding-right: 1em;
-                padding-bottom: 1.5em;
-
+                padding: 0.875rem 1rem;
                 input {
                     width: 100%;
-                    border: 2px solid $MainLtGrey;
+                    border: 1.5px solid $neutral-200;
+                    border-radius: $radius-md;
                     outline: none;
-                    height: 35px;
-                    font-size: 15px;
-                    padding-left: 1px;
+                    height: 40px;
+                    font-size: 0.875rem;
+                    padding: 0 12px;
+                    &:focus { border-color: $brand-orange; }
                 }
             }
 
-            .subDiv {
-                border-bottom: 1px solid $MainLtGrey;
-                padding-left: 1em;
-                padding-top: .7em;
-                padding-bottom: .2em;
-            }
+            .subDiv { padding: 0.75rem 1rem; border-bottom: 1px solid $neutral-100; }
+            .lastSub { padding: 0.75rem 1rem; }
 
             .AmtDiv {
-                padding-top: .3em;
-                display: grid;
-                grid-template-columns: 50% 50%;
-                color: $MainBLack;
-                padding-bottom: .4em;
+                display: flex;
+                justify-content: space-between;
+                padding: 4px 0;
+                font-size: 0.85rem;
+                color: $neutral-700;
             }
-
-            .lastSub {
-                padding-left: 1em;
-                padding-top: .7em;
-                padding-bottom: .2em;
-            }
-
         }
     }
 
+    // Fixed mobile checkout bar
     .CheckoutAmtCardFixed {
         position: fixed;
         bottom: 0;
-        background: white;
-        width: 100%;
-        height: 4em;
-        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+        left: 0;
+        right: 0;
+        background: $surface-white;
+        border-top: 1px solid $neutral-200;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.10);
+        z-index: 100;
 
         .MainDiv {
-            display: grid;
-            grid-template-columns: 50% 50%;
-            padding-top: 0.5em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            gap: 10px;
+
+            .totalLabel {
+                flex: 1;
+                .lbl { font-size: 0.75rem; color: $neutral-500; }
+                .val { font-size: 1.1rem; font-weight: $font-weight-bold; color: $neutral-900; }
+            }
 
             .orderBtn {
-                width: 100%;
-                height: 89%;
-                background: $Main2ndGreen;
-                border: 3px solid $Main2ndGreen;
-                border-radius: 3px;
-                color: white;
-                transition: all .5s ease-in-out;
-                -moz-transition: all .5s ease-in-out;
-                text-transform: uppercase;
-                font-weight: bold;
-
-                &:hover {
-                    background: white;
-                    color: $MainBLack;
-                }
+                @include btn-primary;
+                height: 44px;
+                min-width: 140px;
+                border-radius: $radius-md;
+                font-size: 0.88rem;
             }
         }
     }

@@ -14,9 +14,7 @@ export default function Products() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main className='Admin'>
-                {
-                    loaded && <Header />
-                }
+                <Header />
                 <ProductList setLoaded={setLoaded} loaded={loaded} />
             </main>
         </Fragment>

@@ -1,58 +1,281 @@
 @import '../app.module.scss';
 
+// ============================================
+// VENDOR PANEL — Sidebar Layout
+// ============================================
+
 .Vendor {
-    .indianet-navbar {
-        background: linear-gradient(90deg, $PrimaryBlue 0%, #084298 100%) !important;
-        box-shadow: 0 2px 12px rgba(10, 102, 194, 0.28);
+    font-family: $font-primary;
+    font-size: 14px;
+    min-height: 100vh;
+    background: $surface-bg;
+    margin-top: 0;
+
+    // ---- SIDEBAR ----
+    .VendorSidebar {
+        width: $sidebar-width;
+        min-height: 100vh;
+        background: linear-gradient(165deg, #0f2844 0%, #0d2038 42%, #081628 100%);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 1000;
+        overflow: hidden;
+        transition: transform $transit-normal;
+        box-shadow: 4px 0 32px rgba(0, 0, 0, 0.18);
+
+        @media (max-width: 991px) {
+            transform: translateX(-100%);
+            &.open { transform: translateX(0); }
+        }
+
+        .sidebarLogo {
+            padding: 22px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.12);
+
+            .logoBadge {
+                font-size: 0.6rem;
+                background: $brand-orange;
+                color: white;
+                padding: 2px 7px;
+                border-radius: $radius-full;
+                font-weight: $font-weight-bold;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+            }
+        }
+
+        .sidebarNav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+            scrollbar-width: none;
+            &::-webkit-scrollbar { display: none; }
+
+            .navLabel {
+                font-size: 0.62rem;
+                font-weight: $font-weight-bold;
+                color: rgba(255,255,255,0.25);
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                padding: 14px 18px 5px;
+                display: block;
+            }
+
+            .navLink {
+                display: flex;
+                align-items: center;
+                gap: 11px;
+                padding: 10px 18px;
+                color: rgba(255,255,255,0.68);
+                text-decoration: none;
+                font-size: 0.865rem;
+                font-weight: $font-weight-regular;
+                transition: all $transit-fast;
+                border-left: 3px solid transparent;
+                white-space: nowrap;
+
+                i {
+                    width: 18px;
+                    text-align: center;
+                    font-size: 0.875rem;
+                    opacity: 0.65;
+                    flex-shrink: 0;
+                    transition: opacity $transit-fast;
+                }
+
+                &:hover {
+                    background: rgba(255,255,255,0.05);
+                    color: white;
+                    i { opacity: 1; }
+                }
+
+                &.active {
+                    background: rgba($brand-orange, 0.16);
+                    color: #fff;
+                    border-left-color: $brand-orange;
+                    font-weight: $font-weight-semibold;
+                    box-shadow: inset 0 0 0 1px rgba($brand-orange, 0.2);
+                    i { opacity: 1; color: $brand-orange; }
+                }
+            }
+        }
+
+        .sidebarFooter {
+            padding: 14px 18px;
+            border-top: 1px solid $sidebar-border;
+            flex-shrink: 0;
+
+            .logoutBtn {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: rgba(255,255,255,0.4);
+                font-size: 0.865rem;
+                cursor: pointer;
+                background: none;
+                border: none;
+                width: 100%;
+                padding: 8px 0;
+                transition: color $transit-fast;
+                text-decoration: none;
+
+                i { font-size: 0.9rem; }
+                &:hover { color: $danger; }
+            }
+        }
     }
 
-    .navbar {
-        margin-top: 1em;
-        margin-left: 2em;
-        margin-right: 2em;
-        border-radius: 5px;
-        margin-bottom: 2em;
+    $vendor-topbar-height: 62px;
 
-        @media only screen and (max-width: 767px) {
-            margin-left: 1em;
-            margin-right: 1em;
-        }
+    // ---- TOPBAR ----
+    .VendorTopbar {
+        background: $surface-white;
+        border-bottom: 1px solid $neutral-200;
+        padding: 0 1.5rem;
+        height: $vendor-topbar-height;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        left: $sidebar-width;
+        right: 0;
+        z-index: 100;
+        box-shadow: $shadow-xs;
 
-        .navbar-brand {
-            color: white;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
+        @media (max-width: 991px) { left: 0; }
 
-        .toggleButton {
-            display: none;
+        .topbarLeft {
+            display: flex;
+            align-items: center;
+            gap: 14px;
 
-            @media only screen and (max-width: 767px) {
-                display: block;
-                outline: none;
-                border: none;
+            .vendorBackBtn {
+                width: 36px;
+                height: 36px;
+                border: 1px solid $neutral-200;
+                border-radius: $radius-md;
+                background: $surface-white;
+                color: $neutral-700;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all $transit-fast;
+
+                &:hover {
+                    background: $neutral-50;
+                    color: $neutral-900;
+                    border-color: $neutral-300;
+                }
+            }
+
+            .mobileMenuBtn {
+                display: none;
                 background: none;
-                color: white;
+                border: none;
+                color: $neutral-600;
+                font-size: 1.1rem;
+                cursor: pointer;
+                width: 36px;
+                height: 36px;
+                border-radius: $radius-md;
+                align-items: center;
+                justify-content: center;
+                &:hover { background: $neutral-100; }
+                @media (max-width: 991px) { display: flex; }
+            }
+
+            .pageBreadcrumb {
+                font-size: 0.83rem;
+                color: $neutral-500;
+                span { color: $neutral-800; font-weight: $font-weight-semibold; }
             }
         }
 
-        .navbar-collapse {
-            @media only screen and (min-width: 768px) {
-                flex-grow: 0 !important;
+        .topbarRight {
+            min-width: 0;
+        }
+    }
+
+    // ---- CONTENT LAYOUT ----
+    // Clear fixed topbar (58px) + comfortable gap — do not override padding-top in other vendor SCSS files.
+    .VendorContainer,
+    .containerVendor {
+        margin-left: $sidebar-width;
+        padding-top: calc(#{$vendor-topbar-height} + 3rem);
+        min-height: 100vh;
+        @media (max-width: 991px) { margin-left: 0; }
+    }
+
+    // OLD: hide old navbar
+    .navbar.indianet-navbar { display: none !important; }
+    .navbar { display: none !important; }
+
+    // ---- SHARED PANEL CARD STYLES ----
+    .panelCard {
+        background: $surface-white;
+        border-radius: $radius-lg;
+        border: 1px solid $neutral-200;
+        box-shadow: $shadow-sm;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .panelCardHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid $neutral-100;
+
+        h5 {
+            font-size: 1rem;
+            font-weight: $font-weight-semibold;
+            color: $neutral-800;
+            margin: 0;
+        }
+    }
+
+    .containerVendor,
+    .SettingsComp {
+        input:not([type="file"]):not([type="checkbox"]),
+        select,
+        textarea {
+            width: 100%;
+            max-width: 100%;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            border: 1px solid $neutral-200;
+            border-radius: $radius-md;
+            background: $surface-white;
+            color: $neutral-800;
+            transition: border-color $transit-fast, box-shadow $transit-fast;
+            &:focus {
+                outline: none;
+                border-color: rgba($brand-orange, 0.5);
+                box-shadow: 0 0 0 3px rgba($brand-orange, 0.12);
             }
         }
-
-        .nav-item {
-            a {
-                color: white !important;
-                font-weight: bold;
-                text-transform: uppercase;
-                font-size: small;
-            }
-
-            @media only screen and (min-width: 768px) {
-                text-align: right;
-            }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        input.form-check-input {
+            width: 1.1rem;
+            height: 1.1rem;
+            margin-top: 0.15rem;
+            flex-shrink: 0;
         }
     }
 }

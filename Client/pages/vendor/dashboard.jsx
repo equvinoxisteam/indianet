@@ -20,6 +20,14 @@ export default function Dashboard() {
       totalAmount: ''
     },
     Orders: [],
+    analytics: {
+      products: 0,
+      rfqTotal: 0,
+      rfqPending: 0,
+      rfqResponded: 0,
+      orderTotal: 0,
+      orderStatus: []
+    },
     loaded: false
   })
 

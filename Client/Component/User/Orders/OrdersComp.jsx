@@ -27,14 +27,16 @@ function OrdersComp({ setSearch, search, Orders, setOrders, total, setTotal, set
         } else {
             setShowNull(true)
         }
-    }, [])
+    }, [Orders])
+
     return (
         <div className='OrdersComp'>
             <div className="container container-fluid pt-5 pb-5">
 
                 <div>
                     <div className='pb-4 MobNon'>
-                        <h3 className='UserBlackMain font-bold'>My Account</h3>
+                        <h3 className='UserBlackMain font-bold'>Order history</h3>
+                        <p className='text-muted mb-0'>Track and review all your purchases in one place</p>
                     </div>
 
                     <div className="row">
@@ -46,7 +48,7 @@ function OrdersComp({ setSearch, search, Orders, setOrders, total, setTotal, set
                                     <button onClick={() => {
                                         navigate.push('/account')
                                     }}>
-                                        <span><UserIcon color={'#333'} /></span>
+                                        <span><UserIcon color={'#1A3C5E'} /></span>
                                         <span className='span2'>My Details</span>
                                     </button>
                                 </div>
@@ -55,7 +57,7 @@ function OrdersComp({ setSearch, search, Orders, setOrders, total, setTotal, set
                                     <button onClick={() => {
                                         navigate.push('/address')
                                     }}>
-                                        <span><LocationIcon color={'#333'} /></span>
+                                        <span><LocationIcon color={'#1A3C5E'} /></span>
                                         <span className='span2'>My Address</span>
                                     </button>
                                 </div>
@@ -71,7 +73,7 @@ function OrdersComp({ setSearch, search, Orders, setOrders, total, setTotal, set
                                     <button onClick={() => {
                                         navigate.push('/wishlist')
                                     }}>
-                                        <span><HeartIcon color={'#333'} /></span>
+                                        <span><HeartIcon color={'#1A3C5E'} /></span>
                                         <span className='span2'>My Wishlist</span>
                                     </button>
                                 </div>
@@ -80,17 +82,18 @@ function OrdersComp({ setSearch, search, Orders, setOrders, total, setTotal, set
                                     <button onClick={() => {
                                         navigate.push('/cart')
                                     }}>
-                                        <span><CartIcon color={'#333'} /></span>
+                                        <span><CartIcon color={'#1A3C5E'} /></span>
                                         <span className='span2'>My Cart</span>
                                     </button>
                                 </div>
 
                                 <div className='BtnDiv'>
                                     <button onClick={() => {
-                                        setUserLogged({ status: false })
                                         localStorage.removeItem('token')
+                                        setUserLogged({ status: false })
+                                        navigate.push('/')
                                     }}>
-                                        <span><LogoutIcon color={'#333'} /></span>
+                                        <span><LogoutIcon color={'#1A3C5E'} /></span>
                                         <span className='span2'>Logout</span>
                                     </button>
                                 </div>
@@ -101,22 +104,24 @@ function OrdersComp({ setSearch, search, Orders, setOrders, total, setTotal, set
                         <div className="col-12 col-md-9">
                             <div className="MainCard">
                                 <div className='pb-3'>
-                                    <h4 className='UserBlackMain font-bold'>My Orders</h4>
+                                    <h4 className='UserBlackMain font-bold'>My orders</h4>
                                 </div>
 
                                 {
                                     ShowNull ? (
                                         <div className='text-center'>
-                                            <div className='ErrorSection'>
+                                            <div className='ErrorSection py-5'>
                                                 <OrdersEmtyIcon />
-                                                <h5 className='UserGrayMain pt-2 pb-3'>Your orders is empty</h5>
+                                                <h5 className='UserGrayMain pt-2 pb-3'>Your orders are empty</h5>
+                                                <Link href="/" className='btn btn-primary px-4'>Start Shopping</Link>
                                             </div>
                                         </div >
                                     ) : (
                                         <div className='pt-2'>
-                                            <div>
-                                                <input className='searchIn'
-                                                    placeholder='Search' value={search}
+                                            <div className='mb-4'>
+                                                <input className='input-field'
+                                                    style={{ maxWidth: '400px' }}
+                                                    placeholder='Search your orders...' value={search}
                                                     type="text" onInput={(e) => {
                                                         setSearch(e.target.value)
                                                     }} name="" id="" />
@@ -163,8 +168,8 @@ function OrdersComp({ setSearch, search, Orders, setOrders, total, setTotal, set
                                             </div>
 
                                             {
-                                                total !== Orders.length && <div className='text-end'>
-                                                    <button data-for="LoadMore" onClick={() => {
+                                                total !== Orders.length && <div className='text-center mt-4'>
+                                                    <button className='btn btn-outline-primary px-5' onClick={() => {
                                                         userAxios((server) => {
                                                             server.get('/users/getOrders', {
                                                                 params: {

@@ -1,19 +1,39 @@
 @import '../app.module.scss';
 
 .WishlistComp {
+    .text-center {
+        h1 {
+            font-size: 1.45rem;
+            margin-bottom: 0.35rem;
+        }
+        h6 {
+            color: $neutral-500 !important;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+    }
+
     .UserMainProCard {
         width: auto;
         height: 320px;
-        border-radius: 3px;
+        border-radius: $radius-sm;
         position: relative;
+        border: 1px solid $neutral-200;
+        background: $surface-white;
+        transition: box-shadow $transit-normal, transform $transit-normal;
+
+        &:hover {
+            box-shadow: $shadow-md;
+            transform: translateY(-2px);
+        }
 
         .UserMainProimgDiv {
             height: 170px;
             text-align: center;
             padding-top: 10px;
-            border-radius: 3px;
+            border-radius: $radius-sm $radius-sm 0 0;
             width: auto;
-            background: $MainBgGray;
+            background: $neutral-50;
 
             @media only screen and (max-width: 450px) {
                 height: 160px;
@@ -40,23 +60,25 @@
                 }
             }
 
+            // discount badge (offerGreen kept as class name for compat)
             .offerGreen {
                 position: absolute;
                 left: 6%;
                 top: 6%;
-                background: $Main2ndGreen;
+                background: $primary;
                 color: white;
                 border: none;
                 font-size: small;
                 width: 3em;
-                border-radius: 3px;
+                border-radius: $radius-xs;
                 cursor: text;
+                font-weight: $font-weight-bold;
             }
         }
 
         .cartBtn {
-            color: #333;
-            border: 1px solid $MainLtGrey;
+            color: $primary;
+            border: 1.5px solid $primary;
             background: white;
             position: absolute;
             right: 10%;
@@ -65,22 +87,31 @@
             width: 35px;
             height: 35px;
             display: none;
+            transition: all $transit-fast;
 
             &:hover {
-                color: $MainGreen;
-                border: 1px solid $MainGreen;
+                background: $primary;
+                color: white;
             }
         }
 
         .QuickViewDiv {
-            background: $Main2ndGreen;
-            height: 45px;
+            background: rgba($primary, 0.92);
+            color: white;
+            height: 42px;
             position: absolute;
             width: 100%;
             top: 40%;
             font-size: small;
+            font-weight: $font-weight-semibold;
+            letter-spacing: 0.05em;
             border: none;
             display: none;
+            transition: background $transit-fast;
+
+            &:hover {
+                background: $primary-dark;
+            }
 
             @media only screen and (max-width: 450px) {
                 top: 36%;
@@ -93,19 +124,19 @@
 
         .RemoveBtn {
             width: 100%;
-            height: 35px;
-            background: $MainBLack;
-            border: 3px solid $MainBLack;
+            height: 38px;
+            background: $danger;
+            border: 1px solid $danger;
             color: white;
-            border-radius: 3px;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: all .5s ease-in-out;
-            -moz-transition: all .5s ease-in-out;
+            border-radius: $radius-sm;
+            font-weight: $font-weight-semibold;
+            font-size: 0.76rem;
+            text-transform: none;
+            transition: all $transit-fast;
 
             &:hover {
-                background: white;
-                color: $MainBLack;
+                background: darken($danger, 6%);
+                color: white;
             }
         }
 

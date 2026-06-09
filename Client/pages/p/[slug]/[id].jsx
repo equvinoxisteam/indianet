@@ -105,10 +105,10 @@ function Product({ response }) {
     return (
         <Fragment>
             <Head>
-                <title>{`Indianet - ${product.name}`}</title>
-                <meta name="description" content={product.seoDescription} />
-                <meta name="keywords" content={product.seoKeyword} />
-                <meta name="title" content={product.seoTitle} />
+                <title>{`Indianet - ${product?.name || 'Product'}`}</title>
+                <meta name="description" content={product?.seoDescription || ''} />
+                <meta name="keywords" content={product?.seoKeyword || ''} />
+                <meta name="title" content={product?.seoTitle || ''} />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main>

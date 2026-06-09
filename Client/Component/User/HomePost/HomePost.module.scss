@@ -1,236 +1,655 @@
-@import "../../../styles/app.module.scss";
+@import "../../../styles/_variables.scss";
 
 .HomePost {
+    padding-bottom: 3rem;
+    overflow-x: hidden;
+
+    // Full width section containers
+    .sectionFullWidth {
+        width: 100%;
+        margin: 2rem 0;
+        
+        .sectionHeader {
+            padding: 3rem 1rem 2rem;
+            text-align: center;
+
+            h2 {
+                margin-bottom: 1rem;
+                font-size: clamp(1.35rem, 4vw, 2.5rem);
+            }
+
+            p {
+                font-size: clamp(0.85rem, 2.5vw, 1rem);
+                padding: 0 0.5rem;
+            }
+
+            @media (max-width: 767px) {
+                padding: 2rem 0.75rem 1.5rem;
+            }
+        }
+    }
+
+    .categorySliderFullWidth {
+        width: 100%;
+        position: relative;
+        padding: 0 50px;
+        margin-bottom: 2rem;
+
+        @media (max-width: 767px) {
+            padding: 0 36px;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 576px) {
+            padding: 0 32px;
+        }
+
+        // Navigation arrows inside this container
+        .catNavPrev,
+        .catNavNext {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: $surface-white;
+            border: 1.5px solid $neutral-200;
+            box-shadow: $shadow-sm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            color: $primary;
+            font-size: 0.85rem;
+            transition: all $transit-fast;
+            user-select: none;
+
+            &:hover {
+                background: $primary;
+                color: white;
+                border-color: $primary;
+                box-shadow: $shadow-navy;
+            }
+
+            &.swiper-button-disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+                pointer-events: none;
+            }
+        }
+
+        .catNavPrev { left: 0; }
+        .catNavNext { right: 0; }
+    }
+
+    .productsSliderFullWidth {
+        width: 100%;
+        padding: 0 15px;
+        margin-bottom: 2rem;
+
+        .swiper-wrapper {
+            padding: 10px 0;
+        }
+    }
+
+    .sectionFullWidthBg {
+        width: 100%;
+        background: $neutral-50;
+        padding: 4rem 0;
+        margin: 3rem 0;
+        position: relative;
+
+        @media (max-width: 767px) {
+            padding: 2.5rem 0;
+            margin: 2rem 0;
+        }
+
+        .fullWidthContainer {
+            width: 100%;
+            max-width: 100%;
+            padding: 0 2rem;
+
+            @media (max-width: 768px) {
+                padding: 0 1rem;
+            }
+        }
+
+        .sectionHeader {
+            padding: 0 0 3rem;
+            text-align: center;
+
+            h2 {
+                font-size: 2.5rem;
+                margin-bottom: 1rem;
+                
+                @media (max-width: 768px) {
+                    font-size: 1.75rem;
+                }
+            }
+        }
+
+        .productsGridFullWidth {
+            width: 100%;
+            position: relative;
+            padding: 0 50px;
+            margin-bottom: 2rem;
+
+            @media (max-width: 576px) {
+                padding: 0 40px;
+            }
+            
+            .swiper-wrapper {
+                padding: 10px 0;
+            }
+
+            .swiper-slide {
+                height: auto;
+                display: flex;
+                align-items: stretch;
+            }
+        }
+    }
+
+    .sectionFullWidth {
+        width: 100%;
+        margin: 3rem 0;
+        background: white;
+        padding: 4rem 0;
+
+        @media (max-width: 767px) {
+            margin: 2rem 0;
+            padding: 2.5rem 0;
+        }
+
+        .fullWidthContainer {
+            width: 100%;
+            max-width: 100%;
+            padding: 0 2rem;
+
+            @media (max-width: 768px) {
+                padding: 0 1rem;
+            }
+        }
+
+        .sectionHeader {
+            padding: 0 0 3rem;
+            text-align: center;
+
+            h2 {
+                font-size: 2.5rem;
+                margin-bottom: 1rem;
+                
+                @media (max-width: 768px) {
+                    font-size: 1.75rem;
+                }
+            }
+        }
+
+        .productsGridFullWidth {
+            width: 100%;
+            position: relative;
+            padding: 0 50px;
+            margin-bottom: 2rem;
+
+            @media (max-width: 576px) {
+                padding: 0 40px;
+            }
+            
+            .swiper-wrapper {
+                padding: 10px 0;
+            }
+
+            .swiper-slide {
+                height: auto;
+                display: flex;
+                align-items: stretch;
+            }
+        }
+    }
 
     .UserCateSlidCard {
-        position: relative;
-        width: auto;
-        height: 240px;
-        border-radius: 3px;
+        padding: 10px;
+        transition: transform $transit-normal;
 
-        @media only screen and (max-width: 450px) {
-            height: 200px;
+        &:hover {
+            transform: translateY(-5px);
+            .InnerDiv { border-color: $primary; box-shadow: $shadow-md; }
         }
 
         .InnerDiv {
-            width: auto;
-            height: 230px;
-            transition: all .5s;
-            -moz-transition: all .5s;
-            transition-timing-function: ease-in-out;
-            -moz-transition-timing-function: ease-in-out;
+            background: white;
+            border: 1.5px solid $neutral-100;
+            border-radius: $radius-lg;
+            padding: 15px;
+            text-align: center;
+            transition: all $transit-normal;
+        }
 
-            @media only screen and (max-width: 450px) {
-                height: 190px;
+        .UserCateSlidImgDiv {
+            height: 120px;
+            @include flex-center;
+            margin-bottom: 12px;
+            
+            .UserCateSlidImg {
+                max-width: 80px;
+                max-height: 80px;
+                object-fit: contain;
+                mix-blend-mode: multiply;
             }
+        }
 
-            &:hover {
-                height: 170px;
-                background: $MainBgGray;
-                border-radius: 3px;
+        h5 {
+            font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+            font-weight: $font-weight-bold;
+            color: $neutral-800;
+            margin: 0;
+        }
 
-                @media only screen and (max-width: 450px) {
-                    height: 150px;
-                }
-
-                @media only screen and (max-width: 335px) {
-                    height: 130px;
-                }
-            }
-
+        @media (max-width: 576px) {
             .UserCateSlidImgDiv {
-                padding-top: 10px;
-                border-radius: 3px;
-                width: auto;
-                height: 180px;
-                transition: all .5s;
-                -moz-transition: all .5s;
-                transition-timing-function: ease-in-out;
-                -moz-transition-timing-function: ease-in-out;
-                cursor: pointer;
-
-                @media only screen and (max-width: 450px) {
-                    height: 160px;
-                }
-
-                @media only screen and (max-width: 335px) {
-                    height: 140px;
-                }
-
-                .UserCateSlidImg {
-                    width: auto;
-                    height: auto;
-                    max-width: 150px;
-                    max-height: 150px;
-
-                    @media only screen and (max-width: 450px) {
-                        max-width: 130px;
-                        max-height: 130px;
-                    }
-
-                    @media only screen and (max-width: 335px) {
-                        max-width: 110px;
-                        max-height: 110px;
-                    }
-                }
+                height: 90px;
+            }
+            .InnerDiv {
+                padding: 10px 8px;
             }
         }
     }
 
-    .UserMainProCard {
-        width: auto;
-        height: 300px;
-        border-radius: 3px;
+    // Old category slider wrapper (keeping for backward compatibility if needed)
+    .CatSliderWrapper {
         position: relative;
+        padding: 0 48px;
+
+        @media (max-width: 576px) {
+            padding: 0 36px;
+        }
+    }
+
+    // Main Product Card (Premium Professional Design)
+    .UserMainProCard {
+        background: $surface-white;
+        border-radius: $radius-lg;
+        padding: 0;
+        transition: all $transit-normal;
+        position: relative;
+        border: 1px solid $neutral-100;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+        box-shadow: $shadow-sm;
+
+        &:hover {
+            box-shadow: $shadow-xl;
+            border-color: $primary;
+            transform: translateY(-8px);
+
+            @media (max-width: 767px) {
+                transform: none;
+            }
+        }
+
+        @media (max-width: 767px) {
+            border-radius: $radius-md;
+        }
 
         .UserMainProimgDiv {
-            height: 170px;
-            text-align: center;
-            padding-top: 10px;
-            border-radius: 3px;
-            width: auto;
+            height: clamp(160px, 30vw, 240px);
+            @include flex-center;
             background: white;
-
-            @media only screen and (max-width: 450px) {
-                height: 160px;
-            }
-
-            @media only screen and (max-width: 335px) {
-                height: 140px;
-            }
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+            padding: 20px;
 
             img {
-                width: auto;
-                height: auto;
-                max-width: 150px;
-                max-height: 150px;
-
-                @media only screen and (max-width: 450px) {
-                    max-width: 130px;
-                    max-height: 130px;
-                }
-
-                @media only screen and (max-width: 335px) {
-                    max-width: 110px;
-                    max-height: 110px;
-                }
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+                mix-blend-mode: multiply;
+                transition: transform $transit-slow;
             }
+
+            &:hover img { transform: scale(1.1); }
 
             .offerGreen {
                 position: absolute;
-                left: 6%;
-                top: 6%;
-                background: $Main2ndGreen;
+                left: 12px;
+                top: 12px;
+                background: linear-gradient(135deg, $brand-orange 0%, $brand-orange-dark 100%);
                 color: white;
                 border: none;
-                font-size: small;
-                width: 3em;
-                border-radius: 3px;
-                cursor: text;
+                font-size: 0.75rem;
+                font-weight: $font-weight-bold;
+                padding: 6px 12px;
+                border-radius: $radius-full;
+                z-index: 10;
+                box-shadow: 0 2px 8px rgba($brand-orange, 0.3);
+            }
+
+            .cartBtn {
+                position: absolute;
+                right: 12px;
+                top: 12px;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: white;
+                border: 1.5px solid $neutral-200;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all $transit-fast;
+                color: $primary;
+                font-size: 1.1rem;
+                z-index: 10;
+
+                &:hover {
+                    background: $primary;
+                    color: white;
+                    border-color: $primary;
+                    transform: scale(1.1);
+                }
+            }
+
+            .QuickViewDiv {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: rgba($primary, 0.95);
+                color: white;
+                border: none;
+                padding: 12px;
+                font-size: 0.85rem;
+                font-weight: $font-weight-bold;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                cursor: pointer;
+                transition: all $transit-fast;
+                opacity: 0;
+                transform: translateY(10px);
+
+                &:hover {
+                    background: $primary-dark;
+                }
+            }
+
+            &:hover .QuickViewDiv {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            @media (max-width: 767px) {
+                padding: 12px;
+
+                .QuickViewDiv {
+                    opacity: 1;
+                    transform: translateY(0);
+                    font-size: 0.75rem;
+                    padding: 8px;
+                }
             }
         }
 
-        .cartBtn {
-            color: #333;
-            border: 1px solid $MainLtGrey;
+        .actionButtons {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            padding: 0 16px 16px;
+
+            @media (max-width: 576px) {
+                flex-direction: column;
+                gap: 6px;
+                padding: 0 12px 12px;
+            }
+
+            button {
+                flex: 1;
+                height: 42px;
+                border-radius: $radius-md;
+                font-size: clamp(0.75rem, 2vw, 0.85rem);
+                font-weight: $font-weight-bold;
+                letter-spacing: 0.02em;
+                transition: all $transit-fast;
+                @include flex-center;
+                gap: 8px;
+                border: 1.5px solid transparent;
+                
+                i { font-size: 1rem; }
+            }
+
+            .quickViewBtn {
+                background: white;
+                color: $primary;
+                border-color: $primary;
+
+                &:hover {
+                    background: $primary;
+                    color: white;
+                    border-color: $primary;
+                    transform: translateY(-2px);
+                }
+            }
+
+            .addToCartBtn {
+                background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+                color: white;
+                border: none;
+
+                &:hover {
+                    background: linear-gradient(135deg, $primary-dark 0%, $primary 100%);
+                    box-shadow: 0 4px 12px rgba($primary, 0.3);
+                    transform: translateY(-2px);
+                }
+            }
+
+            .addToCartBtnDisabled {
+                background: $neutral-200;
+                color: $neutral-500;
+                cursor: not-allowed;
+                border: none;
+            }
+        }
+        .textArea {
+            padding: 16px;
             background: white;
-            position: absolute;
-            right: 10%;
-            top: 10%;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: none;
-
-            &:hover {
-                color: $MainGreen;
-                border: 1px solid $MainGreen;
-            }
-        }
-
-        .QuickViewDiv {
-            background: $Main2ndGreen;
-            height: 45px;
-            position: absolute;
-            width: 100%;
-            top: 43%;
-            font-size: small;
-            border: none;
-            display: none;
-
-            @media only screen and (max-width: 450px) {
-                top: 38%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            
+            h6 { 
+                margin-bottom: 6px;
+                line-height: 1.4;
             }
 
-            @media only screen and (max-width: 335px) {
-                top: 32%;
+            .category { 
+                color: $neutral-500; 
+                font-size: 0.7rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                font-weight: $font-weight-medium;
+                margin-bottom: 4px;
             }
-        }
 
-        &:hover .cartBtn {
-            display: block;
-        }
+            .proName { 
+                font-weight: $font-weight-bold;
+                color: $neutral-800;
+                font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+                line-height: 1.3;
+                margin-bottom: 8px;
+            }
+            
+            .PriceSpan {
+                display: flex;
+                align-items: baseline;
+                gap: 10px;
+                margin-top: auto;
 
-        &:hover .QuickViewDiv {
-            display: block;
+                .sale {
+                    font-size: 1.25rem;
+                    font-weight: $font-weight-bold;
+                    color: $primary;
+                }
+                .mrp {
+                    font-size: 0.85rem;
+                    color: $neutral-400;
+                    text-decoration: line-through;
+                }
+            }
         }
     }
 
+    // Grid section styling
     .usrLastHmMainDiv {
-        width: auto;
-        position: relative;
+        background: white;
+        border-radius: $radius-lg;
+        padding: 12px;
+        border: 1px solid $neutral-100;
+        transition: all $transit-normal;
+        margin-bottom: 10px;
+
+        &:hover {
+            box-shadow: $shadow-md;
+            border-color: $primary-light;
+        }
 
         .usrLastHmGrid {
-            display: grid;
-            grid-template-columns: 110px auto;
-            background: white;
-            border-radius: 3px;
-            padding: 10px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
 
-            .UsrImgdivHomeLast {
-                display: flex;
-                text-align: center;
-                height: 100px;
-                width: 100px;
-                justify-content: center;
-                align-items: center;
+        .UsrImgdivHomeLast {
+            width: 80px;
+            height: 80px;
+            @include flex-center;
+            background: $neutral-50;
+            border-radius: $radius-md;
+            overflow: hidden;
 
-                img {
-                    margin: auto;
-                    display: block;
-                    max-width: 100px;
-                    max-height: 100px;
-                }
-            }
-
-            .proName {
-                max-width: 200px;
-
-                @media only screen and (max-width:372px) {
-                    max-width: 170px;
-                }
-
-                @media only screen and (max-width:343px) {
-                    max-width: 150px;
-                }
-
-                @media only screen and (max-width:320px) {
-                    max-width: 100px;
-                }
-            }
-
-            .category {
-                max-width: 150px;
-
-                @media only screen and (max-width:343px) {
-                    max-width: 100px;
-                }
-
-                @media only screen and (max-width:320px) {
-                    max-width: 70px;
-                }
+            img {
+                max-width: 80%;
+                max-height: 80%;
+                object-fit: contain;
+                mix-blend-mode: multiply;
             }
         }
     }
 
+    // Banner styling
+    .bannerContainer {
+        width: 100%;
+        margin: 20px 0;
+        
+        .bannerImage {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: $radius-lg;
+            cursor: pointer;
+            transition: transform $transit-normal;
+
+            &:hover {
+                transform: scale(1.02);
+            }
+
+            @media (max-width: 767px) {
+                border-radius: $radius-md;
+            }
+        }
+    }
+
+    // Slider Two - Matching Slider One style
+    .sliderTwoContainer {
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        background: $surface-white;
+        padding: 0;
+        margin: 2rem 0;
+
+        .sliderTwoSwiper {
+            width: 100%;
+            height: 100%;
+        }
+
+        .sliderTwoSlide {
+            width: 100%;
+            height: clamp(250px, 45vw, 600px);
+            min-height: 250px;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(90deg, rgba($primary-dark, 0.2) 0%, rgba(255,255,255,0) 70%);
+                pointer-events: none;
+            }
+
+            &:hover::after {
+                background: linear-gradient(90deg, rgba($primary-dark, 0.3) 0%, rgba(255,255,255,0) 70%);
+            }
+        }
+
+        // Navigation arrows
+        .sliderTwoNavPrev,
+        .sliderTwoNavNext {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: $surface-white;
+            border: 1.5px solid $neutral-200;
+            box-shadow: $shadow-sm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            color: $primary;
+            font-size: 0.85rem;
+            transition: all $transit-fast;
+            user-select: none;
+
+            &:hover {
+                background: $primary;
+                color: white;
+                border-color: $primary;
+                box-shadow: $shadow-navy;
+            }
+
+            &.swiper-button-disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+                pointer-events: none;
+            }
+        }
+
+        .sliderTwoNavPrev { left: 20px; }
+        .sliderTwoNavNext { right: 20px; }
+
+        @media (max-width: 767px) {
+            .sliderTwoNavPrev { left: 8px; }
+            .sliderTwoNavNext { right: 8px; }
+            .sliderTwoNavPrev,
+            .sliderTwoNavNext {
+                width: 32px;
+                height: 32px;
+                font-size: 0.75rem;
+            }
+        }
+    }
 }

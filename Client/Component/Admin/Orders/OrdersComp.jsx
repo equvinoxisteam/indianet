@@ -48,13 +48,17 @@ function OrdersComp({ loaded, setLoaded }) {
                 loaded ? (
                     <div className='OrdersComp'>
                         <div className='AdminContainer pb-3'>
+                            <div className="adminPageHeader mb-3 pt-3">
+                                <h1>Orders management</h1>
+                                <p>Track all marketplace orders, payment mode and status updates</p>
+                            </div>
 
                             <div className="BtnsSections text-center pt-3">
                                 <div className="row">
                                     <div className="col-12 col-md-4 pb-2">
                                         <input type="text" value={search} onInput={(e) => {
                                             setSearch(e.target.value)
-                                        }} placeholder='Search Name' name="" id="" />
+                                        }} placeholder='Search customer name' name="" id="" />
                                     </div>
 
                                 </div>

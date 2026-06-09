@@ -6,6 +6,7 @@ import { userAxios } from "@/Config/Server"
 import LoginError from "@/Component/Error/LoginError"
 import Loading from "@/Component/Loading/Loading"
 import toast from 'react-hot-toast';
+
 const Footer = dynamic(() => import('@/Component/User/Footer/Footer'))
 const Header = dynamic(() => import('@/Component/User/Header/Header'))
 const WishlistComp = dynamic(() => import('@/Component/User/Wishlist/WishlistComp'))
@@ -14,7 +15,7 @@ const QuickView = dynamic(() => import('@/Component/User/QuickView/QuickView'))
 function Wishlist() {
     const { QuickVw, userLogged, setUserLogged, setLoginModal } = useContext(ContentControl)
 
-    const [loaded, setLoaded] = useState(false)
+    const [loaded, setLoaded] = useState(userLogged.status)
     const [update, setUpdate] = useState(false)
     const [logError, setLogError] = useState(false)
 
@@ -68,19 +69,13 @@ function Wishlist() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main>
+                <Header />
+                {QuickVw.active && <QuickView />}
                 {
-                    loaded ? (
-                        <>
-                            <Header />
-                            {QuickVw.active && <QuickView />}
-                            {
-                                logError ? <LoginError />
-                                    : <WishlistComp products={products} setUpdate={setUpdate} />
-                            }
-                            <Footer />
-                        </>
-                    ) : <Loading />
+                    logError ? <LoginError />
+                        : <WishlistComp products={products} setUpdate={setUpdate} />
                 }
+                <Footer />
             </main>
         </Fragment>
     )

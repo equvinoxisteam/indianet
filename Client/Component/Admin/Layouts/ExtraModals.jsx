@@ -267,7 +267,7 @@ function ExtraModals({
                                             )
                                         }
                                         <div className="col-12">
-                                            <label htmlFor="">Image</label>
+                                            <label htmlFor="">Image <small className='text-muted'>(Recommended: 1920 x 600 px)</small></label>
                                             <br />
                                             <input onChange={(e) => {
                                                 setSlider1({

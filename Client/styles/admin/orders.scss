@@ -174,4 +174,100 @@
             }
         }
     }
+
+    // Modern overrides
+    .adminPageHeader {
+        h1 {
+            font-size: 1.3rem;
+            font-weight: $font-weight-bold;
+            color: $neutral-900;
+            margin-bottom: 0.2rem;
+        }
+        p {
+            margin: 0;
+            font-size: 0.86rem;
+            color: $neutral-500;
+        }
+    }
+
+    .OrdersComp {
+        .BtnsSections {
+            background: $surface-white;
+            border: 1px solid $neutral-200;
+            border-radius: $radius-lg;
+            box-shadow: $shadow-sm;
+            padding: 1rem;
+
+            input {
+                height: 42px;
+                border: 1px solid $neutral-200;
+                border-radius: $radius-md;
+                padding: 0 12px;
+                transition: border-color $transit-fast, box-shadow $transit-fast;
+                &:focus {
+                    outline: none;
+                    border-color: rgba($brand-orange, 0.45);
+                    box-shadow: 0 0 0 3px rgba($brand-orange, 0.1);
+                }
+            }
+        }
+
+        .MainTable {
+            background: $surface-white;
+            border: 1px solid $neutral-200;
+            border-radius: $radius-lg;
+            box-shadow: $shadow-sm;
+            overflow: auto;
+
+            table {
+                margin-bottom: 0;
+                thead th {
+                    font-size: 0.72rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    color: $neutral-500;
+                    border-bottom: 1px solid $neutral-200;
+                    background: $neutral-50;
+                    white-space: nowrap;
+                }
+                td {
+                    border-top: 1px solid $neutral-100;
+                    color: $neutral-700;
+                }
+                .ActionBtn {
+                    border: 1px solid $neutral-200;
+                    border-radius: $radius-sm;
+                    background: $surface-white;
+                    color: $neutral-700;
+                    font-size: 0.78rem;
+                    font-weight: $font-weight-semibold;
+                    padding: 5px 10px;
+                    width: auto;
+                    text-transform: none;
+                    &:hover {
+                        background: $neutral-50;
+                        color: $brand-orange-dark;
+                        border-color: rgba($brand-orange, 0.35);
+                    }
+                }
+            }
+        }
+
+        button[data-for="loadMore"] {
+            margin-top: 1rem;
+            height: 38px;
+            min-width: 110px;
+            border: none;
+            border-radius: $radius-md;
+            background: linear-gradient(135deg, $brand-orange, $brand-orange-dark);
+            color: white;
+            text-transform: none;
+            font-size: 0.82rem;
+            font-weight: $font-weight-semibold;
+            &:hover {
+                background: linear-gradient(135deg, $brand-orange-dark, $brand-orange);
+                color: white;
+            }
+        }
+    }
 }

@@ -7,7 +7,7 @@ function LoginError() {
             <div className='text-center'>
                 <div className='ErrorSection'>
                     <ComputerIcon />
-                    <h5 className='UserGrayMain pt-5'>Please login to vist this page</h5>
+                    <h5 className='UserGrayMain pt-5'>Please login to visit this page</h5>
                 </div>
             </div>
         </div>

@@ -12,7 +12,7 @@ const AccountComp = dynamic(() => import('@/Component/User/Account/AccountComp')
 export default function Account() {
     const { userLogged, setUserLogged, setLoginModal } = useContext(ContentControl)
     const [logError, setLogError] = useState(false)
-    const [loaded, setLoaded] = useState(false)
+    const [loaded, setLoaded] = useState(userLogged.status)
 
     useEffect(() => {
         let token = localStorage.getItem('token')
@@ -61,18 +61,12 @@ export default function Account() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main>
+                <Header />
                 {
-                    loaded ? (
-                        <>
-                            <Header />
-                            {
-                                logError ? <LoginError />
-                                    : <AccountComp />
-                            }
-                            <Footer />
-                        </>
-                    ) : <Loading />
+                    logError ? <LoginError />
+                        : <AccountComp />
                 }
+                <Footer />
             </main>
         </Fragment>
     )

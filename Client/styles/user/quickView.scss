@@ -1,210 +1,276 @@
 @import '../app.module.scss';
 
-@keyframes loadingQuickView {
-    0% {
-        height: 10%;
-    }
-
-    50% {
-        height: 50%;
-    }
-
-    100% {
-        height: 100%;
-    }
+@keyframes quickViewIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+}
+@keyframes backdropIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
+// ============================================
+// QUICK VIEW MODAL — Premium Design
+// ============================================
 .QuickView {
-    top: 0;
     position: fixed;
-    z-index: 10000;
-    background: rgba(191, 191, 191, 0.2);
-    width: 100%;
-    height: 100%;
-    padding-left: 7em;
-    padding-right: 7em;
-    padding-top: 1em;
-    padding-bottom: 1em;
-    animation: loadingQuickView .5s linear;
-    -moz-animation: loadingQuickView .5s linear;
+    inset: 0;
+    z-index: 999999;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 2rem;
+    animation: backdropIn 0.2s ease;
+
+    @media (max-width: 767px) {
+        padding: 0.75rem;
+        align-items: flex-end;
+    }
 
     .Item {
+        background: $surface-white;
+        border-radius: $radius-xl;
         width: 100%;
-        height: 100%;
-        background: white;
-        border-radius: 5px;
-        padding: 1em;
-        padding-top: 2em;
+        max-width: 880px;
+        max-height: 90vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        animation: quickViewIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 32px 80px rgba(0,0,0,0.2);
+
+        @media (max-width: 767px) {
+            border-radius: $radius-xl $radius-xl 0 0;
+            max-height: 92vh;
+        }
+
+        // Header bar
+        .ItemHeader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid $neutral-100;
+            flex-shrink: 0;
+
+            h6 {
+                font-size: 0.82rem;
+                font-weight: $font-weight-semibold;
+                color: $neutral-500;
+                margin: 0;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+        }
 
         .ExitBtn {
-            color: $MainBLack;
-            background: none;
+            color: $neutral-400;
+            background: $neutral-100;
             border: none;
-            float: right;
-            margin-top: -20px;
-            transition: all .5s;
-            -moz-transition: all .5s;
-            transition-timing-function: ease-in-out;
-            -moz-transition-timing-function: ease-in-out;
-            margin-bottom: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all $transit-fast;
+            font-size: 0.9rem;
 
             &:hover {
-                color: red;
+                background: $danger-light;
+                color: $danger;
             }
         }
 
         .Main {
-            position: relative;
             overflow-y: auto;
-            overflow-x: hidden;
-            width: 100%;
-            height: 100%;
+            flex: 1;
+            padding: 0;
 
             .Product {
-                display: block;
-                width: 100%;
-                clear: both;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0;
+                min-height: 100%;
 
-                &:before,
-                &::after {
-                    content: '';
-                    display: table;
-                    clear: both;
+                @media (max-width: 767px) {
+                    grid-template-columns: 1fr;
                 }
 
                 .leftDiv {
-                    width: 50%;
-                    float: left;
-                    position: sticky;
-                    top: 30px;
-                    height: 100%;
+                    border-right: 1px solid $neutral-100;
+                    padding: 1.5rem;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    background: $neutral-50;
+                    min-width: 0; // Essential for CSS grid/Swiper resizing
 
-                    @media only screen and (max-width: 767px) {
-                        width: 100%;
-                        float: none;
-                        position: relative;
-                        top: auto;
+                    @media (max-width: 767px) {
+                        border-right: none;
+                        border-bottom: 1px solid $neutral-100;
+                        padding: 1.25rem;
                     }
                 }
 
                 .rightDiv {
-                    width: 50%;
-                    display: inline-block;
-                    vertical-align: top;
-                    float: right;
-                    padding-bottom: 1em;
+                    padding: 1.5rem 1.75rem;
+                    min-width: 0;
+                    @media (max-width: 767px) { padding: 1.25rem; }
 
-                    @media only screen and (max-width: 767px) {
-                        width: 100%;
-                        display: block;
-                        vertical-align: auto;
-                        float: none;
+                    .qName {
+                        font-size: 1.3rem;
+                        font-weight: $font-weight-bold;
+                        color: $neutral-900;
+                        margin-bottom: 0.5rem;
+                        line-height: 1.4;
+                    }
+
+                    .qPriceRow {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        margin-bottom: 1rem;
+                        padding-bottom: 1rem;
+                        border-bottom: 1px solid $neutral-100;
+
+                        .mrp {
+                            color: $neutral-400;
+                            font-size: 0.95rem;
+                            text-decoration: line-through;
+                        }
+                        .sale {
+                            color: $brand-orange;
+                            font-size: 1.4rem;
+                            font-weight: $font-weight-bold;
+                        }
+                    }
+
+                    .qDesc {
+                        color: $neutral-600;
+                        font-size: 0.9rem;
+                        line-height: 1.6;
+                        margin-bottom: 1.25rem;
+                        max-height: 120px;
+                        overflow-y: auto;
+                        word-break: break-word; /* Essential for very long strings */
+                        overflow-wrap: break-word;
+                        scrollbar-width: thin;
+                        &::-webkit-scrollbar { width: 4px; }
+                        &::-webkit-scrollbar-thumb { background: $neutral-300; border-radius: 4px; }
+                    }
+
+                    .qMeta {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                        margin-bottom: 1.5rem;
+                        background: $neutral-50;
+                        padding: 12px;
+                        border-radius: $radius-md;
+
+                        .metaRow {
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            font-size: 0.85rem;
+
+                            .metaLbl { color: $neutral-500; font-weight: $font-weight-semibold; font-size: 0.75rem; letter-spacing: 0.05em; }
+                            .metaVal { color: $neutral-800; font-weight: $font-weight-bold; }
+                            .inStock { color: $success; }
+                            .outOfStock { color: $danger; }
+                        }
+                    }
+
+                    .qActions {
+                        display: flex;
+                        justify-content: flex-start;
+                        flex-wrap: wrap;
+                        gap: 10px;
+
+                        .ShowMoreBtn {
+                            @include btn-navy;
+                            height: 40px;
+                            padding: 0 18px;
+                            font-size: 0.85rem;
+                            border-radius: $radius-md;
+                            margin-top: 1.25rem;
+                            text-decoration: none;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 6px;
+                            cursor: pointer;
+                            margin-top: 0;
+                            border-radius: 999px;
+                        }
                     }
                 }
-
             }
 
-            .ShowMoreBtn {
-                height: 3em;
-                width: 9em;
-                margin-top: 20px;
-                text-align: center;
-                border: 3px solid $MainGreen;
-                border-radius: 5px;
-                background: $MainGreen;
-                font-weight: bold;
-                color: white;
-                transition: all .5s;
-                -moz-transition: all .5s;
-                transition-timing-function: ease-in-out;
-                -moz-transition-timing-function: ease-in-out;
-
-                &:hover {
-                    background: white;
-                    color: $MainBLack;
-                }
-            }
-
+            // Image area
             .QuickMainImgDiv {
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                min-height: 240px;
+                padding: 10px;
 
                 .QuickMainImgs {
-                    transition: all 1s;
-                    -moz-transition: all 1s;
-                    transition-timing-function: ease-in-out;
-                    -moz-transition-timing-function: ease-in-out;
-                    max-width: 300px;
-                    max-height: 300px;
-                    padding-bottom: 2.5em;
-                    width: auto;
+                    width: 100%;
+                    height: 100%;
+                    max-width: 280px;
+                    max-height: 280px;
+                    object-fit: contain;
+                    transition: transform $transit-normal;
+                    &:hover { transform: scale(1.04); }
 
-                    @media only screen and (max-width: 1021px) {
-                        max-width: 100%;
-                        max-height: auto;
-                        padding-bottom: 0;
-                        padding: 1.5em;
+                    @media (max-width: 767px) {
+                        max-width: 220px;
+                        max-height: 220px;
                     }
-                }
-            }
-
-            .QuickContainer {
-                margin-left: 1em;
-                margin-right: 1em;
-                padding-bottom: 2em;
-
-                @media only screen and (max-width: 1192px) {
-                    margin: 0;
                 }
             }
 
             .QuickImgThumbDiv {
                 display: flex;
                 justify-content: center;
-                align-items: center;
+                gap: 6px;
+                margin-top: 1rem;
+                flex-wrap: wrap;
 
                 .QuickImgThumb {
-                    transition: all 1s;
-                    -moz-transition: all 1s;
-                    transition-timing-function: ease-in-out;
-                    -moz-transition-timing-function: ease-in-out;
-                    width: 90px;
-                    height: 90px;
-                    padding: 5px;
-                    border: 1px solid $MainLtGrey;
+                    width: 52px;
+                    height: 52px;
+                    padding: 4px;
+                    border: 1.5px solid $neutral-200;
+                    border-radius: $radius-sm;
+                    cursor: pointer;
+                    object-fit: contain;
+                    transition: border-color $transit-fast;
 
-                    @media only screen and (max-width: 1105px) {
-                        width: 60px;
-                        height: 60px;
-                    }
-
-                    @media only screen and (max-width: 1010px) {
-                        width: 50px;
-                        height: 50px;
-                    }
-
+                    @media (max-width: 767px) { width: 44px; height: 44px; }
                 }
             }
 
             .swiper-slide-thumb-active {
-                .QuickImgThumb {
-                    transition: all 1s;
-                    -moz-transition: all 1s;
-                    transition-timing-function: ease-in-out;
-                    -moz-transition-timing-function: ease-in-out;
-                    border: 1px solid $MainBLack;
-                }
+                .QuickImgThumb { border-color: $brand-orange; }
             }
+
+                .ShowMoreBtn {
+                    @include btn-navy;
+                    height: 40px;
+                    padding: 0 18px;
+                    font-size: 0.85rem;
+                    border-radius: $radius-md;
+                    margin-top: 1.25rem;
+                    text-decoration: none;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                }
         }
-
     }
-
-    @media only screen and (max-width: 767px) {
-        padding-left: 1em;
-        padding-right: 1em;
-        padding-top: 1em;
-        padding-bottom: 1em;
-    }
-
 }

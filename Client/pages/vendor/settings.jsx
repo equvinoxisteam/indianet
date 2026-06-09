@@ -41,14 +41,8 @@ export default function Settings() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main className='Vendor'>
-                {
-                    loaded ? (
-                        <>
-                            <Header />
-                            <SettingsComp venderLogged={venderLogged} setVendorLogged={setVendorLogged} />
-                        </>
-                    ) : <Loading />
-                }
+                <Header />
+                <SettingsComp venderLogged={venderLogged} setVendorLogged={setVendorLogged} />
             </main>
         </Fragment>
     )

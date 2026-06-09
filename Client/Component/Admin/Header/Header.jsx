@@ -1,63 +1,126 @@
-import Script from 'next/script'
-import React, { Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import Link from 'next/link'
 import BrandLogo from '@/Component/Common/BrandLogo'
+import { useRouter } from 'next/router'
+
+const adminNavItems = [
+    {
+        label: 'Main',
+        items: [
+            { href: '/admin/dashboard', icon: 'fa-solid fa-gauge', label: 'Dashboard' },
+        ]
+    },
+    {
+        label: 'Catalogue',
+        items: [
+            { href: '/admin/products', icon: 'fa-solid fa-box', label: 'Products' },
+            { href: '/admin/categories', icon: 'fa-solid fa-tags', label: 'Categories' },
+        ]
+    },
+    {
+        label: 'Commerce',
+        items: [
+            { href: '/admin/orders', icon: 'fa-solid fa-shopping-bag', label: 'Orders' },
+            { href: '/admin/cupons', icon: 'fa-solid fa-ticket', label: 'Coupons' },
+            { href: '/admin/rfq', icon: 'fa-solid fa-file-invoice', label: 'RFQs' },
+        ]
+    },
+    {
+        label: 'Management',
+        items: [
+            { href: '/admin/vendors', icon: 'fa-solid fa-store', label: 'Vendors' },
+            { href: '/admin/layouts', icon: 'fa-solid fa-layer-group', label: 'Layouts' },
+        ]
+    },
+]
 
 function Header() {
-  return (
-    <Fragment>
-      <div className='MenuBarAdmin'>
+    const router = useRouter()
+    const [mobileOpen, setMobileOpen] = useState(false)
 
-        <nav className="navbar navbar-expand-md ">
-          <div className="container container-fluid">
-            <BrandLogo href="/admin/dashboard" variant="light" className="navbar-brand font-bold" />
-            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span><i className="fa-solid fa-bars"></i></span>
-            </button>
-            <div className="collapse navbar-collapse" id="navbarNav">
-              <ul className="navbar-nav">
-                <li className="nav-item">
-                  <Link className="nav-link " aria-current="page" href="/admin/dashboard">Dashboard</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" href="/admin/products">Products</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" href="/admin/categories">Categories</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" href="/admin/layouts">Layouts</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" href="/admin/cupons">Cupons</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" href="/admin/orders">Orders</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" href="/admin/rfq">RFQs</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" href="/admin/vendors">Vendors</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" href="/admin/login" onClick={()=>{
-                    localStorage.removeItem('adminToken')
-                  }}>Logout</Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
+    const isActive = (href) => router.pathname === href || router.pathname.startsWith(href + '/')
 
-      </div>
-      <Script
-        src="/font-awesome/js/all-min.js"
-        referrerPolicy='no-referrer'
-        strategy='afterInteractive'
-      />
-    </Fragment>
-  )
+    return (
+        <Fragment>
+            {/* Overlay for mobile */}
+            {mobileOpen && (
+                <div
+                    style={{
+                        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+                        zIndex: 999, display: 'block'
+                    }}
+                    onClick={() => setMobileOpen(false)}
+                />
+            )}
+
+            {/* Sidebar */}
+            <aside className={`AdminSidebar${mobileOpen ? ' open' : ''}`}>
+                {/* Logo */}
+                <Link href="/admin/dashboard" className="sidebarLogo">
+                    <BrandLogo variant="light" href={null} />
+                    <span className="logoBadge">Admin</span>
+                </Link>
+
+                {/* Nav */}
+                <nav className="sidebarNav">
+                    {adminNavItems.map((section) => (
+                        <div className="navSection" key={section.label}>
+                            <p className="navLabel">{section.label}</p>
+                            {section.items.map((item) => (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={`navLink${isActive(item.href) ? ' active' : ''}`}
+                                    onClick={() => setMobileOpen(false)}
+                                >
+                                    <i className={item.icon}></i>
+                                    {item.label}
+                                </Link>
+                            ))}
+                        </div>
+                    ))}
+                </nav>
+
+                {/* Footer */}
+                <div className="sidebarFooter">
+                    <Link
+                        href="/admin/login"
+                        className="logoutBtn"
+                        onClick={() => localStorage.removeItem('adminToken')}
+                    >
+                        <i className="fa-solid fa-right-from-bracket"></i>
+                        Logout
+                    </Link>
+                </div>
+            </aside>
+
+            {/* Topbar */}
+            <header className="AdminTopbar">
+                <div className="topbarLeft">
+                    <button
+                        className="mobileMenuBtn"
+                        onClick={() => setMobileOpen(!mobileOpen)}
+                        aria-label="Toggle menu"
+                    >
+                        <i className="fa-solid fa-bars"></i>
+                    </button>
+                    <div className="breadcrumb">
+                        Admin Panel &nbsp;/&nbsp;
+                        <span>
+                            {adminNavItems.flatMap(s => s.items).find(i => isActive(i.href))?.label || 'Dashboard'}
+                        </span>
+                    </div>
+                </div>
+                <div className="topbarRight">
+                    <Link href="/admin/dashboard" className="topbarBtn" title="Dashboard">
+                        <i className="fa-solid fa-gauge"></i>
+                    </Link>
+                    <div className="adminAvatar">A</div>
+                </div>
+            </header>
+
+        </Fragment>
+    )
 }
 
 export default Header

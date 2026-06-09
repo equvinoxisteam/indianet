@@ -49,6 +49,10 @@ function CartComp({ products, setUpdate, amount, setOrderType }) {
         products.length !== 0 ? (
           <div className='CartComp'>
             <div className="container">
+              <div className="cartPageHeader mb-3">
+                <h1 className="mb-1">Your cart</h1>
+                <p className="mb-0 text-muted">Review products and proceed to secure checkout</p>
+              </div>
               <div className="desktop">
 
                 <div className="leftDiv">

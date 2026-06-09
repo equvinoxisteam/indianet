@@ -7,6 +7,9 @@ import toast from 'react-hot-toast';
 function LoginComp() {
     useEffect(() => {
         document.body.style.background = '#f0f5fa'
+        return () => {
+            document.body.style.background = ''
+        }
     }, [])
 
     const navigate = useRouter()
@@ -17,9 +20,12 @@ function LoginComp() {
     })
 
     const [otpSent, setOtpSent] = useState(false)
+    const [submitting, setSubmitting] = useState(false)
 
     const formHandle = (e) => {
         e.preventDefault()
+        if (submitting) return
+        setSubmitting(true)
         if (otpSent) {
             Server.post('/vendor/login', formData).then((response) => {
                 if (response.data.request) {
@@ -41,6 +47,8 @@ function LoginComp() {
                 }
             }).catch((err) => {
                 toast.error(apiUnreachableMessage(err) || 'Error')
+            }).finally(() => {
+                setSubmitting(false)
             })
         } else {
             Server.post('/vendor/sentOtpLogin', formData).then((res) => {
@@ -53,11 +61,13 @@ function LoginComp() {
                         toast.success("Otp Sent Successfully")
                     } else {
                         setOtpSent(false)
-                        toast.success("Otp Sent Failed")
+                        toast.error("Otp send failed")
                     }
                 }
             }).catch((err) => {
                 toast.error(apiUnreachableMessage(err) || 'Error')
+            }).finally(() => {
+                setSubmitting(false)
             })
         }
     }
@@ -66,25 +76,30 @@ function LoginComp() {
         <div className='LoginComp'>
             <div className="vendorAuthShell">
                 <div className="vendorAuthCard">
-                    <div className="text-center pb-2">
+                    <div className="modal-header-section text-center pb-4">
                         <BrandLogo href="/" />
-                        <p className="vendorAuthSub mb-0 mt-2">Seller login</p>
+                        <h2 className="vendorAuthTitle mt-3 mb-1">
+                            {otpSent ? 'Verify OTP' : 'Seller Login'}
+                        </h2>
+                        <p className="small text-muted mb-0" style={{ fontSize: '0.9rem' }}>
+                            {otpSent ? 'Enter the code sent to your email' : 'Sign in to manage your vendor dashboard'}
+                        </p>
                     </div>
-                    <h3 className="vendorAuthTitle">Sign in</h3>
+                    
                     <form onSubmit={formHandle}>
-                        <div>
-                            <label>Email</label>
+                        <div className="form-group">
+                            <label>Email Address</label>
                             <input type="email" value={formData.email} onChange={(e) => {
                                 setFormData({ ...formData, email: e.target.value })
-                            }} placeholder='Registered email' required />
+                            }} placeholder='name@company.com' required />
                         </div>
                         {otpSent && (
-                            <div className='pt-3'>
-                                <label>OTP</label>
+                            <div className='form-group otp-section'>
+                                <label>Verification Code</label>
                                 <input type="text" inputMode="numeric" value={formData.otp} onChange={(e) => {
                                     setFormData({ ...formData, otp: e.target.value.replace(/\D/g, '') })
-                                }} placeholder='Enter OTP' required />
-                                <button type='button' className="btn-resend mt-2" onClick={() => {
+                                }} placeholder='6-digit code' required />
+                                <button type='button' className="btn-resend" onClick={() => {
                                     Server.post('/vendor/sentOtpLogin', formData).then((res) => {
                                         if (res.data.request) {
                                             setOtpSent(false)
@@ -95,25 +110,26 @@ function LoginComp() {
                                             toast.error("OTP send failed")
                                         }
                                     }).catch((err) => toast.error(apiUnreachableMessage(err) || 'Error'))
-                                }}>Resend OTP</button>
+                                }}>Resend code</button>
                             </div>
                         )}
-                        <div className="pt-4">
-                            {otpSent
-                                ? <button type='submit' className="btn-vendor-primary">Login</button>
-                                : <button type='submit' className="btn-vendor-primary">Send OTP</button>}
+                        <div className="pt-2">
+                            <button type='submit' className="btn-vendor-primary" disabled={submitting}>
+                                {submitting ? 'Please wait...' : otpSent ? 'Verify & Login' : 'Send OTP'}
+                            </button>
                         </div>
                     </form>
                     <p className="vendorAuthFooter">
-                        Not a member?{' '}
+                        New seller?
                         <button type="button" className="link-register" onClick={() => {
                             document.body.style.background = '#f0f5fa'
                             navigate.push('/vendor/register')
-                        }}>Register</button>
+                        }}>Register your business</button>
                     </p>
                 </div>
             </div>
         </div>
+
     )
 }
 

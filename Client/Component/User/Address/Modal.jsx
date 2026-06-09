@@ -2,39 +2,49 @@ import { userAxios } from '@/Config/Server'
 import React, { useEffect, useState } from 'react'
 import Xicon from '@/Assets/Xicon'
 import toast from 'react-hot-toast';
+import { Countries } from '@/Config/GlobalData';
 
 function Modal({ Address, setUpdate, setUserLogged }) {
     const [formData, setFormData] = useState({
         id: '',
         name: '',
+        countryCode: '+91',
         number: '',
         pin: '',
         locality: '',
         address: '',
         city: '',
-        state: ''
+        state: '',
+        country: 'India'
     })
 
     useEffect(() => {
         if (Address.name && !Address.new) {
-            setFormData(Address)
+            setFormData({
+                ...Address,
+                countryCode: Address.countryCode || '+91',
+                country: Address.country || 'India'
+            })
         } else {
             setFormData({
                 name: '',
+                countryCode: '+91',
                 number: '',
                 pin: '',
                 locality: '',
                 address: '',
                 city: '',
-                state: ''
+                state: '',
+                country: 'India'
             })
         }
     }, [Address])
 
     const formHandle = (e) => {
         e.preventDefault()
+        // Validating 6-digit as requested specifically
         if (formData.pin.length === 6) {
-            if (formData.number.length === 10) {
+            if (formData.number.length >= 8 && formData.number.length <= 15) {
                 if (!Address.new) {
                     userAxios((server) => {
                         server.put('/users/editAddress', formData).then((res) => {
@@ -43,10 +53,10 @@ function Modal({ Address, setUpdate, setUserLogged }) {
                                 localStorage.removeItem('token')
                             } else {
                                 setUpdate(update => !update)
-                                toast.success("Updated")
+                                toast.success("Updated Successfully")
                             }
                         }).catch(() => {
-                            toast.error("Error")
+                            toast.error("Error Updating Address")
                         })
                     })
                 } else {
@@ -59,141 +69,116 @@ function Modal({ Address, setUpdate, setUserLogged }) {
                                 setUpdate(update => !update)
                                 setFormData({
                                     name: '',
+                                    countryCode: '+91',
                                     number: '',
                                     pin: '',
                                     locality: '',
                                     address: '',
                                     city: '',
-                                    state: ''
+                                    state: '',
+                                    country: 'India'
                                 })
-                                toast.success("Done")
+                                toast.success("Address Added")
                             }
                         }).catch(() => {
-                            toast.error("Error")
+                            toast.error("Error Adding Address")
                         })
                     })
                 }
             } else {
-                toast.error("Number Must 10 Digit")
+                toast.error("Invalid Mobile Number")
             }
         } else {
-            toast.error("PinCode Must 6 Digit")
+            toast.error("Pincode Must be 6 Digits")
         }
     }
+
     return (
         <div className="modal fade" id="addressModal" tabIndex="-1" aria-hidden="true">
-            <div className="modal-dialog">
-                <div className="modal-content">
-                    <div className="modal-body">
-                        <div style={{ textAlign: 'right' }} className="pb-2" >
-                            <button type="button" data-for="exit" data-bs-dismiss="modal">
-                                <Xicon color={'#333'} />
-                            </button>
-                        </div>
+            <div className="modal-dialog modal-lg">
+                <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '16px' }}>
+                    <div className="modal-header border-0 pb-0 px-4 pt-4">
+                        <h5 className="modal-title font-bold UserBlackMain" style={{ fontSize: '1.25rem' }}>
+                            {Address.new ? 'Add Shipping Address' : 'Edit Shipping Address'}
+                        </h5>
+                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div className="modal-body p-4">
+                        <form onSubmit={formHandle}>
+                            <div className="row">
+                                <div className="col-12 mb-4">
+                                     <label className='form-label mb-2'>COUNTRY / REGION</label>
+                                     <select className='input-field px-3' value={formData.country} onChange={(e) => {
+                                         const selected = Countries.find(c => c.name === e.target.value);
+                                         setFormData({ ...formData, country: e.target.value, countryCode: selected?.code || '+91' })
+                                     }} required>
+                                         {Countries.map((c, i) => (
+                                             <option key={i} value={c.name}>{c.name}</option>
+                                         ))}
+                                     </select>
+                                 </div>
+                                 <div className="col-md-6 mb-4">
+                                     <label className='form-label mb-2'>FULL NAME</label>
+                                     <input type="text" className='input-field' value={formData.name} onChange={(e) => {
+                                         setFormData({ ...formData, name: e.target.value })
+                                     }} placeholder='First and Last Name' required />
+                                 </div>
+                                 <div className="col-md-6 mb-4">
+                                     <label className='form-label mb-2'>MOBILE NUMBER</label>
+                                     <div className='d-flex gap-2'>
+                                         <select className='input-field px-2' style={{ width: '95px', flexShrink: 0 }} value={formData.countryCode} onChange={(e) => {
+                                             setFormData({ ...formData, countryCode: e.target.value })
+                                         }}>
+                                             {Countries.map((c, i) => (
+                                                 <option key={i} value={c.code}>{c.code}</option>
+                                             ))}
+                                         </select>
+                                         <input type="number" className='input-field flex-grow-1' value={formData.number} onInput={(e) => {
+                                             setFormData({ ...formData, number: e.target.value })
+                                         }} placeholder='Mobile Number' required />
+                                     </div>
+                                 </div>
+                                 <div className="col-md-6 mb-4">
+                                     <label className='form-label mb-2'>6-DIGIT PINCODE</label>
+                                     <input type="number" className='input-field' value={formData.pin} onInput={(e) => {
+                                         setFormData({ ...formData, pin: e.target.value })
+                                     }} placeholder='6-digit Pincode' required />
+                                 </div>
+                                 <div className="col-md-6 mb-4">
+                                     <label className='form-label mb-2'>LOCALITY / AREA</label>
+                                     <input type="text" className='input-field' value={formData.locality} onInput={(e) => {
+                                         setFormData({ ...formData, locality: e.target.value })
+                                     }} placeholder='Locality' required />
+                                 </div>
+                                 <div className="col-12 mb-4">
+                                     <label className='form-label mb-2'>ADDRESS (HOUSE NO, STREET, etc.)</label>
+                                     <textarea className='input-field' style={{ height: '90px', paddingTop: '12px' }} value={formData.address} onInput={(e) => {
+                                         setFormData({ ...formData, address: e.target.value })
+                                     }} placeholder='Address (Area and Street)' required></textarea>
+                                 </div>
+                                 <div className="col-md-6 mb-4">
+                                     <label className='form-label mb-2'>CITY / DISTRICT / TOWN</label>
+                                     <input className='input-field' value={formData.city} onInput={(e) => {
+                                         setFormData({ ...formData, city: e.target.value })
+                                     }} type="text" placeholder='City/District/Town' required />
+                                 </div>
+                                 <div className="col-md-6 mb-4">
+                                     <label className='form-label mb-2'>STATE / PROVINCE / REGION</label>
+                                     <input className='input-field' value={formData.state} onInput={(e) => {
+                                         setFormData({ ...formData, state: e.target.value })
+                                     }} type="text" placeholder='Enter State' required />
+                                 </div>
 
-                        <div>
-                            <form onSubmit={formHandle}>
-                                <div className="row">
-                                    <div className="col-md-6 mb-3">
-                                        <input type="text" value={formData.name} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                name: e.target.value
-                                            })
-                                        }} placeholder='Name' required />
-                                    </div>
-                                    <div className="col-md-6 mb-3">
-                                        <input type="number" value={formData.number} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                number: e.target.value
-                                            })
-                                        }} placeholder='10-digit mobile number' required />
-                                    </div>
-                                    <div className="col-md-6 mb-3">
-                                        <input type="number" value={formData.pin} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                pin: e.target.value
-                                            })
-                                        }} placeholder='Pincode' required />
-                                    </div>
-                                    <div className="col-md-6 mb-3">
-                                        <input type="text" value={formData.locality} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                locality: e.target.value
-                                            })
-                                        }} placeholder='Locality' required />
-                                    </div>
-                                    <div className="col-12 mb-3">
-                                        <textarea value={formData.address} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                address: e.target.value
-                                            })
-                                        }} placeholder='Address (Area and Street)' cols="30" rows="10" required></textarea>
-                                    </div>
-                                    <div className="col-md-6 mb-3">
-                                        <input value={formData.city} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                city: e.target.value
-                                            })
-                                        }} type="text" placeholder='City/District/Town' required />
-                                    </div>
-                                    <div className="col-md-6 mb-3">
-                                        <select value={formData.state} onChange={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                state: e.target.value
-                                            })
-                                        }}>
-                                            <option value="Andhra Pradesh">Andhra Pradesh</option>
-                                            <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
-                                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-                                            <option value="Assam">Assam</option>
-                                            <option value="Bihar">Bihar</option>
-                                            <option value="Chandigarh">Chandigarh</option>
-                                            <option value="Chhattisgarh">Chhattisgarh</option>
-                                            <option value="Dadar and Nagar Haveli">Dadar and Nagar Haveli</option>
-                                            <option value="Daman and Diu">Daman and Diu</option>
-                                            <option value="Delhi">Delhi</option>
-                                            <option value="Lakshadweep">Lakshadweep</option>
-                                            <option value="Puducherry">Puducherry</option>
-                                            <option value="Goa">Goa</option>
-                                            <option value="Gujarat">Gujarat</option>
-                                            <option value="Haryana">Haryana</option>
-                                            <option value="Himachal Pradesh">Himachal Pradesh</option>
-                                            <option value="Jammu and Kashmir">Jammu and Kashmir</option>
-                                            <option value="Jharkhand">Jharkhand</option>
-                                            <option value="Karnataka">Karnataka</option>
-                                            <option value="Kerala">Kerala</option>
-                                            <option value="Madhya Pradesh">Madhya Pradesh</option>
-                                            <option value="Maharashtra">Maharashtra</option>
-                                            <option value="Manipur">Manipur</option>
-                                            <option value="Meghalaya">Meghalaya</option>
-                                            <option value="Mizoram">Mizoram</option>
-                                            <option value="Nagaland">Nagaland</option>
-                                            <option value="Odisha">Odisha</option>
-                                            <option value="Punjab">Punjab</option>
-                                            <option value="Rajasthan">Rajasthan</option>
-                                            <option value="Sikkim">Sikkim</option>
-                                            <option value="Tamil Nadu">Tamil Nadu</option>
-                                            <option value="Telangana">Telangana</option>
-                                            <option value="Tripura">Tripura</option>
-                                            <option value="Uttar Pradesh">Uttar Pradesh</option>
-                                            <option value="Uttarakhand">Uttarakhand</option>
-                                            <option value="West Bengal">West Bengal</option>
-                                        </select>
-                                    </div>
-
-                                    <div className="col-12">
-                                        <button type='submit'>Save</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+                                 <div className="col-12 mt-4">
+                                     <button className='btn btn-navy w-100 py-3 font-bold mb-3 shadow-navy' data-bs-dismiss="modal" type='submit' style={{ borderRadius: '12px' }}>
+                                         {Address.new ? 'ADD NEW ADDRESS' : 'SAVE CHANGES'}
+                                     </button>
+                                     <button className='btn btn-light w-100 py-2 text-muted border-0 bg-transparent' data-bs-dismiss="modal" type='button' style={{ fontSize: '0.9rem' }}>
+                                         CANCEL
+                                     </button>
+                                 </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

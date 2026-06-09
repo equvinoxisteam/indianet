@@ -53,6 +53,9 @@ export default function App({ Component, pageProps }) {
     status: false
   })
 
+  const [allCategories, setAllCategories] = useState([])
+  const [headerCategories, setHeaderCategories] = useState([])
+
   //Account Manage
 
   useEffect(() => {
@@ -121,9 +124,18 @@ export default function App({ Component, pageProps }) {
     }
   }, [router.asPath])
 
+  useEffect(() => {
+    // Fetch Categories Only Once
+    Server.get('/users/getHeaderCategories').then((res) => {
+      setAllCategories(res.data.allCategories)
+      setHeaderCategories(res.data.categories)
+    }).catch(() => console.log("Category load error"))
+  }, [])
+
   return (
     <>
     <Head>
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       <meta name="apple-mobile-web-app-title" content="Indianet" />
     </Head>
     <ContentControl.Provider value={
@@ -134,7 +146,9 @@ export default function App({ Component, pageProps }) {
         cartTotal, setCartTotal,
         setOrderType, OrderType,
         setVendorLogged, venderLogged,
-        setAdminLogged, adminLogged
+        setAdminLogged, adminLogged,
+        allCategories, setAllCategories,
+        headerCategories, setHeaderCategories
       }
     }>
       <Toaster position="top-center" reverseOrder={false} />

@@ -217,4 +217,78 @@
             }
         }
     }
+
+    .CategoriesComp {
+        .ActionAreaDiv,
+        .BtnsSections {
+            background: $surface-white;
+            border: 1px solid $neutral-200;
+            border-radius: $radius-lg;
+            box-shadow: $shadow-sm;
+            padding: 1rem;
+            margin-bottom: 1rem;
+
+            .BUTTONS {
+                width: auto;
+                min-width: 150px;
+                height: 40px;
+                padding: 0 14px;
+                border: 1px solid $neutral-200;
+                border-radius: $radius-md;
+                background: $surface-white;
+                color: $neutral-700;
+                font-size: 0.82rem;
+                text-transform: none;
+                font-weight: $font-weight-semibold;
+                &:hover {
+                    background: $neutral-50;
+                    color: $brand-orange-dark;
+                    border-color: rgba($brand-orange, 0.35);
+                }
+            }
+        }
+
+        .MainCategory {
+            background: $surface-white;
+            border: 1px solid $neutral-200;
+            border-radius: $radius-lg;
+            box-shadow: $shadow-sm;
+            overflow: auto;
+
+            table {
+                margin-bottom: 0;
+                thead th {
+                    font-size: 0.72rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    color: $neutral-500;
+                    background: $neutral-50;
+                    border-bottom: 1px solid $neutral-200;
+                    white-space: nowrap;
+                }
+                td { border-top: 1px solid $neutral-100; color: $neutral-700; }
+                .cateActionBtn {
+                    border: 1px solid $neutral-200;
+                    border-radius: $radius-sm;
+                    background: $surface-white;
+                    color: $neutral-700;
+                    font-size: 0.78rem;
+                    padding: 5px 10px;
+                    width: auto;
+                    text-transform: none;
+                    &:hover {
+                        background: $neutral-50;
+                        color: $brand-orange-dark;
+                        border-color: rgba($brand-orange, 0.35);
+                    }
+                }
+            }
+
+            .TableImg {
+                border-radius: $radius-sm;
+                object-fit: cover;
+                border: 1px solid $neutral-100;
+            }
+        }
+    }
 }

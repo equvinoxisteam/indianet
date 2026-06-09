@@ -36,30 +36,26 @@ function DashboardComp() {
     return (
         <div className='AdminContainer'>
             <div className="dashboard pb-3">
-                <div className="row">
-                    <div className="col-6 col-md-3">
-                        <div className="cardDash mt-1">
-                            <h6>Total Delivered</h6>
-                            <h5>{response.total.totalDelivered}</h5>
-                        </div>
+                <div className="dashboardGrid">
+                    <div className="cardDash">
+                        <div className="cardIcon"><i className="fa-solid fa-truck-fast" /></div>
+                        <h6>Total Delivered</h6>
+                        <h5>{response.total.totalDelivered}</h5>
                     </div>
-                    <div className="col-6 col-md-3">
-                        <div className="cardDash mt-1">
-                            <h6>Total Return</h6>
-                            <h5>{response.total.totalReturn}</h5>
-                        </div>
+                    <div className="cardDash">
+                        <div className="cardIcon"><i className="fa-solid fa-rotate-left" /></div>
+                        <h6>Total Return</h6>
+                        <h5>{response.total.totalReturn}</h5>
                     </div>
-                    <div className="col-6 col-md-3">
-                        <div className="cardDash mt-1">
-                            <h6>Total Cancelled</h6>
-                            <h5>{response.total.totalCancelled}</h5>
-                        </div>
+                    <div className="cardDash">
+                        <div className="cardIcon"><i className="fa-solid fa-ban" /></div>
+                        <h6>Total Cancelled</h6>
+                        <h5>{response.total.totalCancelled}</h5>
                     </div>
-                    <div className="col-6 col-md-3">
-                        <div className="cardDash mt-1">
-                            <h6>Total Amount</h6>
-                            <h5>{response.total.totalAmount}</h5>
-                        </div>
+                    <div className="cardDash">
+                        <div className="cardIcon"><i className="fa-solid fa-coins" /></div>
+                        <h6>Total Amount</h6>
+                        <h5>{response.total.totalAmount}</h5>
                     </div>
                 </div>
 

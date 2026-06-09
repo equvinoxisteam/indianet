@@ -1,0 +1,107 @@
+@import '../styles/variables';
+
+.page {
+    background: $surface-bg;
+    min-height: 100vh;
+}
+
+.hero {
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+    padding: clamp(2.5rem, 6vw, 4rem) 0;
+    text-align: center;
+
+    h1 {
+        color: white;
+        font-weight: $font-weight-bold;
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        margin-bottom: 0.75rem;
+    }
+
+    p {
+        color: rgba(255, 255, 255, 0.78);
+        max-width: 640px;
+        margin: 0 auto;
+        font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+        line-height: 1.6;
+        padding: 0 1rem;
+    }
+}
+
+.content {
+    padding: clamp(2rem, 5vw, 3rem) 0;
+}
+
+.card {
+    background: white;
+    border-radius: $radius-lg;
+    border: 1px solid $neutral-150;
+    box-shadow: $shadow-sm;
+    padding: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.sectionTitle {
+    color: $primary;
+    font-weight: $font-weight-bold;
+    font-size: clamp(1.1rem, 3vw, 1.35rem);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid $neutral-100;
+}
+
+.missionText {
+    color: $neutral-600;
+    line-height: 1.8;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    margin: 0;
+}
+
+.featureGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+
+    @media (max-width: 767px) {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+.featureItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    min-width: 0;
+}
+
+.featureIcon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: $radius-md;
+    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.featureBody {
+    min-width: 0;
+
+    h6 {
+        font-weight: $font-weight-bold;
+        color: $neutral-800;
+        margin: 0 0 0.35rem;
+        font-size: 0.95rem;
+    }
+
+    p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: $neutral-500;
+        line-height: 1.55;
+    }
+}

@@ -1,587 +1,483 @@
-@import "../../../styles/app.module.scss";
+@import "../../../styles/_variables.scss";
 
 .ResultComp {
-    padding-top: 2em;
-    padding-bottom: 3em;
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+    background: linear-gradient(180deg, #f7f9fc 0%, #ffffff 35%);
 
     .Desktop {
         display: block;
+        @media (max-width: 991px) { display: none; }
+    }
 
-        @media only screen and (max-width: 767px) {
-            display: none;
+    .rowGridDesk {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 30px;
+        align-items: start;
+
+        @media (max-width: 991px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .filterArea {
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        border-radius: 16px;
+        padding: 22px;
+        border: 1px solid #e7edf5;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+        z-index: 10;
+
+        @media (max-width: 991px) {
+            position: static;
+            padding: 16px;
+        }
+        .filterItem {
+            margin-bottom: 35px;
+            &:last-child { margin-bottom: 0; }
+
+            h6 {
+                font-family: $font-primary;
+                font-weight: $font-weight-bold;
+                font-size: 0.85rem;
+                letter-spacing: 0.05em;
+                margin-bottom: 20px;
+                color: $neutral-800;
+                text-transform: uppercase;
+                border-left: 3px solid $primary;
+                padding-left: 12px;
+            }
         }
 
-        .rowGridDesk {
-            display: block;
+        .selectBox {
+            @include input-base;
+            background-color: #f8fbff;
+            font-weight: $font-weight-semibold;
+            border-radius: 10px;
+            border: 1px solid #d8e4f1;
+        }
 
+        .searchInput {
+            @include input-base;
+            min-height: 84px;
+            resize: vertical;
+            background-color: #f8fbff;
+            border-radius: 10px;
+            border: 1px solid #d8e4f1;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            transition: border-color .2s ease, box-shadow .2s ease;
+
+            &:focus {
+                border-color: #0b66c3;
+                box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.12);
+            }
+        }
+
+        .aiSearchBtn {
             width: 100%;
-            clear: both;
+            margin-top: 10px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid #0b66c3;
+            background: linear-gradient(135deg, #0b66c3, #1f8cff);
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: $font-weight-bold;
+            letter-spacing: 0.02em;
+            box-shadow: 0 10px 20px rgba(11, 102, 195, 0.24);
+            transition: transform .18s ease, box-shadow .18s ease;
 
-            &:before,
-            &::after {
-                content: '';
-                display: table;
-                clear: both;
+            &:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 12px 24px rgba(11, 102, 195, 0.28);
+            }
+        }
+    }
+
+    // Modern Price Range Slider
+    .RangeContainer {
+        position: relative;
+        width: 100%;
+        margin-top: 30px;
+        padding-bottom: 20px;
+
+        .slider {
+            position: relative;
+            z-index: 1;
+            height: 6px;
+            margin: 0 10px;
+
+            .slider__track, .slider__range {
+                position: absolute;
+                border-radius: $radius-full;
+                height: 6px;
+                top: 0;
             }
 
-            .filterArea {
-                width: 26%;
-                border: 1px solid $MainLtGrey;
-                border-bottom: none;
-                float: left;
-                position: sticky;
-                top: 30px;
-                height: 100%;
+            .slider__track {
+                background-color: $neutral-200;
+                width: 100%;
+                z-index: 1;
+            }
 
-                @media only screen and (max-width: 1200px) {
-                    width: 30%;
+            .slider__range {
+                background-color: $primary;
+                z-index: 2;
+            }
+        }
+
+        .thumb {
+            pointer-events: none;
+            position: absolute;
+            height: 0;
+            width: 100%;
+            outline: none;
+            z-index: 3;
+            -webkit-appearance: none;
+            top: 0;
+
+            &::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                pointer-events: all;
+                position: relative;
+                width: 18px;
+                height: 18px;
+                background-color: white;
+                border: 2px solid $primary;
+                border-radius: 50%;
+                box-shadow: $shadow-sm;
+                cursor: pointer;
+                transition: transform $transit-fast;
+                margin-top: -6px;
+
+                &:hover { transform: scale(1.1); box-shadow: $shadow-md; }
+                &:active { transform: scale(1); }
+            }
+
+            &::-moz-range-thumb {
+                pointer-events: all;
+                position: relative;
+                width: 18px;
+                height: 18px;
+                background-color: white;
+                border: 2px solid $primary;
+                border-radius: 50%;
+                box-shadow: $shadow-sm;
+                cursor: pointer;
+            }
+        }
+
+        .slider__left-value, .slider__right-value {
+            position: absolute;
+            color: $neutral-600;
+            font-size: 0.75rem;
+            margin-top: 20px;
+            font-weight: $font-weight-bold;
+        }
+
+        .slider__left-value { left: 10px; }
+        .slider__right-value { right: 10px; }
+    }
+
+    .ProductsArea {
+        .sortDiv {
+            @include flex-between;
+            margin-bottom: 25px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            padding: 13px 16px;
+            border-radius: 14px;
+            border: 1px solid #e6edf5;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+
+            .text-small {
+                font-weight: $font-weight-semibold;
+                margin-bottom: 0;
+                color: $neutral-500;
+                font-size: 0.8rem;
+            }
+
+            .selectBox {
+                @include input-base;
+                width: 180px;
+                height: 40px;
+                border-radius: 10px;
+                font-size: 0.85rem;
+                padding: 0 10px;
+                border: 1px solid #d8e4f1;
+                background: #fff;
+            }
+        }
+
+        .sortCount {
+            color: #334155 !important;
+            font-size: 0.83rem !important;
+        }
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+
+            @media (max-width: 991px) {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 14px;
+            }
+
+            @media (max-width: 480px) {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+
+        .noMatchCard {
+            grid-column: 1 / -1;
+            border: 1px dashed #cddcf0;
+            border-radius: 14px;
+            background: #f8fbff;
+            padding: 20px;
+
+            h5 {
+                margin: 0 0 8px;
+                color: #0f172a;
+                font-size: 1rem;
+                font-weight: $font-weight-bold;
+            }
+
+            p {
+                margin: 0;
+                color: #475569;
+                font-size: 0.84rem;
+                line-height: 1.5;
+            }
+        }
+
+        .UserMainProCard {
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            border-radius: 16px;
+            padding: 15px;
+            transition: all $transit-normal;
+            position: relative;
+            border: 1px solid #e6edf5;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+
+            &:hover {
+                box-shadow: $shadow-lg;
+                border-color: $primary-light;
+                transform: translateY(-4px);
+            }
+
+            .UserMainProimgDiv {
+                height: 200px;
+                @include flex-center;
+                background: linear-gradient(180deg, #fbfdff 0%, #f4f8fc 100%);
+                border-radius: $radius-md;
+                position: relative;
+                overflow: hidden;
+                margin-bottom: 15px;
+                border: 1px solid #e7edf5;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                    padding: 12px;
+                    mix-blend-mode: normal;
                 }
 
-                @media only screen and (max-width: 992px) {
-                    width: 35%;
+                .offerGreen {
+                    position: absolute;
+                    left: 10px;
+                    top: 10px;
+                    background: linear-gradient(135deg, $brand-orange 0%, $brand-orange-dark 100%);
+                    color: white;
+                    border: none;
+                    font-size: 0.7rem;
+                    font-weight: $font-weight-bold;
+                    padding: 4px 8px;
+                    border-radius: $radius-xs;
+                    z-index: 3;
+                }
+            }
+
+            .actionButtons {
+                display: flex;
+                gap: 8px;
+                margin-top: 15px;
+
+                button {
+                    flex: 1;
+                    height: 38px;
+                    border-radius: $radius-sm;
+                    font-size: 0.8rem;
+                    font-weight: $font-weight-bold;
+                    letter-spacing: 0.03em;
+                    transition: all $transit-fast;
+                    @include flex-center;
+                    gap: 6px;
+                    border: 1.5px solid transparent;
+
+                    i { font-size: 0.9rem; }
                 }
 
-                .filterItem {
-                    padding: 2em;
-                    border-bottom: 1px solid $MainLtGrey;
-                    height: 8em;
+                .quickViewBtn {
+                    background: transparent;
+                    color: $primary;
+                    border-color: #c9dbef;
 
-                    .selectBox {
-                        border: 1px solid $MainLtGrey;
-                        width: 100%;
-                        background: transparent;
-                        outline: none;
-                        border-radius: 3px;
-                        font-weight: normal;
-                        color: $MainBLack;
+                    &:hover {
+                        background: $primary-light;
+                        color: white;
+                        border-color: $primary-light;
                     }
+                }
 
-                    .RangeContainer {
-                        padding-top: 1em;
-                        display: flex;
-                        padding-bottom: 1em;
-                        position: relative;
+                .addToCartBtn {
+                    background: linear-gradient(135deg, #0b66c3, #1f8cff);
+                    color: white;
+                    border-color: #0b66c3;
 
-                        .slider {
-                            position: relative;
-                            width: 100%;
+                    &:hover {
+                        background: linear-gradient(135deg, #0a5aac, #1477ea);
+                        box-shadow: $shadow-sm;
+                    }
+                }
 
-                            .slider__track,
-                            .slider__range,
-                            .slider__left-value,
-                            .slider__right-value {
-                                position: absolute;
-                            }
+                .addToCartBtnDisabled {
+                    background: $neutral-200;
+                    color: $neutral-500;
+                    cursor: not-allowed;
+                }
 
-                            .slider__track,
-                            .slider__range {
-                                border-radius: 3px;
-                                height: 5px;
-                            }
+                .rfqBtnLink {
+                    flex: 1;
+                    text-decoration: none;
+                }
 
-                            .slider__track {
-                                background-color: $MainGreen;
-                                width: 100%;
-                                z-index: 1;
-                            }
+                .rfqBtn {
+                    width: 100%;
+                    height: 38px;
+                    border-radius: 10px;
+                    font-size: 0.8rem;
+                    font-weight: $font-weight-bold;
+                    letter-spacing: 0.03em;
+                    @include flex-center;
+                    gap: 6px;
+                    border: 1px solid transparent;
+                    color: white;
+                    background: linear-gradient(135deg, #f97316, #ea580c);
+                    box-shadow: 0 8px 16px rgba(234, 88, 12, 0.24);
+                    transition: all $transit-fast;
 
-                            .slider__range {
-                                background-color: $MainGreen;
-                                z-index: 2;
-                            }
-
-                            .slider__left-value,
-                            .slider__right-value {
-                                color: $MainGrey;
-                                font-size: 12px;
-                                margin-top: 20px;
-                            }
-
-                            .slider__left-value {
-                                left: 6px;
-                            }
-
-                            .slider__right-value {
-                                right: -4px;
-                            }
-                        }
-
-                        /* Removing the default appearance */
-                        .thumb,
-                        .thumb::-webkit-slider-thumb {
-                            -webkit-appearance: none;
-                            -webkit-tap-highlight-color: transparent;
-                        }
-
-                        .thumb {
-                            pointer-events: none;
-                            position: absolute;
-                            height: 0;
-                            width: 100%;
-                            outline: none;
-                        }
-
-                        /* For Chrome browsers */
-                        .thumb::-webkit-slider-thumb {
-                            background-color: #f1f5f7;
-                            border: none;
-                            border-radius: 50%;
-                            box-shadow: 0 0 1px 1px #ced4da;
-                            cursor: pointer;
-                            height: 18px;
-                            width: 18px;
-                            margin-top: 4px;
-                            pointer-events: all;
-                            position: relative;
-                        }
-
-                        /* For Firefox browsers */
-                        .thumb::-moz-range-thumb {
-                            background-color: #f1f5f7;
-                            border: none;
-                            border-radius: 50%;
-                            box-shadow: 0 0 1px 1px #ced4da;
-                            cursor: pointer;
-                            height: 18px;
-                            width: 18px;
-                            margin-top: 4px;
-                            pointer-events: all;
-                            position: relative;
-                        }
-
+                    &:hover {
+                        transform: translateY(-1px);
+                        box-shadow: 0 10px 20px rgba(234, 88, 12, 0.30);
                     }
                 }
             }
 
-            .ProductsArea {
-                width: 74%;
-                padding-left: 1em;
-                display: inline-block;
-                vertical-align: top;
-                float: right;
-
-                @media only screen and (max-width: 1200px) {
-                    width: 70%;
+            .textArea {
+                h6 { margin-bottom: 6px; }
+                .oneLineTxt { 
+                    max-width: 100% !important;
+                    font-weight: $font-weight-semibold;
+                    color: $neutral-800;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                .UserGrayMain { 
+                    color: $neutral-500;
+                    font-size: 0.7rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.03em;
                 }
 
-                @media only screen and (max-width: 992px) {
-                    width: 65%;
+                .categoryLine {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
 
-                .sortDiv {
-                    padding-bottom: 1em;
-                    display: grid;
-                    grid-template-columns: 10% 25%;
-
-                    @media only screen and (max-width: 991px) {
-                        grid-template-columns: 15% 25%;
-                    }
-
-                    .selectBox {
-                        border: 1px solid $MainLtGrey;
-                        width: auto;
-                        background: transparent;
-                        outline: none;
-                        font-size: small;
-                        color: $MainGrey;
-                        height: 30px;
-                    }
+                .productTitle {
+                    font-size: 0.95rem;
+                    font-weight: 700;
+                    color: #111827;
+                    white-space: normal;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    min-height: 2.6em;
+                    line-height: 1.3;
                 }
+                
+                .PriceSpan {
+                    display: flex;
+                    align-items: baseline;
+                    gap: 8px;
+                    margin-top: 5px;
 
-                .products {
-                    display: grid;
-                    grid-template-columns: 25% 25% 25% 25%;
-
-                    @media only screen and (max-width: 1200px) {
-                        grid-template-columns: 33.333333333% 33.333333333% 33.333333333%;
+                    .sale {
+                        font-size: 1.1rem;
+                        font-weight: $font-weight-bold;
+                        color: $neutral-900;
                     }
-
-                    @media only screen and (max-width: 991px) {
-                        grid-template-columns: 50% 50%;
+                    .enquiryText {
+                        font-size: 0.78rem;
+                        color: #f97316;
+                        font-weight: 700;
+                        letter-spacing: .04em;
+                        text-transform: uppercase;
                     }
-
-                    .UserMainProCard {
-                        width: auto;
-                        height: 300px;
-                        border-radius: 3px;
-                        position: relative;
-                        margin: 5px;
-
-                        .textArea {
-                            h6 {
-                                max-width: 200px;
-                            }
-                        }
-
-                        .UserMainProimgDiv {
-                            height: 170px;
-                            text-align: center;
-                            padding-top: 10px;
-                            border-radius: 3px;
-                            width: auto;
-                            background: $MainBgGray;
-
-                            img {
-                                width: auto;
-                                height: auto;
-                                max-width: 150px;
-                                max-height: 150px;
-                            }
-
-                            .offerGreen {
-                                position: absolute;
-                                left: 6%;
-                                top: 6%;
-                                background: $Main2ndGreen;
-                                color: white;
-                                border: none;
-                                font-size: small;
-                                width: 3em;
-                                border-radius: 3px;
-                                cursor: text;
-                            }
-                        }
-
-                        .cartBtn {
-                            color: #333;
-                            border: 1px solid $MainLtGrey;
-                            background: white;
-                            position: absolute;
-                            right: 10%;
-                            top: 10%;
-                            border-radius: 50%;
-                            width: 35px;
-                            height: 35px;
-                            display: none;
-
-                            &:hover {
-                                color: $MainGreen;
-                                border: 1px solid $MainGreen;
-                            }
-                        }
-
-                        .QuickViewDiv {
-                            background: $Main2ndGreen;
-                            height: 45px;
-                            position: absolute;
-                            width: 100%;
-                            top: 43%;
-                            font-size: small;
-                            border: none;
-                            display: none;
-                        }
-
-                        &:hover .cartBtn {
-                            display: block;
-                        }
-
-                        &:hover .QuickViewDiv {
-                            display: block;
-                        }
-                    }
-                }
-
-                .paginationDiv {
-                    margin-top: 1em;
-                    border-top: 1px solid $MainLtGrey;
-                    padding-top: 1em;
-
-                    .pagination {
-                        float: right;
-
-                        button {
-                            margin-left: 5px;
-                            height: 35px;
-                            width: 35px;
-                            border: 1px solid $MainLtGrey;
-                            background: none;
-                            font-weight: bold;
-                            font-size: small;
-                            color: $MainGrey;
-                        }
-
-                        .active {
-                            border: 1px solid $Main2ndGreen;
-                        }
+                    .mrp {
+                        font-size: 0.8rem;
+                        color: $neutral-400;
+                        text-decoration: line-through;
                     }
                 }
             }
         }
     }
 
-    .Mobile {
-        display: none;
+    .paginationDiv {
+        @include flex-center;
+        margin-top: 50px;
 
-        @media only screen and (max-width: 767px) {
-            display: block;
+        .pagination {
+            display: flex;
+            gap: 10px;
 
-            .ProductsArea {
+            button {
+                width: 40px;
+                height: 40px;
+                @include flex-center;
+                border-radius: $radius-sm;
+                background: white;
+                border: 1px solid $neutral-200;
+                color: $neutral-700;
+                font-weight: $font-weight-semibold;
+                transition: all $transit-fast;
 
-                .sortDiv {
-                    padding-bottom: 1em;
-                    display: grid;
-                    grid-template-columns: 20% 25%;
-
-                    .selectBox {
-                        border: 1px solid $MainLtGrey;
-                        width: auto;
-                        background: transparent;
-                        outline: none;
-                        font-size: small;
-                        color: $MainGrey;
-                        height: 30px;
-                    }
+                &:hover {
+                    border-color: $primary;
+                    color: $primary;
+                    background: $neutral-50;
                 }
 
-                .products {
-
-                    .UserMainProCard {
-                        width: auto;
-                        height: 300px;
-                        border-radius: 3px;
-                        position: relative;
-
-                        .UserMainProimgDiv {
-                            height: 170px;
-                            text-align: center;
-                            padding-top: 10px;
-                            border-radius: 3px;
-                            width: auto;
-                            background: $MainBgGray;
-
-                            @media only screen and (max-width: 450px) {
-                                height: 160px;
-                            }
-
-                            @media only screen and (max-width: 335px) {
-                                height: 140px;
-                            }
-
-                            img {
-                                width: auto;
-                                height: auto;
-                                max-width: 150px;
-                                max-height: 150px;
-
-                                @media only screen and (max-width: 450px) {
-                                    max-width: 130px;
-                                    max-height: 130px;
-                                }
-
-                                @media only screen and (max-width: 335px) {
-                                    max-width: 110px;
-                                    max-height: 110px;
-                                }
-                            }
-
-                            .offerGreen {
-                                position: absolute;
-                                left: 6%;
-                                top: 6%;
-                                background: $Main2ndGreen;
-                                color: white;
-                                border: none;
-                                font-size: small;
-                                width: 3em;
-                                border-radius: 3px;
-                                cursor: text;
-                            }
-                        }
-
-                        .cartBtn {
-                            color: #333;
-                            border: 1px solid $MainLtGrey;
-                            background: white;
-                            position: absolute;
-                            right: 10%;
-                            top: 10%;
-                            border-radius: 50%;
-                            width: 35px;
-                            height: 35px;
-                            display: none;
-
-                            &:hover {
-                                color: $MainGreen;
-                                border: 1px solid $MainGreen;
-                            }
-                        }
-
-                        .QuickViewDiv {
-                            background: $Main2ndGreen;
-                            height: 45px;
-                            position: absolute;
-                            width: 100%;
-                            top: 43%;
-                            font-size: small;
-                            border: none;
-                            display: none;
-
-                            @media only screen and (max-width: 450px) {
-                                top: 38%;
-                            }
-
-                            @media only screen and (max-width: 335px) {
-                                top: 32%;
-                            }
-                        }
-
-                        &:hover .cartBtn {
-                            display: block;
-                        }
-
-                        &:hover .QuickViewDiv {
-                            display: block;
-                        }
-                    }
-                }
-
-                .paginationDiv {
-                    margin-top: 1em;
-                    border-top: 1px solid $MainLtGrey;
-                    padding-top: 1em;
-
-                    .pagination {
-                        float: right;
-
-                        button {
-                            margin-left: 5px;
-                            height: 35px;
-                            width: 35px;
-                            border: 1px solid $MainLtGrey;
-                            background: none;
-                            font-weight: bold;
-                            font-size: small;
-                            color: $MainGrey;
-                        }
-
-                        .active {
-                            border: 1px solid $Main2ndGreen;
-                        }
-                    }
-                }
-
-            }
-
-            .filterArea {
-                margin-top: 1em;
-                border: 1px solid $MainLtGrey;
-                border-bottom: none;
-                height: 16em;
-
-                .filterItem {
-                    padding: 2em;
-                    border-bottom: 1px solid $MainLtGrey;
-                    height: 8em;
-
-                    .selectBox {
-                        border: 1px solid $MainLtGrey;
-                        width: 100%;
-                        background: transparent;
-                        outline: none;
-                        border-radius: 3px;
-                        font-weight: normal;
-                        color: $MainBLack;
-                    }
-
-                    .RangeContainer {
-                        position: relative;
-                        padding-top: 1em;
-                        display: flex;
-                        padding-bottom: 1em;
-                        align-items: center;
-
-                        .slider {
-                            position: relative;
-                            width: 100%;
-
-                            .slider__track,
-                            .slider__range,
-                            .slider__left-value,
-                            .slider__right-value {
-                                position: absolute;
-                            }
-
-                            .slider__track,
-                            .slider__range {
-                                border-radius: 3px;
-                                height: 5px;
-                            }
-
-                            .slider__track {
-                                background-color: $MainGreen;
-                                width: 100%;
-                                z-index: 1;
-                            }
-
-                            .slider__range {
-                                background-color: $MainGreen;
-                                z-index: 2;
-                            }
-
-                            .slider__left-value,
-                            .slider__right-value {
-                                color: $MainGrey;
-                                font-size: 12px;
-                                margin-top: 20px;
-                            }
-
-                            .slider__left-value {
-                                left: 6px;
-                            }
-
-                            .slider__right-value {
-                                right: -4px;
-                            }
-                        }
-
-                        /* Removing the default appearance */
-                        .thumb,
-                        .thumb::-webkit-slider-thumb {
-                            -webkit-appearance: none;
-                            -webkit-tap-highlight-color: transparent;
-                        }
-
-                        .thumb {
-                            pointer-events: none;
-                            position: absolute;
-                            height: 0;
-                            width: 100%;
-                            outline: none;
-                        }
-
-                        /* For Chrome browsers */
-                        .thumb::-webkit-slider-thumb {
-                            background-color: #f1f5f7;
-                            border: none;
-                            border-radius: 50%;
-                            box-shadow: 0 0 1px 1px #ced4da;
-                            cursor: pointer;
-                            height: 18px;
-                            width: 18px;
-                            margin-top: 4px;
-                            pointer-events: all;
-                            position: relative;
-                        }
-
-                        /* For Firefox browsers */
-                        .thumb::-moz-range-thumb {
-                            background-color: #f1f5f7;
-                            border: none;
-                            border-radius: 50%;
-                            box-shadow: 0 0 1px 1px #ced4da;
-                            cursor: pointer;
-                            height: 18px;
-                            width: 18px;
-                            margin-top: 4px;
-                            pointer-events: all;
-                            position: relative;
-                        }
-
-                    }
+                &.active {
+                    background: $primary;
+                    color: white;
+                    border-color: $primary;
+                    box-shadow: $shadow-navy;
                 }
             }
-
-
         }
     }
 }

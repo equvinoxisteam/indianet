@@ -1,0 +1,103 @@
+@import './variables';
+
+// ============================================
+// GLOBAL RESPONSIVE UTILITIES
+// ============================================
+
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+main {
+    width: 100%;
+    // Avoid overflow-x: hidden here — it forces overflow-y: auto and clips header mega-menus over the hero.
+}
+
+// Fluid container padding on small screens
+.container,
+.container-fluid {
+    @include respond-to(mobile) {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+// Fluid typography helpers
+.text-responsive-xl {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    line-height: 1.2;
+}
+
+.text-responsive-lg {
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    line-height: 1.25;
+}
+
+.text-responsive-md {
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    line-height: 1.3;
+}
+
+.text-responsive-sm {
+    font-size: clamp(0.8rem, 2vw, 1rem);
+}
+
+// Horizontal scroll nav (used by header)
+.nav-scroll-x {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+}
+
+// Touch-friendly: disable hover lift on touch devices
+@media (hover: none) and (pointer: coarse) {
+    .card:hover,
+    .stat-card:hover {
+        transform: none;
+    }
+}
+
+// Page header responsive
+.page-header {
+    @include respond-to(mobile) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+
+        .page-title {
+            font-size: 1.25rem;
+        }
+    }
+}
+
+// Section title responsive
+.section-title {
+    @include respond-to(mobile) {
+        font-size: 1.1rem;
+    }
+}
+
+// Table overflow wrapper
+.table-responsive-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+// GridTwoAuto stacks on very small screens
+.GridTwoAuto {
+    @include respond-to(xs) {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+}
+
+// Bootstrap row gap fix for stacked mobile columns
+@include respond-to(mobile) {
+    .row > [class*="col-"] {
+        margin-bottom: 0;
+    }
+}

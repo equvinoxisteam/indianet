@@ -18,182 +18,184 @@ function ProductsComp({
 
   function searchProduct(e) {
     e.preventDefault()
-    navigate.push(`/vendor/products?search=${search}`)
+    navigate.push(`/vendor/products?search=${encodeURIComponent(search || '')}`)
+  }
+
+  const loadPage = (pageNum) => {
+    const sp = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
+    vendorAxios((server) => {
+      server.get('/vendor/getProducts', {
+        params: {
+          page: pageNum,
+          search: sp.get('search') || undefined
+        }
+      }).then((response) => {
+        if (response.data.login) {
+          setVendorLogged({ status: false })
+          localStorage.removeItem('vendorToken')
+          navigate.push('/vendor/login')
+        } else {
+          setProducts(response.data.data)
+          setResponse(response.data)
+          setPages(response.data.pages)
+        }
+      }).catch(() => {
+        toast.error('Could not load products')
+      })
+    })
   }
 
   return (
     <div className='ProductsComp containerVendor'>
-      <div className="Head">
-        <div>
-          <form onSubmit={searchProduct}>
-            <input value={search} type="text" onChange={(e) => {
-              setSearch(e.target.value)
-            }} placeholder='Search' />
-          </form>
-        </div>
-
-        <div>
-          <button data-for="addProduct" onClick={() => {
-            navigate.push('/vendor/products/add')
-          }}>Add Product</button>
-        </div>
+      <div className="vendorPageHeader">
+        <h1 className="vendorPageTitle">My products</h1>
+        <p className="vendorPageSubtitle">Manage catalogue, pricing, and visibility</p>
       </div>
 
-      <div className='tableDiv'>
-        <div className="table-responsive text-center">
-          <table className="table align-middle">
+      <div className="vendorToolbar">
+        <form className="vendorSearchWrap noIcon" onSubmit={searchProduct}>
+          <input
+            className="vendorSearchInput"
+            value={search}
+            type="search"
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by product name…"
+            aria-label="Search products"
+          />
+        </form>
+        <button type="button" className="vendorBtnSecondary" onClick={() => {
+          vendorAxios((server) => {
+            server.get('/vendor/exportProductsExcel', { responseType: 'blob' }).then((res) => {
+              const url = window.URL.createObjectURL(new Blob([res.data]))
+              const a = document.createElement('a')
+              a.href = url
+              a.download = 'vendor-products.xlsx'
+              document.body.appendChild(a)
+              a.click()
+              a.remove()
+              window.URL.revokeObjectURL(url)
+            }).catch(() => toast.error('Export failed'))
+          })
+        }}>
+          Download Excel
+        </button>
+        <button type="button" className="vendorBtnPrimary" onClick={() => navigate.push('/vendor/products/add')}>
+          Add product
+        </button>
+      </div>
+
+      <div className="vendorTableCard">
+        <div className="table-responsive">
+          <table className="vendorTable table mb-0">
             <thead>
               <tr>
                 <th>Image</th>
                 <th>Name</th>
                 <th>Category</th>
                 <th>Price</th>
-                <th>Mrp</th>
+                <th>MRP</th>
                 <th>Discount</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {
-                products.map((obj, key) => {
-                  return (
-                    <tr key={key}>
-                      <td>
+              {products.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="text-center text-muted py-5">
+                    No products yet. Add your first product to get started.
+                  </td>
+                </tr>
+              ) : (
+                products.map((obj, key) => (
+                  <tr key={key}>
+                    <td className="vendorThumbCell">
+                      {obj.files?.[0] ? (
                         <img
                           src={`${ServerId}/product/${obj.uni_id_1}${obj.uni_id_2}/${obj.files[0].filename}`}
-                          alt={obj.name}
+                          alt=""
                         />
-                      </td>
-                      <td className='oneLineTxtMax-300'>
-                        {obj.name}
-                      </td>
-                      <td>
-                        {obj.category}
-                      </td>
-                      <td>
-                        ₹{obj.price}
-                      </td>
-                      <td>
-                        ₹{obj.mrp}
-                      </td>
-                      <td>
-                        {obj.discount} %
-                      </td>
-                      <td>
-                        <button data-for="actionBtn" onClick={() => {
-                          window.open(`/p/${obj.slug}/${obj._id}`, '_blank')
-                        }}>view</button>
-                        <button data-for="actionBtn" onClick={() => {
-                          navigate.push(`/vendor/products/edit/${obj._id}`)
-                        }}>edit</button>
-                        <button data-for="actionBtn" onClick={() => {
+                      ) : (
+                        <span className="text-muted small">—</span>
+                      )}
+                    </td>
+                    <td className="oneLineTxtMax-300 fw-medium text-dark">{obj.name}</td>
+                    <td>{obj.category}</td>
+                    <td>₹{obj.price}</td>
+                    <td className="text-muted text-decoration-line-through">₹{obj.mrp}</td>
+                    <td><span className="badge bg-danger-subtle text-danger">{obj.discount}%</span></td>
+                    <td>
+                      <span className="badge bg-light text-dark text-capitalize">{obj.publishStatus || 'published'}</span>
+                    </td>
+                    <td>
+                      <div className="vendorTableActions">
+                        <button type="button" className="vendorBtnSecondary" onClick={() => window.open(`/p/${obj.slug}/${obj._id}`, '_blank')}>
+                          View
+                        </button>
+                        <button type="button" className="vendorBtnSecondary" onClick={() => navigate.push(`/vendor/products/edit/${obj._id}`)}>
+                          Edit
+                        </button>
+                        <button type="button" className="vendorBtnSecondary" onClick={() => navigate.push(`/vendor/products/add?copyFrom=${obj._id}`)}>
+                          Copy
+                        </button>
+                        <button type="button" className="vendorBtnDanger" onClick={() => {
                           Swal.fire({
-  title: `Do you want delete ${obj.name}`,
-  icon: 'warning',
-  showCancelButton: true,
-  confirmButtonColor: '#3085d6',
-  cancelButtonColor: '#d33',
-  confirmButtonText: 'Yes'
-}).then((result) => {
-  if (result.isConfirmed) {
-                            vendorAxios((server) => {
-                              server.delete('/vendor/deleteProduct', {
-                                data: {
-                                  proId: obj._id,
-                                  folderId: `${obj.uni_id_1}${obj.uni_id_2}/`
-                                }
-                              }).then((res) => {
-                                if (res.data.login) {
-                                  setVendorLogged({ status: false })
-                                  localStorage.removeItem('vendorToken')
-                                  navigate.push('/vendor/login')
-                                } else {
-                                  setUpdate(update => !update)
-                                  toast.success("Deleted")
-                                }
-                              }).catch(() => {
-                                toast.error("Error")
+                            title: `Delete ${obj.name}?`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, delete'
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              vendorAxios((server) => {
+                                server.delete('/vendor/deleteProduct', {
+                                  data: {
+                                    proId: obj._id,
+                                    folderId: `${obj.uni_id_1}${obj.uni_id_2}/`
+                                  }
+                                }).then((res) => {
+                                  if (res.data.login) {
+                                    setVendorLogged({ status: false })
+                                    localStorage.removeItem('vendorToken')
+                                    navigate.push('/vendor/login')
+                                  } else {
+                                    setUpdate(u => !u)
+                                    toast.success('Product deleted')
+                                  }
+                                }).catch(() => toast.error('Delete failed'))
                               })
-                            })
-                          
-  }
-})
-                        }}>delete</button>
-                      </td>
-                    </tr>
-                  )
-                })
-              }
+                            }
+                          })
+                        }}>
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {
-        responseServer.pagination &&
-        (
-          <div className='ProListPaginationArea'>
-            {
-              pages.map((obj, key) => {
-                if (responseServer.currentPage === obj) {
-                  return (
-                    <button key={key} onClick={() => {
-                      const sp = new URLSearchParams(window.location.search);
-                      vendorAxios((server) => {
-                        server.get('/admin/getProducts', {
-                          params: {
-                            page: obj,
-                            search: sp.get("search")
-                          }
-                        }).then((response) => {
-                          if (response.data.login) {
-                            setVendorLogged({ status: false })
-                            localStorage.removeItem('vendorToken')
-                            navigate.push('/vendor/login')
-                          } else {
-                            setProducts(response.data.data)
-                            setResponse(response.data)
-                            setPages(response.data.pages)
-                          }
-                        }).catch((err) => {
-                          console.log("error")
-                        })
-                      })
-                    }} className='active'>{obj}</button>
-                  )
-                } else {
-                  return (
-                    <button key={key} onClick={() => {
-                      const sp = new URLSearchParams(window.location.search);
-                      vendorAxios((server) => {
-                        server.get('/admin/getProducts', {
-                          params: {
-                            page: obj,
-                            search: sp.get("search")
-                          }
-                        }).then((response) => {
-                          if (response.data.login) {
-                            setVendorLogged({ status: false })
-                            localStorage.removeItem('vendorToken')
-                            navigate.push('/vendor/login')
-                          } else {
-                            setProducts(response.data.data)
-                            setResponse(response.data)
-                            setPages(response.data.pages)
-                          }
-                        }).catch((err) => {
-                          console.log("error")
-                        })
-                      })
-                    }} >{obj}</button>
-                  )
-                }
-              })
-            }
-
+      {responseServer.pagination && pages?.length > 0 && (
+        <div className="vendorTableCard">
+          <div className="vendorPagination">
+            {pages.map((obj, key) => (
+              <button
+                key={key}
+                type="button"
+                className={responseServer.currentPage === obj ? 'active' : ''}
+                onClick={() => loadPage(obj)}
+              >
+                {obj}
+              </button>
+            ))}
           </div>
-        )
-      }
+        </div>
+      )}
     </div>
   )
 }

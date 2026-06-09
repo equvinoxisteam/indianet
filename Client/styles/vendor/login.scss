@@ -5,116 +5,165 @@
         .vendorAuthShell {
             min-height: 100vh;
             width: 100%;
-            background: linear-gradient(180deg, $IndianetSurface 0%, $MainBgGray 100%);
-            padding: 2rem 1rem 3rem;
-            box-sizing: border-box;
+            background:
+                radial-gradient(circle at 10% 10%, rgba($primary, 0.08) 0%, transparent 38%),
+                radial-gradient(circle at 90% 85%, rgba($brand-orange, 0.09) 0%, transparent 35%),
+                linear-gradient(180deg, #f6f9ff 0%, #eef3fa 100%);
+            padding: clamp(1rem, 2vw, 2rem);
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
         }
 
         .vendorAuthCard {
             width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 12px 40px rgba(10, 102, 194, 0.12);
-            border: 1px solid $MainLtGrey;
-            padding: 2rem 1.5rem;
+            max-width: 440px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 18px 55px -30px rgba(17, 24, 39, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            padding: clamp(1.25rem, 2.6vw, 2.75rem);
+            transition: box-shadow 0.25s ease;
 
-            @media (min-width: 576px) {
-                padding: 2rem 2rem;
-                margin-top: 2rem;
+            @media (max-width: 480px) {
+                max-width: 100%;
+                border-radius: 16px;
+                padding: 1.2rem 1rem;
+            }
+
+            @media (max-width: 360px) {
+                padding: 1rem 0.85rem;
             }
         }
 
-        .vendorAuthSub {
-            color: $MainGrey;
-            font-size: 0.9rem;
+        .modal-header-section {
+            margin-bottom: 1.8rem;
         }
 
         .vendorAuthTitle {
-            color: $MainBLack;
-            text-align: center;
+            font-size: clamp(1.3rem, 3.6vw, 1.75rem);
             font-weight: 700;
-            font-size: 1.25rem;
-            margin-bottom: 1.25rem;
+            color: $neutral-900;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
         }
 
         label {
             display: block;
-            color: $MainBLack;
+            font-size: 0.84rem;
             font-weight: 600;
-            font-size: 13px;
-            margin-bottom: 4px;
+            color: $neutral-700;
+            margin-bottom: 0.42rem;
         }
 
         input {
             width: 100%;
-            box-sizing: border-box;
-            height: 42px;
-            padding: 0 12px;
-            color: $MainBLack;
-            font-size: 14px;
-            border: 2px solid $MainLtGrey;
-            border-radius: 8px;
+            height: 46px;
+            padding: 0 0.95rem;
+            font-size: 0.96rem;
+            color: $neutral-900;
+            background: white;
+            border: 1.5px solid $neutral-300;
+            border-radius: 12px;
             outline: none;
-            background: #fff;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.2s ease;
+
+            &::placeholder {
+                color: $neutral-400;
+            }
 
             &:focus {
-                border-color: $PrimaryBlue;
-                box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.15);
+                border-color: $primary;
+                box-shadow: 0 0 0 4px rgba($primary, 0.12);
             }
         }
 
         .btn-vendor-primary {
             width: 100%;
-            height: 44px;
-            border: 2px solid $PrimaryBlue;
-            background: $PrimaryBlue;
-            color: #fff;
-            font-weight: 700;
-            border-radius: 8px;
-            text-transform: uppercase;
-            font-size: 0.85rem;
+            height: 48px;
+            background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
             cursor: pointer;
-            transition: background 0.2s ease, color 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 24px -14px rgba($primary, 0.8);
+            margin-top: 0.8rem;
 
             &:hover {
-                background: #fff;
-                color: $PrimaryBlue;
+                transform: translateY(-1px);
+                box-shadow: 0 14px 30px -16px rgba($primary, 0.95);
+                filter: brightness(1.03);
             }
-        }
 
-        .btn-resend {
-            background: none;
-            border: none;
-            color: $PrimaryBlue;
-            font-weight: 600;
-            font-size: 13px;
-            padding: 0;
-            cursor: pointer;
-            text-decoration: underline;
+            &:active {
+                transform: translateY(0);
+                filter: brightness(0.95);
+            }
+
+            &:disabled {
+                opacity: 0.75;
+                cursor: not-allowed;
+                transform: none;
+                filter: none;
+                box-shadow: none;
+            }
         }
 
         .vendorAuthFooter {
             text-align: center;
             margin-top: 1.25rem;
-            margin-bottom: 0;
-            font-size: 14px;
-            color: $MainGrey;
+            font-size: 0.9rem;
+            color: $neutral-500;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.2rem;
+
+            .link-register {
+                background: none;
+                border: none;
+                padding: 0;
+                color: $primary;
+                font-weight: 600;
+                cursor: pointer;
+                transition: color 0.2s;
+
+                &:hover {
+                    color: $primary-dark;
+                    text-decoration: underline;
+                }
+            }
         }
 
-        .link-register {
-            background: none;
-            border: none;
-            padding: 0;
-            color: $PrimaryBlue;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: underline;
+        .otp-section {
+            margin-top: 0.85rem;
+            
+            .btn-resend {
+                background: none;
+                border: none;
+                color: $primary;
+                font-weight: 500;
+                font-size: 0.82rem;
+                padding: 0;
+                margin-top: 0.45rem;
+                cursor: pointer;
+                transition: color 0.2s;
+
+                &:hover {
+                    color: $primary-dark;
+                    text-decoration: underline;
+                }
+            }
         }
     }
 }
+

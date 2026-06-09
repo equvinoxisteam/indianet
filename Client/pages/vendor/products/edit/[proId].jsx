@@ -28,7 +28,7 @@ export default function EditProduct() {
     const [productDetails, setProductDetails] = useState({
         name: '', price: '', mrp: '', available: 'true',
         category: '', categorySlug: '', srtDescription: '', description: '',
-        seoDescription: '', seoTitle: '', seoKeyword: '', return: 'true', cancellation: 'true', variant: []
+        seoDescription: '', seoTitle: '', seoKeyword: '', return: 'true', cancellation: 'true', publishStatus: 'draft', variant: []
     })
 
     useEffect(() => {

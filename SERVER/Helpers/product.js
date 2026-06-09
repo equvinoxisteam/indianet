@@ -170,14 +170,27 @@ export default {
     },
     getSearchProductCount: (details) => {
         return new Promise((resolve, reject) => {
-            db.get().collection(collections.PRODUCTS).countDocuments({
-                name: { $regex: details.search, $options: 'i' },
-                categorySlug: { $regex: details.category, $options: 'i' },
+            let query = {
                 price: {
                     $gte: details.min,
                     $lte: details.max
                 }
-            }).then((data) => {
+            }
+
+            if (details.search) {
+                query.$or = [
+                    { name: { $regex: details.search, $options: 'i' } },
+                    { category: { $regex: details.search, $options: 'i' } },
+                    { categorySlug: { $regex: details.search, $options: 'i' } },
+                    { seoKeyword: { $regex: details.search, $options: 'i' } }
+                ]
+            }
+
+            if (details.category) {
+                query.categorySlug = { $regex: details.category, $options: 'i' }
+            }
+
+            db.get().collection(collections.PRODUCTS).countDocuments(query).then((data) => {
                 resolve(data)
             }).catch((err) => {
                 reject(err)
@@ -187,16 +200,30 @@ export default {
     getSearchProduct: (details, skip, limit) => {
         var sort = details.sort
         return new Promise(async (resolve, reject) => {
-            let products = await db.get().collection(collections.PRODUCTS).find({
-                name: { $regex: details.search, $options: 'i' },
-                categorySlug: { $regex: details.category, $options: 'i' },
+            let query = {
                 price: {
                     $gte: details.min,
                     $lte: details.max
                 }
-            }).sort(sort).skip(skip).limit(limit).toArray().catch((err) => {
-                reject(err)
-            })
+            }
+
+            if (details.search) {
+                query.$or = [
+                    { name: { $regex: details.search, $options: 'i' } },
+                    { category: { $regex: details.search, $options: 'i' } },
+                    { categorySlug: { $regex: details.search, $options: 'i' } },
+                    { seoKeyword: { $regex: details.search, $options: 'i' } }
+                ]
+            }
+
+            if (details.category) {
+                query.categorySlug = { $regex: details.category, $options: 'i' }
+            }
+
+            let products = await db.get().collection(collections.PRODUCTS).find(query)
+                .sort(sort).skip(skip).limit(limit).toArray().catch((err) => {
+                    reject(err)
+                })
 
             resolve(products)
         })
@@ -215,7 +242,12 @@ export default {
     searchProductSimple: (search) => {
         return new Promise(async (resolve, reject) => {
             let products = await db.get().collection(collections.PRODUCTS).find({
-                name: { $regex: search, $options: 'i' }
+                $or: [
+                    { name: { $regex: search, $options: 'i' } },
+                    { category: { $regex: search, $options: 'i' } },
+                    { categorySlug: { $regex: search, $options: 'i' } },
+                    { seoKeyword: { $regex: search, $options: 'i' } }
+                ]
             }).limit(12).toArray().catch((err) => {
                 reject(err)
             })

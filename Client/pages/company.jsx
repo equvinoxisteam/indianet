@@ -2,29 +2,90 @@ import Footer from '@/Component/User/Footer/Footer'
 import Header from '@/Component/User/Header/Header'
 import Head from 'next/head'
 import React, { Fragment } from 'react'
+import style from './company.module.scss'
 
-function company() {
-  return (
-    <Fragment>
+const features = [
+    {
+        icon: 'fa-solid fa-shield-halved',
+        title: 'Verified Sellers',
+        text: 'Every vendor passes business verification so buyers can source machinery and equipment with confidence.',
+    },
+    {
+        icon: 'fa-solid fa-globe',
+        title: 'Global Reach',
+        text: 'Connect with buyers and suppliers across markets — list once and grow your brand internationally.',
+    },
+    {
+        icon: 'fa-solid fa-headset',
+        title: 'Dedicated Support',
+        text: 'Our team helps with onboarding, listings, RFQs, and account questions whenever you need guidance.',
+    },
+    {
+        icon: 'fa-solid fa-industry',
+        title: 'Built for B2B',
+        text: 'Catalogues, bulk enquiries, RFQ workflows, and vendor tools designed for industrial trade — not retail.',
+    },
+]
+
+function Company() {
+    return (
+        <Fragment>
             <Head>
-                <title>Indianet - Company Info</title>
-                <meta name="description" content="Indianet — online shopping marketplace" />
+                <title>About Indianet — Our Mission</title>
+                <meta name="description" content="Learn about Indianet — the B2B marketplace built for brands, vendors, and industrial buyers." />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
-            <main>
+            <main className={style.page}>
                 <Header />
-                <div className="container container-fluid pt-2">
-                    <h5 className='font-bold UserBlackMain'>Company Info</h5>
-                    <p className='UserBlackMain text-small'>
-                        Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
 
-                        The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by Cicero are also reproduced in their exact original form, accompanied by English versions from the 1914 translation by H. Rackham.
-                    </p>
+                <section className={style.hero}>
+                    <div className="container">
+                        <h1>About Indianet</h1>
+                        <p>
+                            The marketplace where ambitious brands meet serious B2B buyers — built for industrial trade, trusted partnerships, and long-term growth.
+                        </p>
+                    </div>
+                </section>
+
+                <div className={`container ${style.content}`}>
+                    <div className="row justify-content-center">
+                        <div className="col-12 col-lg-10">
+                            <div className={style.card}>
+                                <section className="mb-5">
+                                    <h2 className={style.sectionTitle}>Our Mission</h2>
+                                    <p className={style.missionText}>
+                                        Indianet exists to make B2B commerce simpler for manufacturers, distributors, and buyers.
+                                        We give vendors a professional storefront to showcase industrial products, manage RFQs, and reach new customers —
+                                        while giving buyers a single trusted place to discover machinery, compare suppliers, and place enquiries with confidence.
+                                        Our goal is to help every brand on the platform trade smarter, scale faster, and build lasting business relationships.
+                                    </p>
+                                </section>
+
+                                <section>
+                                    <h2 className={style.sectionTitle}>Why Choose Indianet?</h2>
+                                    <div className={style.featureGrid}>
+                                        {features.map((item) => (
+                                            <div className={style.featureItem} key={item.title}>
+                                                <div className={style.featureIcon}>
+                                                    <i className={item.icon}></i>
+                                                </div>
+                                                <div className={style.featureBody}>
+                                                    <h6>{item.title}</h6>
+                                                    <p>{item.text}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <Footer />
             </main>
         </Fragment>
-  )
+    )
 }
 
-export default company
+export default Company

@@ -197,4 +197,80 @@
             }
         }
     }
+
+    .vendorsComp {
+        .BtnsSections {
+            background: $surface-white;
+            border: 1px solid $neutral-200;
+            border-radius: $radius-lg;
+            box-shadow: $shadow-sm;
+            padding: 1rem;
+
+            button {
+                height: 40px;
+                min-width: 165px;
+                border: 1px solid $neutral-200;
+                border-radius: $radius-md;
+                background: white;
+                color: $neutral-700;
+                font-size: 0.82rem;
+                font-weight: $font-weight-semibold;
+                text-transform: none;
+                &:hover {
+                    border-color: rgba($brand-orange, 0.35);
+                    color: $brand-orange-dark;
+                    background: $neutral-50;
+                }
+            }
+        }
+
+        .MainTable {
+            background: $surface-white;
+            border: 1px solid $neutral-200;
+            border-radius: $radius-lg;
+            box-shadow: $shadow-sm;
+
+            table {
+                margin-bottom: 0;
+                thead th {
+                    font-size: 0.72rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    color: $neutral-500;
+                    background: $neutral-50;
+                    border-bottom: 1px solid $neutral-200;
+                }
+                td { border-top: 1px solid $neutral-100; }
+                .ActionBtn {
+                    border: 1px solid $neutral-200;
+                    border-radius: $radius-sm;
+                    background: $surface-white;
+                    color: $neutral-700;
+                    font-size: 0.78rem;
+                    padding: 5px 10px;
+                    width: auto;
+                    text-transform: none;
+                    &:hover {
+                        background: $neutral-50;
+                        color: $brand-orange-dark;
+                        border-color: rgba($brand-orange, 0.35);
+                    }
+                }
+            }
+        }
+
+        button[data-for="loadMore"] {
+            margin-top: 1rem;
+            height: 38px;
+            min-width: 110px;
+            border: none;
+            border-radius: $radius-md;
+            background: linear-gradient(135deg, $brand-orange, $brand-orange-dark);
+            color: white;
+            text-transform: none;
+            font-size: 0.82rem;
+            font-weight: $font-weight-semibold;
+            &:hover { color: white; }
+        }
+    }
 }

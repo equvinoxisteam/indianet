@@ -15,7 +15,7 @@ export default function Orders() {
     const router = useRouter()
     const [logError, setLogError] = useState(false)
 
-    const [loaded, setLoaded] = useState(false)
+    const [loaded, setLoaded] = useState(userLogged.status)
 
     const [search, setSearch] = useState('')
 
@@ -77,25 +77,19 @@ export default function Orders() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main>
+                <Header />
                 {
-                    loaded ? (
-                        <>
-                            <Header />
-                            {
-                                logError ? <LoginError />
-                                    : <OrdersComp
-                                        Orders={Orders} setOrders={setOrders}
-                                        search={search}
-                                        setSearch={setSearch}
-                                        total={total}
-                                        setTotal={setTotal}
-                                        setLogError={setLogError}
-                                    />
-                            }
-                            <Footer />
-                        </>
-                    ) : <Loading />
+                    logError ? <LoginError />
+                        : <OrdersComp
+                            Orders={Orders} setOrders={setOrders}
+                            search={search}
+                            setSearch={setSearch}
+                            total={total}
+                            setTotal={setTotal}
+                            setLogError={setLogError}
+                        />
                 }
+                <Footer />
             </main>
         </Fragment>
     )

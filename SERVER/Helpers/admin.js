@@ -184,20 +184,15 @@ export default {
             resolve(vendors)
         })
     },
-    acceptVendor: (email) => {
-        return new Promise((resolve, reject) => {
-            db.get().collection(collections.VENDORS).updateOne({
-                email: email,
-            }, {
-                $set: {
-                    accept: true
-                }
-            }).then(() => {
-                resolve()
-            }).catch(() => {
-                reject()
-            })
-        })
+    acceptVendor: async (email) => {
+        const vendor = await db.get().collection(collections.VENDORS).findOne({ email })
+        if (!vendor) throw new Error('not_found')
+        const { buildActivationFields } = await import('../Config/vendorPlans.js')
+        const updates = { accept: true }
+        if (!vendor.planStatus || vendor.planStatus === 'none') {
+            Object.assign(updates, buildActivationFields('free'))
+        }
+        await db.get().collection(collections.VENDORS).updateOne({ email }, { $set: updates })
     },
     deleteVendor: (email) => {
         return new Promise((resolve, reject) => {
@@ -294,6 +289,11 @@ export default {
                     return: data.return,
                     cancellation: data.cancellation,
                     pickup_location: data.pickup_location,
+                    // ShipRocket shipment dimensions/weight
+                    weightKg: data.weightKg,
+                    lengthCm: data.lengthCm,
+                    breadthCm: data.breadthCm,
+                    heightCm: data.heightCm,
                     variant: data.variant,
                     variantDetails: data.variantDetails,
                     currVariantSize: data.currVariantSize,
@@ -432,19 +432,59 @@ export default {
     },
     getAdminProducts: (skip, limit) => {
         return new Promise(async (resolve, reject) => {
-            let products = await db.get().collection(collections.PRODUCTS).find({
-                vendor: false
-            }).sort({ _id: -1 }).skip(skip).limit(limit).toArray().catch((err) => {
+            // Get all products (both admin and vendor)
+            let products = await db.get().collection(collections.PRODUCTS).find({}).sort({ _id: -1 }).skip(skip).limit(limit).toArray().catch((err) => {
                 reject(err)
             })
-            resolve(products)
+            
+            // Enrich products with vendor details if they belong to a vendor
+            const enrichedProducts = await Promise.all(products.map(async (product) => {
+                if (product.vendor && product.vendor !== false && ObjectId.isValid(product.vendor)) {
+                    try {
+                        const vendor = await db.get().collection(collections.VENDORS).findOne({ _id: new ObjectId(product.vendor) })
+                        return {
+                            ...product,
+                            vendorName: vendor ? vendor.name : 'Unknown Vendor',
+                            vendorEmail: vendor ? vendor.email : 'N/A',
+                            vendorPhone: vendor ? vendor.phone : 'N/A',
+                            vendorWebsite: vendor?.website || '',
+                            vendorLogo: vendor?.logo || '',
+                            vendorBackground: vendor?.backgroundImage || '',
+                            vendorDescription: vendor?.description || ''
+                        }
+                    } catch (error) {
+                        console.error('Error fetching vendor:', error)
+                        return {
+                            ...product,
+                            vendorName: 'Unknown Vendor',
+                            vendorEmail: 'N/A',
+                            vendorPhone: 'N/A',
+                            vendorWebsite: '',
+                            vendorLogo: '',
+                            vendorBackground: '',
+                            vendorDescription: ''
+                        }
+                    }
+                } else {
+                    return {
+                        ...product,
+                        vendorName: 'Admin',
+                        vendorEmail: 'N/A',
+                        vendorPhone: 'N/A',
+                        vendorWebsite: '',
+                        vendorLogo: '',
+                        vendorBackground: '',
+                        vendorDescription: ''
+                    }
+                }
+            }))
+            
+            resolve(enrichedProducts)
         })
     },
     getProductCount: () => {
         return new Promise((resolve, reject) => {
-            db.get().collection(collections.PRODUCTS).countDocuments({
-                vendor: false
-            }).then((count) => {
+            db.get().collection(collections.PRODUCTS).countDocuments({}).then((count) => {
                 resolve(count)
             }).catch((err) => {
                 console.log(err)

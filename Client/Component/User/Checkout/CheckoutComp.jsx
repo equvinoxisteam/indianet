@@ -56,7 +56,7 @@ function CheckoutComp({
         }))
     }, [amount])
 
-    const razorpay = (data) => {
+    const razorpay = (data, orderDetailsOverride = orderDetails) => {
         var options = {
             "key": razorpayKey,
             "amount": data.totalAmount,
@@ -69,7 +69,7 @@ function CheckoutComp({
                 setLoading(true)
                 Server.post('/users/order-item-razorpay', {
                     razorpayRes: response,
-                    order: orderDetails
+                    order: orderDetailsOverride
                 }).then(() => {
                     setLoading(false)
                     setOrderType(type => ({
@@ -133,75 +133,123 @@ function CheckoutComp({
                     pin: parseInt(orderDetails.pin)
                 }).then((res) => {
                     if (res.data) {
-                        if (orderDetails.payType === 'online') {
-                            userAxios((server) => {
-                                server.post('/users/createRazorpayPayment', {
-                                    totalAmount: orderDetails.totalAmount,
-                                    userId: userLogged._id,
-                                    order: orderDetails.order
-                                }).then((data) => {
-                                    if (data.data.login) {
-                                        setLoading(false)
-                                        setUserLogged({ status: false })
-                                        localStorage.removeItem('token')
-                                        setLogError(true)
-                                        setLoginModal(loginModal => ({
-                                            ...loginModal,
-                                            btn: true,
-                                            member: true,
-                                            active: true,
-                                            forgot: false
-                                        }))
-                                    } else {
-                                        setLoading(false)
-                                        razorpay(data.data)
-                                    }
-                                }).catch((err) => {
-                                    setLoading(false)
-                                    if (err.response && err.response.data === 'online_not_allowed') {
-                                        toast.error("Online payment disabled for some products")
-                                    } else {
-                                        toast.error("Error creating payment")
-                                    }
-                                })
-                            })
-                        } else {
-                            setLoading(true)
-                            Server.post('/users/order-item-cod', {
-                                userId: userLogged._id,
-                                order: orderDetails
-                            }).then(() => {
-                                setLoading(false)
-                                setOrderType(type => ({
-                                    ...type,
-                                    order: false,
-                                    type: '',
-                                    exAction: true,
-                                    exActionData: {
-                                        failed: false,
-                                        success: true
-                                    }
-                                }))
-                                navigate.push('/ordersuccess') // done page
-                            }).catch((err) => {
-                                setLoading(false)
-                                if (err.response && err.response.data === 'cod_not_allowed') {
-                                    toast.error("COD is not allowed for some products in your order")
-                                } else {
-                                    setOrderType(type => ({
-                                        ...type,
-                                        order: false,
-                                        type: '',
-                                        exAction: true,
-                                        exActionData: {
-                                            failed: true,
-                                            success: false
+                        const delivery_pincode = parseInt(orderDetails.pin)
+                        const payTypeForTotals = orderDetails.payType
+
+                        const refreshTotals = () => new Promise((resolve, reject) => {
+                            if (OrderType.type === 'cart') {
+                                userAxios((server) => {
+                                    server.get('/users/getCartTotalPriceCheckout', {
+                                        params: {
+                                            discount: discount,
+                                            delivery_pincode: delivery_pincode,
+                                            payType: payTypeForTotals
                                         }
-                                    }))
-                                    navigate.push('/orderfailed') // fail page
+                                    }).then(resolve).catch(reject)
+                                })
+                            } else {
+                                userAxios((server) => {
+                                    server.get('/users/getTotalPriceProduct', {
+                                        params: {
+                                            proId: OrderType.proId,
+                                            quantity: OrderType.quantity,
+                                            discount: discount,
+                                            buyDetails: OrderType.buyDetails,
+                                            delivery_pincode: delivery_pincode,
+                                            payType: payTypeForTotals
+                                        }
+                                    }).then(resolve).catch(reject)
+                                })
+                            }
+                        })
+
+                        refreshTotals().then((response) => {
+                            const refreshedAmount = response?.data?.['amount'] || response?.data?.amount
+                            if (refreshedAmount && refreshedAmount.totalPrice > 0) {
+                                const updatedOrderDetails = {
+                                    ...orderDetails,
+                                    totalAmount: refreshedAmount.totalPrice
                                 }
-                            })
-                        }
+
+                                setAmount(refreshedAmount)
+                                setOrderDetails(updatedOrderDetails)
+
+                                if (payTypeForTotals === 'online') {
+                                    userAxios((server) => {
+                                        server.post('/users/createRazorpayPayment', {
+                                            totalAmount: refreshedAmount.totalPrice,
+                                            userId: userLogged._id,
+                                            order: updatedOrderDetails.order
+                                        }).then((data) => {
+                                            if (data.data.login) {
+                                                setLoading(false)
+                                                setUserLogged({ status: false })
+                                                localStorage.removeItem('token')
+                                                setLogError(true)
+                                                setLoginModal(loginModal => ({
+                                                    ...loginModal,
+                                                    btn: true,
+                                                    member: true,
+                                                    active: true,
+                                                    forgot: false
+                                                }))
+                                            } else {
+                                                setLoading(false)
+                                                razorpay(data.data, updatedOrderDetails)
+                                            }
+                                        }).catch((err) => {
+                                            setLoading(false)
+                                            if (err.response && err.response.data === 'online_not_allowed') {
+                                                toast.error("Online payment disabled for some products")
+                                            } else {
+                                                toast.error("Error creating payment")
+                                            }
+                                        })
+                                    })
+                                } else {
+                                    Server.post('/users/order-item-cod', {
+                                        userId: userLogged._id,
+                                        order: updatedOrderDetails
+                                    }).then(() => {
+                                        setLoading(false)
+                                        setOrderType(type => ({
+                                            ...type,
+                                            order: false,
+                                            type: '',
+                                            exAction: true,
+                                            exActionData: {
+                                                failed: false,
+                                                success: true
+                                            }
+                                        }))
+                                        navigate.push('/ordersuccess') // done page
+                                    }).catch((err) => {
+                                        setLoading(false)
+                                        if (err.response && err.response.data === 'cod_not_allowed') {
+                                            toast.error("COD is not allowed for some products in your order")
+                                        } else {
+                                            setOrderType(type => ({
+                                                ...type,
+                                                order: false,
+                                                type: '',
+                                                exAction: true,
+                                                exActionData: {
+                                                    failed: true,
+                                                    success: false
+                                                }
+                                            }))
+                                            navigate.push('/orderfailed') // fail page
+                                        }
+                                    })
+                                }
+                            } else {
+                                setLoading(false)
+                                toast.error('Error calculating shipping/GST')
+                            }
+                        }).catch(() => {
+                            setLoading(false)
+                            toast.error('Error updating totals')
+                        })
                     } else {
                         setLoading(false)
                         alert("Delivery not available your selected pincode")
@@ -233,6 +281,10 @@ function CheckoutComp({
 
                             <form onSubmit={checkoutForm}>
                                 <div className="container">
+                                    <div className="checkoutPageHeader mb-3">
+                                        <h1 className="mb-1">Checkout & shipping</h1>
+                                        <p className="mb-0 text-muted">Confirm delivery address, shipping charges and payment method</p>
+                                    </div>
                                     {
                                         width > 767 && (
                                             <div className="desktop">
@@ -396,15 +448,19 @@ function CheckoutComp({
                                                         <div className='lastDiv'>
                                                             <div className='AmtDiv'>
                                                                 <div>
-                                                                    <p>Price</p>
+                                                                    <p>Price (Subtotal)</p>
                                                                     <p>Discount</p>
+                                                                    <p>Shipping</p>
+                                                                    <p>GST (18%)</p>
                                                                     <p>MRP</p>
                                                                     <h6 className='font-bold'>Total Amount</h6>
                                                                 </div>
 
                                                                 <div>
-                                                                    <p>₹ {amount.totalPrice}</p>
+                                                                    <p>₹ {Math.max(0, (amount.totalPrice ?? 0) - (amount.shippingAmount ?? 0) - (amount.gstAmount ?? 0))}</p>
                                                                     <p>₹ {amount.totalDiscount}</p>
+                                                                    <p>₹ {amount.shippingAmount ?? 0}</p>
+                                                                    <p>₹ {amount.gstAmount ?? 0}</p>
                                                                     <p>₹ {amount.totalMrp}</p>
                                                                     <h6 className='font-bold'>₹ {amount.totalPrice}</h6>
                                                                 </div>

@@ -6,9 +6,10 @@ import Link from 'next/link'
  */
 export default function BrandLogo({ href = '/', variant = 'default', className = '' }) {
   const isLight = variant === 'light'
+  const Tag = href ? Link : 'div'
   return (
-    <Link
-      href={href}
+    <Tag
+      href={href || undefined}
       className={`LinkTagNonDec d-inline-flex align-items-center gap-2 ${className}`}
       style={{ textDecoration: 'none' }}
     >
@@ -17,19 +18,21 @@ export default function BrandLogo({ href = '/', variant = 'default', className =
         alt="Indianet"
         width={40}
         height={40}
-        style={{ objectFit: 'contain', borderRadius: 8 }}
+        style={{ objectFit: 'contain', borderRadius: 8, flexShrink: 0 }}
+        className="brand-logo-img"
       />
       <span
-        className={isLight ? '' : 'UserGreenMain'}
+        className={`brand-logo-text ${isLight ? '' : 'UserGreenMain'}`}
         style={{
           fontWeight: 700,
-          fontSize: '1.2rem',
+          fontSize: 'clamp(1rem, 3vw, 1.2rem)',
           margin: 0,
           color: isLight ? '#ffffff' : undefined,
+          whiteSpace: 'nowrap',
         }}
       >
         Indianet
       </span>
-    </Link>
+    </Tag>
   )
 }

@@ -4,7 +4,7 @@ import ContentControl from '../../../ContentControl/ContentControl'
 import { useState } from 'react'
 import toast from 'react-hot-toast';
 
-function ReviewModal({ setReviewModal, showReviewModal, proId, getReviews }) {
+function ReviewModal({ setShowReviewModal, showReviewModal, proId, getReviews }) {
 
     let { setUserLogged } = useContext(ContentControl)
 
@@ -39,12 +39,12 @@ function ReviewModal({ setReviewModal, showReviewModal, proId, getReviews }) {
                 if (res.data.login) {
                     setUserLogged({ status: false })
                     localStorage.removeItem('token')
-                    setReviewModal({ ...showReviewModal, active: false })
+                    setShowReviewModal({ ...showReviewModal, active: false })
                     toast.error('Please Login')
                 } else {
                     getReviews()
                     toast.success('Review Added')
-                    setReviewModal({ ...showReviewModal, active: false })
+                    setShowReviewModal({ ...showReviewModal, active: false })
                 }
             }).catch(() => {
                 toast.error('Error')
@@ -53,18 +53,18 @@ function ReviewModal({ setReviewModal, showReviewModal, proId, getReviews }) {
     }
 
     useEffect(() => {
-        if (showReviewModal.btn === true) {
-            setReviewModal({ ...showReviewModal, btn: false })
+        if (showReviewModal?.btn === true) {
+            setShowReviewModal({ ...showReviewModal, btn: false })
         } else {
             window.addEventListener('click', closePopUpBody);
             function closePopUpBody(event) {
                 if (!modalRef.current?.contains(event.target)) {
-                    setReviewModal({ ...showReviewModal, active: false })
+                    setShowReviewModal({ ...showReviewModal, active: false })
                 }
             }
             return () => window.removeEventListener('click', closePopUpBody)
         }
-    })
+    }, [showReviewModal])
 
     return (
         <div className="ReviewModal">
@@ -72,7 +72,7 @@ function ReviewModal({ setReviewModal, showReviewModal, proId, getReviews }) {
                 <div className="Main">
                     <div className="ExitBtn">
                         <button type="button" onClick={() => {
-                            setReviewModal({
+                            setShowReviewModal({
                                 ...showReviewModal,
                                 active: false
                             })

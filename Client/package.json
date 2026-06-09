@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "node -r ./readlinkEISDIRFix.js node_modules/next/dist/bin/next dev",
+    "dev:clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node -r ./readlinkEISDIRFix.js node_modules/next/dist/bin/next dev",
+    "build": "node -r ./readlinkEISDIRFix.js node_modules/next/dist/bin/next build",
+    "start": "node -r ./readlinkEISDIRFix.js node_modules/next/dist/bin/next start",
     "lint": "next lint"
   },
   "dependencies": {

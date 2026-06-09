@@ -9,7 +9,9 @@ export default {
         const url = process.env.DB_URL
         const dbname = process.env.DB_NAME
 
-        MongoClient.connect(url, (err, data) => {
+        MongoClient.connect(url, {
+            maxPoolSize: 10,
+        }, (err, data) => {
             if (err) return done(err)
             db = data.db(dbname)
             done()

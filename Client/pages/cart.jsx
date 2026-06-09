@@ -14,7 +14,7 @@ function Cart() {
         setLoginModal, setCartTotal, setOrderType
     } = useContext(ContentControl)
 
-    const [loaded, setLoaded] = useState(false)
+    const [loaded, setLoaded] = useState(userLogged.status)
     const [logError, setLogError] = useState(false)
     const [update, setUpdate] = useState(false)
 
@@ -72,23 +72,17 @@ function Cart() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
             <main>
+                <Header />
                 {
-                    loaded ? (
-                        <>
-                            <Header />
-                            {
-                                logError ? <LoginError />
-                                    : <CartComp
-                                        setUpdate={setUpdate}
-                                        products={products}
-                                        amount={amount}
-                                        setOrderType={setOrderType}
-                                    />
-                            }
-                            <Footer />
-                        </>
-                    ) : <Loading />
+                    logError ? <LoginError />
+                        : <CartComp
+                            setUpdate={setUpdate}
+                            products={products}
+                            amount={amount}
+                            setOrderType={setOrderType}
+                        />
                 }
+                <Footer />
             </main>
         </Fragment>
     )

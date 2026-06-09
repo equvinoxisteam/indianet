@@ -390,4 +390,251 @@
             }
         }
     }
+
+    // Modern editor overrides for Add/Edit product pages
+    .AddProduct,
+    .EditProduct {
+        border: none;
+        padding: 0;
+        margin-bottom: 1.5rem;
+
+        .productEditorForm {
+            .jodit-container:not(.jodit_inline) {
+                border-radius: $radius-md;
+                border-color: $neutral-200;
+            }
+
+            .editorSection {
+                margin-top: .35rem;
+                margin-bottom: .15rem;
+            }
+
+            .editorSectionTitle {
+                margin: 0;
+                font-size: 0.98rem;
+                font-weight: $font-weight-bold;
+                color: $neutral-800;
+            }
+
+            .editorSectionHint {
+                margin: .22rem 0 0;
+                font-size: 0.8rem;
+                color: $neutral-500;
+                line-height: 1.45;
+            }
+
+            .editorFieldHint {
+                margin: 4px 0 10px;
+                font-size: 0.75rem;
+                color: $neutral-500;
+            }
+
+            label {
+                display: block;
+                font-size: 0.8rem;
+                font-weight: $font-weight-semibold;
+                color: $neutral-700;
+                margin-bottom: 6px;
+                margin-top: 2px;
+            }
+
+            input:not([type='file']),
+            select,
+            textarea {
+                width: 100%;
+                height: 42px;
+                border: 1px solid $neutral-200;
+                border-radius: $radius-md;
+                padding: 0 12px;
+                font-size: 0.875rem;
+                background: $surface-white;
+                color: $neutral-800;
+                transition: border-color $transit-fast, box-shadow $transit-fast;
+
+                &:focus {
+                    outline: none;
+                    border-color: rgba($brand-orange, 0.45);
+                    box-shadow: 0 0 0 3px rgba($brand-orange, 0.12);
+                }
+            }
+
+            textarea {
+                min-height: 96px;
+                height: auto;
+                resize: vertical;
+                padding: 10px 12px;
+            }
+
+            input[type='file'] {
+                width: 100%;
+                min-height: 42px;
+                border: 1px solid $neutral-200;
+                border-radius: $radius-md;
+                padding: 8px 10px;
+                background: $surface-white;
+            }
+
+            .variantBox {
+                border: 1px solid $neutral-200;
+                border-radius: $radius-md;
+                background: $neutral-50;
+                margin-top: 8px;
+                margin-bottom: 10px;
+                padding: 14px;
+                box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+
+                .row {
+                    row-gap: 8px;
+                }
+
+                button {
+                    height: 34px;
+                    min-width: 72px;
+                    border-radius: $radius-sm;
+                    border: none;
+                    background: $danger;
+                    color: white;
+                    padding: 0 10px;
+                    font-size: 0.78rem;
+                    font-weight: $font-weight-semibold;
+                    cursor: pointer;
+                }
+            }
+
+            button[data-for='variantAdd'] {
+                height: 36px;
+                padding: 0 14px;
+                border: 1px solid $neutral-300;
+                background: $surface-white;
+                border-radius: $radius-md;
+                color: $neutral-700;
+                font-size: 0.78rem;
+                font-weight: $font-weight-semibold;
+                text-transform: none;
+                transition: all $transit-fast;
+
+                &:hover {
+                    border-color: rgba($brand-orange, 0.35);
+                    color: $brand-orange-dark;
+                }
+            }
+
+            .editorAddBtn {
+                height: 38px !important;
+                min-width: 150px !important;
+                padding: 0 16px !important;
+                border-radius: $radius-md !important;
+                border: 1px solid #cfdcec !important;
+                background: linear-gradient(180deg, #ffffff 0%, #f5f9ff 100%) !important;
+                color: #0f3d75 !important;
+                font-size: 0.8rem !important;
+                font-weight: $font-weight-semibold !important;
+                box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+            }
+
+            .editorRemoveBtn {
+                width: 100%;
+                min-width: 92px !important;
+                background: #ef4444 !important;
+                border: 1px solid #ef4444 !important;
+                color: #fff !important;
+            }
+
+            .vendorBtnPrimary {
+                min-height: 42px;
+                border-radius: $radius-md;
+                padding: 0 18px;
+                font-size: 0.86rem;
+                font-weight: $font-weight-semibold;
+                background: linear-gradient(135deg, $primary, lighten($primary, 8%));
+                border: 1px solid $primary;
+            }
+
+            .editorFileInput {
+                min-height: 42px;
+                border-radius: $radius-md;
+                border: 1px solid $neutral-300;
+                background: #fff;
+            }
+
+            .editorSubmitRow {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .editorSubmitPrimary {
+                min-width: 190px;
+                box-shadow: 0 8px 22px rgba(37, 99, 235, 0.2);
+            }
+
+            .editorSubmitSecondary {
+                min-height: 42px;
+                border-radius: $radius-md;
+                padding: 0 16px;
+                font-weight: $font-weight-semibold;
+            }
+
+            .btn-sm {
+                min-height: 34px;
+                padding: 0 10px;
+                border-radius: $radius-sm;
+            }
+
+            .variantEditorSection {
+                border: 1px solid $neutral-200;
+                border-radius: $radius-lg;
+                padding: 14px;
+                background: #fcfdff;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+            }
+
+            @media (max-width: 991px) {
+                .variantBox {
+                    padding: 12px;
+                }
+
+                button[data-for='variantAdd'] {
+                    width: 100%;
+                    margin-top: 8px;
+                }
+
+                .editorAddBtn {
+                    width: 100%;
+                    min-width: 100% !important;
+                }
+            }
+
+            @media (max-width: 767px) {
+                .editorSectionTitle {
+                    font-size: 0.9rem;
+                }
+
+                label {
+                    font-size: 0.78rem;
+                }
+
+                input:not([type='file']),
+                select,
+                textarea {
+                    font-size: 0.82rem;
+                }
+
+                .variantBox button {
+                    min-width: 100%;
+                    margin-top: 6px;
+                }
+
+                .vendorBtnPrimary {
+                    width: 100%;
+                    min-height: 44px;
+                }
+
+                .editorSubmitPrimary,
+                .editorSubmitSecondary {
+                    width: 100%;
+                }
+            }
+        }
+    }
 }

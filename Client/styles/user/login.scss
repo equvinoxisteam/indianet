@@ -2,264 +2,231 @@
 
 .Login {
     position: fixed;
+    top: 0;
+    left: 0;
     z-index: 10000;
-    background: rgba(26, 35, 50, 0.45);
-    backdrop-filter: blur(4px);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(8px);
     width: 100%;
     height: 100%;
-    padding-left: 30%;
-    padding-right: 30%;
-    padding-top: 1%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease-out;
 
-    @media only screen and (max-width: 850px) {
-        padding-left: 25%;
-        padding-right: 25%;
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
-
-    @media only screen and (max-width: 600px) {
-        padding-left: 15%;
-        padding-right: 15%;
-    }
-
-    @media only screen and (max-width: 500px) {
-        padding-left: 10%;
-        padding-right: 10%;
-    }
-
-    @media only screen and (max-width: 320px) {
-        padding-left: 5%;
-        padding-right: 5%;
-    }
-
 
     .Item {
         width: 100%;
-        height: auto;
+        max-width: 440px;
+        max-height: 92vh;
+        overflow: auto;
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 12px 40px rgba(10, 102, 194, 0.15);
-        border: 1px solid $MainLtGrey;
-        padding: 2em;
-        padding-top: 2em;
-        bottom: 10%;
+        border-radius: $radius-lg;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        padding: 2.5rem;
+        position: relative;
+        transform: translateY(0);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-        @media only screen and (max-width: 767px) {
-            padding: 1em;
-            padding-top: 2em;
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media only screen and (max-width: 480px) {
+            padding: 1.5rem;
         }
 
         .Main {
-            overflow-y: auto;
-            overflow-x: hidden;
             width: 100%;
-            height: auto;
 
-            #Login {
-                input {
-                    height: 35px;
-                    width: 100%;
-                    border: 2px solid $MainGreen;
-                    border-radius: 6px;
-                    outline: none;
-                    padding-left: 10px;
-                    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-                    -moz-transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-                    &:hover {
-                        border-color: $Main2ndGreen;
-                    }
-
-                    &:focus {
-                        border-color: $PrimaryBlue;
-                        box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.2);
-                    }
-                }
-
-                label {
-                    color: $MainBLack;
-                }
-
-                .forgotBtn {
-                    background: none;
-                    border: none;
-                    color: #0096FF;
-                    padding-top: 10px;
-                    font-size: 15px;
-                }
-
-                .loginBtn {
-                    width: 100%;
-                    height: 35px;
-                    background: $MainGreen;
-                    color: white;
-                    border: 3px solid $MainGreen;
-                    font-weight: bold;
-                    text-transform: uppercase;
-                    transition: all .5s ease-in-out;
-                    -moz-transition: all .5s ease-in-out;
-
-                    &:hover {
-                        background: none;
-                        color: $MainBLack;
-                    }
-                }
-
-                .passwdDiv {
-                    display: grid;
-                    grid-template-columns: 90% 10%;
-                    border: 2px solid $MainGreen;
-                    transition: all .5s ease-in-out;
-                    -moz-transition: all .5s ease-in-out;
-
-                    @media only screen and (max-width: 767px) {
-                        grid-template-columns: 85% 15%;
-                    }
-
-                    .passInput {
-                        border: none;
-                        height: 33px;
-                    }
-
-                    .showHide {
-                        background: none;
-                        border: none;
-                        border-left: 2px solid $MainGreen;
-                        height: 33px;
-                        transition: all .5s ease-in-out;
-                        -moz-transition: all .5s ease-in-out;
-                    }
-
-                    &:hover {
-                        border-color: $Main2ndGreen;
-                    }
-
-                    &:hover .showHide {
-                        border-color: $Main2ndGreen;
-                    }
-                }
-
-                .notMember {
-                    background: none;
-                    border: none;
-                    width: 100%;
-                    color: $MainBLack;
-                    padding-top: 25px;
-                    font-size: 15px;
-                    text-align: center;
-                    cursor: text;
-
-                    span {
-                        cursor: pointer;
-                        color: #0096FF;
-                    }
-                }
-
-                .resent {
-                    padding-top: 5px;
-                    color: #0096FF;
-                    cursor: pointer;
-                    font-size: 15px;
+            .modal-header-section {
+                .small {
+                    color: $neutral-500 !important;
                 }
             }
 
-            #SignUp {
+            label {
+                display: block;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: $neutral-700;
+                margin-bottom: 0.5rem;
+                transition: color 0.2s;
+            }
+
+            input {
+                width: 100%;
+                height: 44px;
+                padding: 0 1rem;
+                font-size: 1rem;
+                color: $neutral-900;
+                background-color: $neutral-50;
+                border: 1.5px solid $neutral-200;
+                border-radius: $radius-md;
+                outline: none;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+                &::placeholder {
+                    color: $neutral-400;
+                }
+
+                &:hover {
+                    border-color: $neutral-300;
+                }
+
+                &:focus {
+                    background-color: white;
+                    border-color: $primary;
+                    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+                }
+            }
+
+            .passwdDiv {
+                display: flex;
+                align-items: center;
+                background-color: $neutral-50;
+                border: 1.5px solid $neutral-200;
+                border-radius: $radius-md;
+                overflow: hidden;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+                &:focus-within {
+                    background-color: white;
+                    border-color: $primary;
+                    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+                }
+
                 input {
-                    height: 35px;
-                    width: 100%;
-                    border: 2px solid $MainGreen;
-                    border-radius: 6px;
-                    outline: none;
-                    padding-left: 10px;
-                    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-                    -moz-transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-                    &:hover {
-                        border-color: $Main2ndGreen;
-                    }
-
-                    &:focus {
-                        border-color: $PrimaryBlue;
-                        box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.2);
-                    }
-                }
-
-                label {
-                    color: $MainBLack;
-                }
-
-                .loginBtn {
-                    width: 100%;
-                    height: 35px;
-                    background: $MainGreen;
-                    color: white;
-                    border: 3px solid $MainGreen;
-                    font-weight: bold;
-                    text-transform: uppercase;
-                    transition: all .5s ease-in-out;
-                    -moz-transition: all .5s ease-in-out;
-
-                    &:hover {
-                        background: none;
-                        color: $MainBLack;
-                    }
-                }
-
-                .Member {
-                    background: none;
                     border: none;
-                    width: 100%;
-                    color: $MainBLack;
-                    padding-top: 25px;
-                    font-size: 15px;
-                    text-align: center;
-                    cursor: text;
-
-                    span {
-                        color: #0096FF;
-                        cursor: pointer;
+                    background: transparent;
+                    flex: 1;
+                    
+                    &:focus {
+                        box-shadow: none;
                     }
                 }
 
-                .resent {
-                    padding-top: 5px;
-                    color: #0096FF;
+                .showHide {
+                    background: transparent;
+                    border: none;
+                    padding: 0 0.75rem;
+                    height: 100%;
                     cursor: pointer;
-                    font-size: 15px;
-                }
-
-                .passwdDiv {
-                    display: grid;
-                    grid-template-columns: 90% 10%;
-                    border: 2px solid $MainGreen;
-                    transition: all .5s ease-in-out;
-                    -moz-transition: all .5s ease-in-out;
-
-                    @media only screen and (max-width: 767px) {
-                        grid-template-columns: 85% 15%;
-                    }
-
-                    .passInput {
-                        border: none;
-                        height: 33px;
-                    }
-
-                    .showHide {
-                        background: none;
-                        border: none;
-                        border-left: 2px solid $MainGreen;
-                        height: 33px;
-                        transition: all .5s ease-in-out;
-                        -moz-transition: all .5s ease-in-out;
-                    }
+                    color: $neutral-400;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: color 0.2s;
 
                     &:hover {
-                        border-color: $Main2ndGreen;
-                    }
-
-                    &:hover .showHide {
-                        border-color: $Main2ndGreen;
+                        color: $primary;
                     }
                 }
+            }
+
+            .loginBtn {
+                width: 100%;
+                height: 48px;
+                background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+                color: white;
+                border: none;
+                border-radius: $radius-md;
+                font-size: 1rem;
+                font-weight: 600;
+                letter-spacing: 0.025em;
+                cursor: pointer;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+                margin-top: 1rem;
+
+                &:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+                    filter: brightness(1.1);
+                }
+
+                &:active {
+                    transform: translateY(0);
+                    filter: brightness(0.95);
+                }
+
+                &:disabled {
+                    background: $neutral-300;
+                    cursor: not-allowed;
+                    transform: none;
+                    box-shadow: none;
+                }
+            }
+
+            .forgotBtn {
+                display: block;
+                width: fit-content;
+                margin-top: 0.75rem;
+                background: none;
+                border: none;
+                color: $primary;
+                font-size: 0.875rem;
+                font-weight: 500;
+                cursor: pointer;
+                padding: 0;
+                transition: color 0.2s;
+
+                &:hover {
+                    color: $primary-dark;
+                    text-decoration: underline;
+                }
+            }
+
+            .notMember, .Member {
+                background: none;
+                border: none;
+                width: 100%;
+                color: $neutral-500;
+                margin-top: 2rem;
+                font-size: 0.875rem;
+                text-align: center;
+                display: block;
+
+                span {
+                    cursor: pointer;
+                    color: $primary;
+                    font-weight: 600;
+                    margin-left: 0.25rem;
+                    transition: color 0.2s;
+
+                    &:hover {
+                        color: $primary-dark;
+                        text-decoration: underline;
+                    }
+                }
+            }
+
+            .resent {
+                display: inline-block;
+                margin-top: 0.5rem;
+                color: $primary;
+                cursor: pointer;
+                font-size: 0.875rem;
+                font-weight: 500;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+
+            .UserBlackMain {
+                font-size: 1.75rem;
+                font-weight: 700;
+                color: $neutral-900;
+                margin-bottom: 0.5rem;
             }
         }
     }

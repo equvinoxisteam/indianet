@@ -8,9 +8,12 @@ import slugify from 'slug-generator'
 import layout from "../Helpers/layout.js";
 import admin from "../Helpers/admin.js";
 import rfqHelper from "../Helpers/rfq.js";
+import vendor from "../Helpers/vendor.js";
+import { sendAdminLoginAlert } from "../Helpers/sendAuthEmail.js";
 import tokenShipRocket from '../ShipRocket/token.js'
 import trackProduct, { orderStatusControl } from "../ShipRocket/trackProduct.js";
-import addPickupAddress from "../ShipRocket/addPickupAddress.js";
+import vendorPlan from '../Helpers/vendorPlan.js'
+import { VENDOR_PLAN_KEYS, VENDOR_PLANS } from '../Config/vendorPlans.js'
 
 var router = express.Router()
 
@@ -69,6 +72,7 @@ router.post('/login', (req, res) => {
                 expiresIn: expire
             })
 
+            sendAdminLoginAlert(admin.email).catch(() => {})
             res.status(200).json({ admin: token })
         } else {
             res.status(200).json({ admin: undefined })
@@ -131,6 +135,22 @@ router.post('/addProduct', CheckAdmin, uploader.products.array("images", 20), (r
     req.body.allowOnline = req.body.allowOnline === 'true' || req.body.allowOnline === true
     req.body.allowRfq = req.body.allowRfq === 'true' || req.body.allowRfq === true
 
+    // RFQ products are private-price only; never allow cart checkout actions.
+    if (req.body.allowRfq === true) {
+        req.body.allowCod = false
+        req.body.allowOnline = false
+    }
+
+    // ShipRocket shipment weight/dim (used for shipping estimate + label creation)
+    const weightKg = parseFloat(req.body.weightKg)
+    const lengthCm = parseFloat(req.body.lengthCm)
+    const breadthCm = parseFloat(req.body.breadthCm)
+    const heightCm = parseFloat(req.body.heightCm)
+    req.body.weightKg = Number.isFinite(weightKg) ? weightKg : 2.5
+    req.body.lengthCm = Number.isFinite(lengthCm) ? lengthCm : 10
+    req.body.breadthCm = Number.isFinite(breadthCm) ? breadthCm : 15
+    req.body.heightCm = Number.isFinite(heightCm) ? heightCm : 20
+
     admin.addProduct(req.body).then((done) => {
         res.status(200).json(done)
     }).catch((err) => {
@@ -166,6 +186,22 @@ router.put('/editProduct/:id', CheckAdmin, uploader.products.array("images", 20)
         data.allowCod = data.allowCod === 'true' || data.allowCod === true
         data.allowOnline = data.allowOnline === 'true' || data.allowOnline === true
         data.allowRfq = data.allowRfq === 'true' || data.allowRfq === true
+
+        // RFQ products are private-price only; never allow cart checkout actions.
+        if (data.allowRfq === true) {
+            data.allowCod = false
+            data.allowOnline = false
+        }
+
+        // ShipRocket shipment weight/dim (used for shipping estimate + label creation)
+        const weightKg2 = parseFloat(data.weightKg)
+        const lengthCm2 = parseFloat(data.lengthCm)
+        const breadthCm2 = parseFloat(data.breadthCm)
+        const heightCm2 = parseFloat(data.heightCm)
+        data.weightKg = Number.isFinite(weightKg2) ? weightKg2 : 2.5
+        data.lengthCm = Number.isFinite(lengthCm2) ? lengthCm2 : 10
+        data.breadthCm = Number.isFinite(breadthCm2) ? breadthCm2 : 15
+        data.heightCm = Number.isFinite(heightCm2) ? heightCm2 : 20
 
         var serverImg = JSON.parse(data.serverImg)
         data.serverImg = serverImg
@@ -804,24 +840,53 @@ router.get('/getVendors', CheckAdmin, async (req, res) => {
 
 router.put('/acceptVendor', CheckAdmin, async (req, res) => {
     const email = req.body.email
-    const shiprocketConfigured = Boolean(
-        process.env.SHIPROCKET_EMAIL && process.env.SHIPROCKET_PASS
-    )
-
-    if (shiprocketConfigured && req.body.address) {
-        try {
-            const token = await tokenShipRocket()
-            await addPickupAddress(req.body.address, token)
-        } catch (e) {
-            console.error('ShipRocket pickup (acceptVendor):', e?.message || e)
-        }
-    }
 
     admin.acceptVendor(email).then(() => {
         res.status(200).json('done')
     }).catch(() => {
         res.status(500).json('err')
     })
+})
+
+router.get('/getVendorPlanRequests', CheckAdmin, async (req, res) => {
+    try {
+        const skip = parseInt(req.query.skip || '0', 10)
+        const [total, vendors] = await Promise.all([
+            vendorPlan.countPendingPlanVendors(),
+            vendorPlan.getPendingPlanVendors(skip, 20),
+        ])
+        res.status(200).json({ total, vendors })
+    } catch {
+        res.status(500).json('err')
+    }
+})
+
+router.get('/getVendorPlanCatalog', CheckAdmin, (req, res) => {
+    res.status(200).json({
+        plans: VENDOR_PLAN_KEYS.map((key) => ({ key, ...VENDOR_PLANS[key] })),
+    })
+})
+
+router.put('/activateVendorPlan', CheckAdmin, async (req, res) => {
+    const { vendorId, plan } = req.body
+    if (!vendorId || vendorId.length !== 24) return res.status(400).json('err')
+    try {
+        const fields = await vendorPlan.activatePlan(vendorId, plan)
+        res.status(200).json({ status: true, plan: fields.plan })
+    } catch {
+        res.status(500).json('err')
+    }
+})
+
+router.put('/deactivateVendorPlan', CheckAdmin, async (req, res) => {
+    const { vendorId } = req.body
+    if (!vendorId || vendorId.length !== 24) return res.status(400).json('err')
+    try {
+        await vendorPlan.deactivatePlan(vendorId)
+        res.status(200).json({ status: true })
+    } catch {
+        res.status(500).json('err')
+    }
 })
 
 router.delete('/deleteVendor', CheckAdmin, (req, res) => {
@@ -890,25 +955,40 @@ router.get('/getOneVendorProducts', CheckAdmin, async (req, res) => {
 // RFQ Management
 
 router.get('/getRfqs', CheckAdmin, async (req, res) => {
-    let total = await rfqHelper.getTotalRfqs(req.query).catch(() => {
-        res.status(500).json('err')
-    })
+    try {
+        const total = await rfqHelper.getTotalRfqs(req.query)
+        const rfqs = await rfqHelper.getAllRfqs(req.query, 10)
 
-    let rfqs = await rfqHelper.getAllRfqs(req.query, 10).catch(() => {
-        res.status(500).json('err')
-    })
+        if (!Array.isArray(rfqs)) return res.status(500).json('err')
 
-    if (Array.isArray(rfqs)) {
-        res.status(200).json({
-            total: total,
-            rfqs: rfqs
+        const vendorIds = [...new Set(
+            rfqs.map((r) => r.vendorId).filter((id) => id && String(id).length === 24)
+        )]
+
+        const vendorMap = {}
+        await Promise.all(vendorIds.map(async (id) => {
+            const v = await vendor.getVendorById(id).catch(() => null)
+            if (v) vendorMap[String(id)] = v
+        }))
+
+        const enriched = rfqs.map((r) => {
+            const v = r.vendorId ? vendorMap[String(r.vendorId)] : null
+            return {
+                ...r,
+                vendorName: v?.companyInfo || v?.name || null,
+                vendorEmail: v?.email || null,
+            }
         })
+
+        res.status(200).json({ total, rfqs: enriched })
+    } catch {
+        res.status(500).json('err')
     }
 })
 
 router.get('/getRfqDetails', CheckAdmin, (req, res) => {
     if (req.query.rfqId && req.query.rfqId.length === 24) {
-        rfqHelper.getOneRfq(req.query.rfqId).then((rfq) => {
+        rfqHelper.getRfqWithVendorDetails(req.query.rfqId).then((rfq) => {
             res.status(200).json(rfq)
         }).catch(() => {
             res.status(500).json('err')

@@ -16,7 +16,7 @@ function WishlistComp({ products, setUpdate }) {
                     <div className='WishlistComp container pt-4'>
                         <div className='text-center'>
                             <h1 className='UserBlackMain font-bold'>Wishlist</h1>
-                            <h6 className='font-bolder UserGrayMain'>Products That Your Personal Collections</h6>
+                            <h6 className='font-bolder UserGrayMain'>Products saved for later</h6>
                         </div>
 
                         <div className="row pt-4">
@@ -28,7 +28,7 @@ function WishlistComp({ products, setUpdate }) {
                                                 <div>
                                                     <button className='offerGreen'>{obj.discount}%</button>
                                                     {
-                                                        obj.item.available === "true" ? (
+                                                        obj.item.available === "true" && obj.item.allowRfq !== true ? (
                                                             <button className='cartBtn' onClick={() => {
                                                                 var formData = {
                                                                     item: {
@@ -83,11 +83,15 @@ function WishlistComp({ products, setUpdate }) {
                                                     QUICK VIEW
                                                 </button>
                                             </div>
-                                            <Link className='LinkTagNonDec' href={`/p/${obj.item.slug}/${obj.item._id}`}>
+                                                    <Link className='LinkTagNonDec' href={`/p/${obj.item.slug}/${obj.item._id}`}>
                                                 <div className='pt-2'>
                                                     <h6 className='UserGrayMain text-small oneLineTxt'><small>{obj.item.category}</small></h6>
                                                     <h6 className='UserBlackMain oneLineTxt'>{obj.item.name}</h6>
-                                                    <h6><small className='UserGrayMain text-small'><del>₹ {obj.mrp}</del></small> <span className='UserBlackMain'>₹ {obj.price}</span></h6>
+                                                    {obj.item.allowRfq === true ? (
+                                                        <h6><span className='UserBlackMain'>RFQ</span></h6>
+                                                    ) : (
+                                                        <h6><small className='UserGrayMain text-small'><del>₹ {obj.mrp}</del></small> <span className='UserBlackMain'>₹ {obj.price}</span></h6>
+                                                    )}
                                                 </div>
                                             </Link>
 

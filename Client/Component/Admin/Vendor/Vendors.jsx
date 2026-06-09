@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { adminAxios, apiUnreachableMessage } from '../../../Config/Server'
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
+import VendorSubscriptions from './VendorSubscriptions'
 
 function Vendors({ loaded, setLoaded }) {
 
@@ -18,6 +19,7 @@ function Vendors({ loaded, setLoaded }) {
   const [total, setTotal] = useState(0)
 
   const [accepted, setAccepted] = useState(true)
+  const [view, setView] = useState('vendors')
 
   const logOut = () => {
     setAdminLogged({ status: false })
@@ -57,25 +59,36 @@ function Vendors({ loaded, setLoaded }) {
         loaded ? (
           <div className='vendorsComp' >
             <div className='AdminContainer pb-3'>
+              <div className="adminPageHeader mb-3 pt-3">
+                <h1>Vendors</h1>
+                <p>Manage accepted and pending seller accounts</p>
+              </div>
 
               <div className="BtnsSections text-center pt-3">
                 <div className="row">
                   <div className="col-12 col-md-4 pb-2">
                     <button onClick={() => {
+                      setView('vendors')
                       getVendors(true)
                       setAccepted(true)
                     }}>Accepted Vendors</button>
                   </div>
                   <div className="col-12 col-md-4 pb-2">
                     <button onClick={() => {
+                      setView('vendors')
                       getVendors(false)
                       setAccepted(false)
                     }}>Pending Vendors</button>
                   </div>
-
+                  <div className="col-12 col-md-4 pb-2">
+                    <button onClick={() => setView('plans')}>Vendor Subscriptions</button>
+                  </div>
                 </div>
               </div>
 
+              {view === 'plans' ? (
+                <VendorSubscriptions logOut={logOut} onPlanChanged={() => getVendors(true)} />
+              ) : (
               <div className='MainTable text-center'>
                 <table className="table align-middle">
                   <thead>
@@ -84,7 +97,8 @@ function Vendors({ loaded, setLoaded }) {
                       <th>Name</th>
                       <th>Email</th>
                       <th>Number</th>
-                      <th>Status</th>
+                      <th>Account</th>
+                      <th>Plan</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -100,6 +114,9 @@ function Vendors({ loaded, setLoaded }) {
                             <td>{obj.number}</td>
                             <td>
                               {obj.accept ? 'Accepted' : 'Pending'}
+                            </td>
+                            <td>
+                              {obj.planStatus === 'active' ? (obj.plan ? obj.plan.charAt(0).toUpperCase() + obj.plan.slice(1) : 'Active') : obj.planStatus === 'pending' ? `Pending (${obj.planRequested || '—'})` : '—'}
                             </td>
                             <td>
                               <button className='ActionBtn' onClick={() => {
@@ -210,8 +227,9 @@ function Vendors({ loaded, setLoaded }) {
                 </table>
               </div>
 
-              {
-                vendors.length !== total && <div>
+              )}
+
+              {view === 'vendors' && vendors.length !== total && <div>
                   <button data-for="loadMore" onClick={() => {
                     if (accepted) {
                       setLoaded(false)

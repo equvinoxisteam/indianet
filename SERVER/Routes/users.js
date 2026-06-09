@@ -1,8 +1,16 @@
 import express, { response } from "express";
 import product from "../Helpers/product.js";
+import vendor from "../Helpers/vendor.js";
+import { getPlanAccess } from "../Config/vendorPlans.js";
 import user from "../Helpers/user.js";
 import rfqHelper from "../Helpers/rfq.js";
 import jwt from 'jsonwebtoken'
+import {
+    sendUserSignupOtp,
+    sendUserForgotOtp,
+    sendAdminNewRfq,
+    sendAdminPlanRequest,
+} from "../Helpers/sendAuthEmail.js";
 import nodeMailer from "../Helpers/nodeMailer.js";
 import getOTP from "../Helpers/getOTP.js";
 import tokenShipRocket from "../ShipRocket/token.js";
@@ -12,7 +20,16 @@ import { fetchPayment, generateRazorpay, paymentVery, refundPayment } from "../R
 import getInvoice from "../ShipRocket/getInvoice.js";
 import trackProduct, { orderStatusControl } from "../ShipRocket/trackProduct.js";
 import layout from "../Helpers/layout.js";
+import uploader from "../Helpers/uploader.js";
 var router = express.Router()
+
+router.post('/uploadProfileImage', CheckUser, uploader.userProfile.single("image"), (req, res) => {
+    user.updateUserProfileImage(req.userId || req.body.userId, req.file.filename).then(() => {
+        res.status(200).json({ status: true, filename: req.file.filename })
+    }).catch(() => {
+        res.status(500).json('err')
+    })
+})
 
 function CheckUser(req, res, next) {
     const token = req.headers['x-access-token']
@@ -23,6 +40,7 @@ function CheckUser(req, res, next) {
             if (data) {
                 req.body.userId = data._id.toString()
                 req.query.userId = data._id.toString()
+                req.userId = data._id.toString()
                 next()
             } else {
                 res.status(200).json({ login: true })
@@ -40,10 +58,30 @@ function CheckUser(req, res, next) {
 router.get('/product/:slug/:proId', (req, res, next) => {
     if (req.params['proId'].length === 24) {
         product.getOneUserProduct(req.params.slug, req.params.proId).then(async (item) => {
-            if (product !== null) {
+            if (item) {
                 let similar = await product.getSimilarProduct(item.categorySlug).catch((err) => {
                     console.log(err)
                 })
+
+                const vendorId = item.vendorId || item.pickup_location
+                if (item.vendor && vendorId && String(vendorId).length === 24) {
+                    try {
+                        const vendorData = await vendor.getVendorById(vendorId)
+                        if (vendorData) {
+                            const access = getPlanAccess(vendorData)
+                            item.vendorName = vendorData.companyInfo || vendorData.name
+                            item.vendorEmail = vendorData.email || 'N/A'
+                            item.vendorPhone = vendorData.number || vendorData.phone || 'N/A'
+                            item.vendorId = String(vendorId)
+                            item.showCompanyProfile = access.showCompanyProfile
+                            item.verifiedVendorBadge = access.verifiedBadge
+                            item.vendorPlanLabel = access.planLabel
+                        }
+                    } catch {
+                        // product still loads without vendor enrichment
+                    }
+                }
+
                 res.status(200).json({
                     product: item,
                     similar: similar
@@ -354,36 +392,16 @@ router.post('/sentOtpSignUp', (req, res) => {
         } else {
             user.checkOtp(req.body, 'signup', 'user').then(async (data) => {
                 if (data) {
-                    let mailDetails = {
-                        from: process.env.MAIL_FROM,
-                        to: req.body.email,
-                        subject: 'Indianet - Email verification',
-                        text: `your verification code is ${data.otp}`
-                    }
-
-                    nodeMailer.sendMail(mailDetails).then((done) => {
-                        res.status(200).json({ found: false, mail: true })
-                    }).catch(() => {
-                        res.status(200).json({ found: false, mail: false })
+                    sendUserSignupOtp(req.body.email, data.otp, req.body.name).then((sent) => {
+                        res.status(200).json({ found: false, mail: sent })
                     })
                 } else {
                     getOTP((otp) => {
                         if (otp) {
-                            user.insertOtp(req.body.email, otp, 'signup', 'user').then(async (done) => {
-
-                                let mailDetails = {
-                                    from: process.env.MAIL_FROM,
-                                    to: req.body.email,
-                                    subject: 'Indianet - Email verification',
-                                    text: `your verification code is ${otp}`
-                                }
-
-                                nodeMailer.sendMail(mailDetails).then((done) => {
-                                    res.status(200).json({ found: false, mail: true })
-                                }).catch(() => {
-                                    res.status(200).json({ found: false, mail: false })
-                                })
-                            }).catch((err) => {
+                            user.insertOtp(req.body.email, otp, 'signup', 'user').then(async () => {
+                                const sent = await sendUserSignupOtp(req.body.email, otp, req.body.name)
+                                res.status(200).json({ found: false, mail: sent })
+                            }).catch(() => {
                                 res.status(500).json('err')
                             })
                         }
@@ -403,36 +421,16 @@ router.post('/resentOtpSignUp', (req, res) => {
     req.body.email = req.body.email.toLowerCase()
     user.checkOtp(req.body, 'signup', 'user').then(async (data) => {
         if (data) {
-            let mailDetails = {
-                from: process.env.MAIL_FROM,
-                to: req.body.email,
-                subject: 'Indianet - Email verification',
-                text: `your verification code is ${data.otp}`
-            }
-
-            nodeMailer.sendMail(mailDetails).then((done) => {
-                res.status(200).json('done')
-            }).catch(() => {
-                res.status(500).json('err')
+            sendUserSignupOtp(req.body.email, data.otp, req.body.name).then((sent) => {
+                res.status(sent ? 200 : 500).json(sent ? 'done' : 'err')
             })
         } else {
             getOTP((otp) => {
                 if (otp) {
-                    user.insertOtp(req.body.email, otp, 'signup', 'user').then(async (done) => {
-
-                        let mailDetails = {
-                            from: process.env.MAIL_FROM,
-                            to: req.body.email,
-                            subject: 'Indianet - Email verification',
-                            text: `your verification code is ${otp}`
-                        }
-
-                        nodeMailer.sendMail(mailDetails).then((done) => {
-                            res.status(200).json('done')
-                        }).catch(() => {
-                            res.status(500).json('err')
-                        })
-                    }).catch((err) => {
+                    user.insertOtp(req.body.email, otp, 'signup', 'user').then(async () => {
+                        const sent = await sendUserSignupOtp(req.body.email, otp, req.body.name)
+                        res.status(sent ? 200 : 500).json(sent ? 'done' : 'err')
+                    }).catch(() => {
                         res.status(500).json('err')
                     })
                 }
@@ -513,36 +511,16 @@ router.post('/sentOtpForgot', (req, res) => {
         if (data.found) {
             user.checkOtp(req.body, 'forgot', 'user').then(async (data) => {
                 if (data) {
-                    let mailDetails = {
-                        from: process.env.MAIL_FROM,
-                        to: req.body.email,
-                        subject: 'Indianet - Email verification',
-                        text: `your verification code is ${data.otp} for forgot password`
-                    }
-
-                    nodeMailer.sendMail(mailDetails).then((done) => {
-                        res.status(200).json({ found: true, mail: true })
-                    }).catch(() => {
-                        res.status(200).json({ found: true, mail: false })
+                    sendUserForgotOtp(req.body.email, data.otp, req.body.name).then((sent) => {
+                        res.status(200).json({ found: true, mail: sent })
                     })
                 } else {
                     getOTP((otp) => {
                         if (otp) {
-                            user.insertOtp(req.body.email, otp, 'forgot', 'user').then(async (done) => {
-
-                                let mailDetails = {
-                                    from: process.env.MAIL_FROM,
-                                    to: req.body.email,
-                                    subject: 'Indianet - Email verification',
-                                    text: `your verification code is ${otp} for forgot password`
-                                }
-
-                                nodeMailer.sendMail(mailDetails).then((done) => {
-                                    res.status(200).json({ found: true, mail: true })
-                                }).catch(() => {
-                                    res.status(200).json({ found: true, mail: false })
-                                })
-                            }).catch((err) => {
+                            user.insertOtp(req.body.email, otp, 'forgot', 'user').then(async () => {
+                                const sent = await sendUserForgotOtp(req.body.email, otp, req.body.name)
+                                res.status(200).json({ found: true, mail: sent })
+                            }).catch(() => {
                                 res.status(500).json('err')
                             })
                         }
@@ -568,36 +546,16 @@ router.post('/resentOtpForgot', (req, res) => {
         if (data.found) {
             user.checkOtp(req.body, 'forgot', 'user').then(async (data) => {
                 if (data) {
-                    let mailDetails = {
-                        from: process.env.MAIL_FROM,
-                        to: req.body.email,
-                        subject: 'Indianet - Email verification',
-                        text: `your verification code is ${data.otp} for forgot password`
-                    }
-
-                    nodeMailer.sendMail(mailDetails).then((done) => {
-                        res.status(200).json('done')
-                    }).catch(() => {
-                        res.status(500).json('err')
+                    sendUserForgotOtp(req.body.email, data.otp, req.body.name).then((sent) => {
+                        res.status(sent ? 200 : 500).json(sent ? 'done' : 'err')
                     })
                 } else {
                     getOTP((otp) => {
                         if (otp) {
-                            user.insertOtp(req.body.email, otp, 'forgot', 'user').then(async (done) => {
-
-                                let mailDetails = {
-                                    from: process.env.MAIL_FROM,
-                                    to: req.body.email,
-                                    subject: 'Indianet - Email verification',
-                                    text: `your verification code is ${otp} for forgot password`
-                                }
-
-                                nodeMailer.sendMail(mailDetails).then((done) => {
-                                    res.status(200).json('done')
-                                }).catch(() => {
-                                    res.status(500).json('err')
-                                })
-                            }).catch((err) => {
+                            user.insertOtp(req.body.email, otp, 'forgot', 'user').then(async () => {
+                                const sent = await sendUserForgotOtp(req.body.email, otp, req.body.name)
+                                res.status(sent ? 200 : 500).json(sent ? 'done' : 'err')
+                            }).catch(() => {
                                 res.status(500).json('err')
                             })
                         }
@@ -801,7 +759,12 @@ router.get('/getCartTotalPriceCheckout', CheckUser, async (req, res) => {
         console.log("address get error")
     })
 
-    user.getCartTotalPriceCheckout(req.query.userId, req.query.discount).then((amount) => {
+    user.getCartTotalPriceCheckout(
+        req.query.userId,
+        req.query.discount,
+        req.query.delivery_pincode ?? req.query.pin,
+        req.query.payType
+    ).then((amount) => {
         res.status(200).json({
             key: process.env.RAZORPAY_ID,
             amount: amount,
@@ -1255,16 +1218,8 @@ router.post('/submitRfq', CheckUser, (req, res) => {
         message: req.body.message || ''
     }
 
-    rfqHelper.createRfq(details).then((done) => {
-        // Email admin about new RFQ
-        nodeMailer.sendMail({
-            from: process.env.MAIL_FROM,
-            to: process.env.ADMIN_MAIL,
-            subject: 'Indianet - New RFQ Request',
-            text: `New RFQ from ${details.userName} (${details.userEmail}, Phone: ${details.userNumber}) for product: ${details.productName}, Qty: ${details.quantity}. Message: ${details.message || 'N/A'}`
-        }).catch(() => {
-            console.log('RFQ MAIL FAIL')
-        })
+    rfqHelper.createRfq(details).then(() => {
+        sendAdminNewRfq(details).catch(() => {})
         res.status(200).json('done')
     }).catch(() => {
         res.status(500).json('err')
@@ -1277,6 +1232,36 @@ router.get('/getMyRfqs', CheckUser, (req, res) => {
     }).catch(() => {
         res.status(500).json('err')
     })
+})
+
+router.post('/submitPricingRequest', async (req, res) => {
+    let details = {
+        name: req.body.name,
+        email: req.body.email,
+        phone: req.body.phone,
+        company: req.body.company,
+        plan: req.body.plan,
+        period: req.body.period,
+        country: req.body.country,
+        currency: req.body.currency,
+        price: req.body.price,
+        vendorId: req.body.vendorId || null,
+    }
+
+    try {
+        const vendorPlan = (await import('../Helpers/vendorPlan.js')).default
+        if (details.vendorId && details.vendorId.length === 24) {
+            await vendorPlan.requestPlan(details.vendorId, details)
+        } else if (details.email) {
+            await vendorPlan.requestPlanByEmail(details.email, details)
+        }
+    } catch {
+        console.log('PLAN REQUEST LINK FAIL')
+    }
+
+    sendAdminPlanRequest(details).catch(() => {})
+
+    res.status(200).json({ status: true, message: 'Pricing request submitted.' })
 })
 
 export default router;

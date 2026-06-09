@@ -256,6 +256,19 @@ function LayoutsComp({ setLoaded, loaded }) {
             {
               currTable === 'sliderOne' && (
                 <div className="Main text-center">
+                  <div className='d-flex justify-content-between align-items-center mb-3'>
+                    <h5 className='mb-0'>Slider One Items</h5>
+                    <button className='btn btn-sm btn-primary rounded-pill px-3' onClick={() => {
+                      setActiveExtraModal({
+                        ...activeExtraModal,
+                        btn: true,
+                        active: true,
+                        for: 'slider'
+                      })
+                    }}>
+                      <i className="fa-solid fa-plus me-1"></i> Add/Edit Slider Item
+                    </button>
+                  </div>
                   <table className="table align-middle">
                     <thead>
                       <tr>
@@ -293,7 +306,16 @@ function LayoutsComp({ setLoaded, loaded }) {
                               </td>
 
                               <td className='col-2'>
-
+                                <button className='cateActionBtn me-2' onClick={() => {
+                                  // Edit slider item - open modal with existing data
+                                  setActiveExtraModal({
+                                    ...activeExtraModal,
+                                    btn: true,
+                                    active: true,
+                                    for: 'slider',
+                                    editItem: obj
+                                  })
+                                }}>Edit</button>
                                 <button className='cateActionBtn' onClick={() => {
                                   Swal.fire({
   title: `Do you want remove ${obj.title}`,
@@ -338,10 +360,24 @@ function LayoutsComp({ setLoaded, loaded }) {
             {
               currTable === 'sliderTwo' && (
                 <div className="Main text-center">
+                  <div className='d-flex justify-content-between align-items-center mb-3'>
+                    <h5 className='mb-0'>Slider Two Items</h5>
+                    <button className='btn btn-sm btn-primary rounded-pill px-3' onClick={() => {
+                      setActiveExtraModal({
+                        ...activeExtraModal,
+                        btn: true,
+                        active: true,
+                        for: 'slidertwo'
+                      })
+                    }}>
+                      <i className="fa-solid fa-plus me-1"></i> Add/Edit Slider Item
+                    </button>
+                  </div>
                   <table className="table align-middle">
                     <thead>
                       <tr>
                         <th>Image</th>
+                        <th>Link</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -351,7 +387,7 @@ function LayoutsComp({ setLoaded, loaded }) {
                         sliderTwo['items'].map((obj, key) => {
                           return (
                             <tr key={key}>
-                              <td className='col-10'>
+                              <td className='col-8'>
                                 <img className='TableImgTwo' style={{ cursor: 'pointer' }}
                                   src={`${ServerId}/${sliderTwo.for}/${obj.uni_id}/${obj.file.filename}`}
                                   onClick={() => {
@@ -360,9 +396,19 @@ function LayoutsComp({ setLoaded, loaded }) {
                                   alt='slider'
                                 />
                               </td>
+                              <td className='col-2 small text-break'>{obj.link}</td>
 
                               <td className='col-2'>
-
+                                <button className='cateActionBtn me-2' onClick={() => {
+                                  // Edit slider item
+                                  setActiveExtraModal({
+                                    ...activeExtraModal,
+                                    btn: true,
+                                    active: true,
+                                    for: 'slidertwo',
+                                    editItem: obj
+                                  })
+                                }}>Edit</button>
                                 <button className='cateActionBtn' onClick={() => {
                                   Swal.fire({
   title: `Do you want remove`,
@@ -407,10 +453,24 @@ function LayoutsComp({ setLoaded, loaded }) {
             {
               currTable === 'banner' && (
                 <div className="Main text-center">
+                  <div className='d-flex justify-content-between align-items-center mb-3'>
+                    <h5 className='mb-0'>Banner</h5>
+                    <button className='btn btn-sm btn-primary rounded-pill px-3' onClick={() => {
+                      setActiveExtraModal({
+                        ...activeExtraModal,
+                        btn: true,
+                        active: true,
+                        for: 'banner'
+                      })
+                    }}>
+                      <i className="fa-solid fa-pen me-1"></i> Edit Banner
+                    </button>
+                  </div>
                   <table className="table align-middle">
                     <thead>
                       <tr>
                         <th>Image</th>
+                        <th>Link</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -419,7 +479,7 @@ function LayoutsComp({ setLoaded, loaded }) {
                       {
                         banner.file.length !== 0 && (
                           <tr>
-                            <td className='col-10'>
+                            <td className='col-8'>
                               <img className='TableImgTwo' style={{ cursor: 'pointer' }}
                                 src={`${ServerId}/banner/${banner.file.filename}`}
                                 alt='banner' onClick={() => {
@@ -427,9 +487,19 @@ function LayoutsComp({ setLoaded, loaded }) {
                                 }}
                               />
                             </td>
+                            <td className='col-2 small text-break'>{banner.link}</td>
 
                             <td className='col-2'>
-
+                              <button className='cateActionBtn me-2' onClick={() => {
+                                // Edit banner - open modal with existing data
+                                setActiveExtraModal({
+                                  ...activeExtraModal,
+                                  btn: true,
+                                  active: true,
+                                  for: 'banner',
+                                  editItem: banner
+                                })
+                              }}>Edit</button>
                               <button className='cateActionBtn' onClick={() => {
                                 Swal.fire({
   title: `Do you want remove`,
@@ -468,6 +538,18 @@ function LayoutsComp({ setLoaded, loaded }) {
             {
               currTable === 'sectionone' && (
                 <div className="Main text-center">
+                  <div className='d-flex justify-content-between align-items-center mb-3'>
+                    <h5 className='mb-0'>Section One Categories</h5>
+                    <button className='btn btn-sm btn-primary rounded-pill px-3' onClick={() => {
+                      setActiveSecModal({
+                        ...activeSecModal,
+                        btn: true,
+                        active: true
+                      })
+                    }}>
+                      <i className="fa-solid fa-pen-to-square me-1"></i> Edit Section
+                    </button>
+                  </div>
                   <table className="table align-middle">
                     <thead>
                       <tr>
@@ -544,6 +626,18 @@ function LayoutsComp({ setLoaded, loaded }) {
             {
               currTable === 'sectiontwo' && (
                 <div className="Main text-center">
+                  <div className='d-flex justify-content-between align-items-center mb-3'>
+                    <h5 className='mb-0'>Section Two Products</h5>
+                    <button className='btn btn-sm btn-primary rounded-pill px-3' onClick={() => {
+                      setActiveSecModal({
+                        ...activeSecModal,
+                        btn: true,
+                        active: true
+                      })
+                    }}>
+                      <i className="fa-solid fa-pen-to-square me-1"></i> Edit Section
+                    </button>
+                  </div>
                   <table className="table align-middle">
                     <thead>
                       <tr>
@@ -680,6 +774,18 @@ function LayoutsComp({ setLoaded, loaded }) {
             {
               currTable === 'sectionthree' && (
                 <div className="Main text-center">
+                  <div className='d-flex justify-content-between align-items-center mb-3'>
+                    <h5 className='mb-0'>Section Three Products</h5>
+                    <button className='btn btn-sm btn-primary rounded-pill px-3' onClick={() => {
+                      setActiveSecModal({
+                        ...activeSecModal,
+                        btn: true,
+                        active: true
+                      })
+                    }}>
+                      <i className="fa-solid fa-pen-to-square me-1"></i> Edit Section
+                    </button>
+                  </div>
                   <table className="table align-middle">
                     <thead>
                       <tr>
@@ -816,6 +922,18 @@ function LayoutsComp({ setLoaded, loaded }) {
             {
               currTable === 'sectionfour' && (
                 <div className="Main text-center">
+                  <div className='d-flex justify-content-between align-items-center mb-3'>
+                    <h5 className='mb-0'>Section Four Products</h5>
+                    <button className='btn btn-sm btn-primary rounded-pill px-3' onClick={() => {
+                      setActiveSecModal({
+                        ...activeSecModal,
+                        btn: true,
+                        active: true
+                      })
+                    }}>
+                      <i className="fa-solid fa-pen-to-square me-1"></i> Edit Section
+                    </button>
+                  </div>
                   <table className="table align-middle">
                     <thead>
                       <tr>

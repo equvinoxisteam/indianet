@@ -28,7 +28,12 @@ function EditProduct() {
         name: '', price: '', mrp: '', available: 'true', cancellation: 'true',
         category: '', categorySlug: '', srtDescription: '', description: '',
         seoDescription: '', seoTitle: '', seoKeyword: '', return: 'true', variant: [],
-        allowCod: true, allowOnline: true, allowRfq: false
+        allowCod: true, allowOnline: true, allowRfq: false,
+        // ShipRocket shipment dimension/weight inputs (for shipping estimate + payload)
+        weightKg: 2.5,
+        lengthCm: 10,
+        breadthCm: 15,
+        heightCm: 20
     })
 
     useEffect(() => {
@@ -94,6 +99,12 @@ function EditProduct() {
         formData.append('allowCod', productDetails.allowCod)
         formData.append('allowOnline', productDetails.allowOnline)
         formData.append('allowRfq', productDetails.allowRfq)
+
+        // Shipping estimation / payload inputs for ShipRocket
+        formData.append('weightKg', productDetails.weightKg ?? 2.5)
+        formData.append('lengthCm', productDetails.lengthCm ?? 10)
+        formData.append('breadthCm', productDetails.breadthCm ?? 15)
+        formData.append('heightCm', productDetails.heightCm ?? 20)
 
         formData.append('deleteImg', JSON.stringify(delImages));
 
@@ -215,6 +226,38 @@ function EditProduct() {
                                 <option value="true">Yes</option>
                                 <option value="false">No</option>
                             </select>
+                        </div>
+                        <div className='col-md-3'>
+                            <label>Weight (Kg)</label><br />
+                            <input
+                                type='number'
+                                value={productDetails.weightKg ?? 2.5}
+                                onInput={(e) => setProductDetails({ ...productDetails, weightKg: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-3'>
+                            <label>Length (Cm)</label><br />
+                            <input
+                                type='number'
+                                value={productDetails.lengthCm ?? 10}
+                                onInput={(e) => setProductDetails({ ...productDetails, lengthCm: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-3'>
+                            <label>Breadth (Cm)</label><br />
+                            <input
+                                type='number'
+                                value={productDetails.breadthCm ?? 15}
+                                onInput={(e) => setProductDetails({ ...productDetails, breadthCm: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-3'>
+                            <label>Height (Cm)</label><br />
+                            <input
+                                type='number'
+                                value={productDetails.heightCm ?? 20}
+                                onInput={(e) => setProductDetails({ ...productDetails, heightCm: e.target.value })}
+                            />
                         </div>
 
                         <div className="col-md-12">

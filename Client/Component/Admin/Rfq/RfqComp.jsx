@@ -12,6 +12,40 @@ function RfqComp({ loaded, setLoaded }) {
 
     const [selectedRfq, setSelectedRfq] = useState(null)
     const [updateStatus, setUpdateStatus] = useState('')
+    const [payType, setPayType] = useState('cod')
+
+    const normalizeStatus = (s) => String(s ?? '').toLowerCase().replace(/\s+/g, ' ').trim()
+    const statusTitle = (s) => {
+        const st = normalizeStatus(s)
+        if (st === 'pending') return 'Pending'
+        if (st === 'in progress' || st === 'in_progress') return 'In Progress'
+        if (st === 'approved') return 'Approved'
+        if (st === 'rejected') return 'Rejected'
+        return s || ''
+    }
+    const statusToDropdownValue = (s) => statusTitle(s) || 'Pending'
+    const statusBadgeClass = (s) => {
+        const st = normalizeStatus(s)
+        if (st === 'pending') return 'bg-warning'
+        if (st === 'approved') return 'bg-success'
+        if (st === 'rejected') return 'bg-danger'
+        return 'bg-info'
+    }
+    const dropdownValueToCanonical = (val) => {
+        const v = normalizeStatus(val)
+        if (v === 'pending') return 'pending'
+        if (v === 'in progress' || v === 'in_progress') return 'in_progress'
+        if (v === 'approved') return 'approved'
+        if (v === 'rejected') return 'rejected'
+        return normalizeStatus(val)
+    }
+    const normalizePayType = (v) => {
+        const s = String(v ?? '').toLowerCase().trim()
+        if (s === 'cod') return 'cod'
+        if (s === 'online' || s === 'prepaid') return 'online'
+        return s || 'cod'
+    }
+    const rfqDateValue = (obj) => obj?.createdAt || obj?.date || null
 
     const logOut = () => {
         setAdminLogged({ status: false })
@@ -53,15 +87,18 @@ function RfqComp({ loaded, setLoaded }) {
                     logOut()
                 } else {
                     setSelectedRfq(res.data)
-                    setUpdateStatus(res.data.status)
+                    setUpdateStatus(statusToDropdownValue(res.data.status))
+                    setPayType(normalizePayType(res.data.payType || 'cod'))
                 }
             })
         })
     }
 
     const handleUpdate = () => {
+        const canonicalStatus = dropdownValueToCanonical(updateStatus)
+        const canonicalPayType = normalizePayType(payType)
         adminAxios((server) => {
-            server.put('/admin/updateRfq', { rfqId: selectedRfq._id, status: updateStatus }).then((res) => {
+            server.put('/admin/updateRfq', { rfqId: selectedRfq._id, status: canonicalStatus, payType: canonicalPayType }).then((res) => {
                 if (res.data === 'done') {
                     toast.success('RFQ Status Updated')
                     setSelectedRfq(null)
@@ -106,24 +143,39 @@ function RfqComp({ loaded, setLoaded }) {
                                 <thead>
                                     <tr>
                                         <th>Date</th>
-                                        <th>Product ID</th>
+                                        <th>Product</th>
                                         <th>Customer</th>
-                                        <th>Quantity</th>
+                                        <th>Vendor</th>
+                                        <th>Qty</th>
                                         <th>Status</th>
+                                        <th>Quoted</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {rfqs.map((obj, key) => (
                                         <tr key={key}>
-                                            <td>{new Date(obj.date).toLocaleDateString()}</td>
-                                            <td>{obj.productId}</td>
-                                            <td>{obj.name}</td>
+                                            <td>{rfqDateValue(obj) ? new Date(rfqDateValue(obj)).toLocaleDateString() : '—'}</td>
+                                            <td>
+                                                <div className="small fw-medium">{obj.productName || '—'}</div>
+                                                <div className="small text-muted">{obj.productId}</div>
+                                            </td>
+                                            <td>
+                                                <div>{obj.userName || obj.name || '—'}</div>
+                                                <div className="small text-muted">{obj.userEmail || '—'}</div>
+                                            </td>
+                                            <td>
+                                                <div className="small">{obj.vendorName || '—'}</div>
+                                                <div className="small text-muted">{obj.vendorId || '—'}</div>
+                                            </td>
                                             <td>{obj.quantity}</td>
                                             <td>
-                                                <span className={`badge ${obj.status === 'Pending' ? 'bg-warning' : obj.status === 'Approved' ? 'bg-success' : obj.status === 'Rejected' ? 'bg-danger' : 'bg-info'}`}>
-                                                    {obj.status}
+                                                <span className={`badge ${statusBadgeClass(obj.status)}`}>
+                                                    {statusTitle(obj.status)}
                                                 </span>
+                                            </td>
+                                            <td>
+                                                {obj.quotedPrice !== null && obj.quotedPrice !== undefined ? `₹ ${obj.quotedPrice}` : '—'}
                                             </td>
                                             <td>
                                                 <button className='ActionBtn btn-sm me-2' onClick={() => loadDetails(obj._id)}>View</button>
@@ -154,11 +206,19 @@ function RfqComp({ loaded, setLoaded }) {
                                 <button type="button" className="btn-close" onClick={() => setSelectedRfq(null)}></button>
                             </div>
                             <div className="modal-body text-start">
-                                <p><strong>Product ID:</strong> {selectedRfq.productId}</p>
-                                <p><strong>Customer Name:</strong> {selectedRfq.name}</p>
-                                <p><strong>Email:</strong> {selectedRfq.email}</p>
-                                <p><strong>Phone:</strong> {selectedRfq.number}</p>
+                                <p><strong>Product:</strong> {selectedRfq.productName || '—'} <span className="text-muted small">({selectedRfq.productId})</span></p>
+                                    <p><strong>Customer Name:</strong> {selectedRfq.userName || selectedRfq.name || '—'}</p>
+                                    <p><strong>Email:</strong> {selectedRfq.userEmail || selectedRfq.email || '—'}</p>
+                                    <p><strong>Phone:</strong> {selectedRfq.userNumber || selectedRfq.number || '—'}</p>
                                 <p><strong>Quantity Requested:</strong> {selectedRfq.quantity}</p>
+                                <hr />
+                                <p><strong>Vendor:</strong> {selectedRfq.vendorName || '—'}</p>
+                                <p><strong>Vendor Email:</strong> {selectedRfq.vendorEmail || '—'}</p>
+                                <p><strong>Vendor Phone:</strong> {selectedRfq.vendorPhone || '—'}</p>
+                                <p><strong>Vendor Plan:</strong> {selectedRfq.vendorPlan || '—'}</p>
+                                <p><strong>Vendor ID:</strong> {selectedRfq.vendorId || '—'}</p>
+                                <p><strong>Vendor Quoted Price:</strong> {selectedRfq.quotedPrice !== null && selectedRfq.quotedPrice !== undefined ? `₹ ${selectedRfq.quotedPrice}` : '—'}</p>
+                                <p><strong>Current Status:</strong> {statusTitle(selectedRfq.status)}</p>
                                 <p><strong>Message:</strong> {selectedRfq.message || 'N/A'}</p>
                                 <hr />
                                 <div className="mb-3">
@@ -168,6 +228,13 @@ function RfqComp({ loaded, setLoaded }) {
                                         <option value="In Progress">In Progress</option>
                                         <option value="Approved">Approved</option>
                                         <option value="Rejected">Rejected</option>
+                                    </select>
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label"><strong>Payment Type:</strong></label>
+                                    <select className="form-select" value={payType} onChange={(e) => setPayType(e.target.value)}>
+                                        <option value="cod">COD</option>
+                                        <option value="online">ONLINE / PREPAID</option>
                                     </select>
                                 </div>
                             </div>

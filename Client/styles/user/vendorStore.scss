@@ -1,0 +1,106 @@
+@import '../app.module.scss';
+
+.vendorStorePage {
+  background: $surface-bg;
+  min-height: 40vh;
+
+  .vendorStoreHero {
+    background: linear-gradient(120deg, #0f253d 0%, #1a4a6e 50%, #0d2038 100%);
+    background-size: cover;
+    background-position: center;
+  }
+
+  .vendorStoreLogo {
+    width: 72px;
+    height: 72px;
+    border-radius: $radius-lg;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    i {
+      font-size: 1.75rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
+  }
+
+  .text-white-75 {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .vendorStoreProductCard {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 14px;
+    overflow: hidden;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: $shadow-md !important;
+    }
+  }
+
+  .text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  @media (max-width: 767px) {
+    .vendorStoreHero {
+      .h3 {
+        font-size: 1.15rem;
+      }
+    }
+
+    .vendorStoreLogo {
+      width: 58px;
+      height: 58px;
+    }
+
+    .vendorStoreNav .btn {
+      font-size: 0.75rem;
+      padding: 0.32rem 0.75rem;
+    }
+  }
+}
+
+.verifiedVendorBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  vertical-align: middle;
+  white-space: nowrap;
+
+  i {
+    font-size: 0.75rem;
+  }
+
+  &--light {
+    background: rgba(255, 255, 255, 0.15);
+    color: #d1fae5;
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  &--sm {
+    font-size: 0.62rem;
+    padding: 0.12rem 0.4rem;
+  }
+}

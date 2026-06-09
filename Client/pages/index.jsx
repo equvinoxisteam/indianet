@@ -60,27 +60,29 @@ function normalizeHomeLayout(raw) {
 
 export async function getServerSideProps() {
   try {
-
-    let layout = await Server.get('/users/getLayouts')
-
+    const layout = await Server.get('/users/getLayouts')
     return {
       props: {
-        response: normalizeHomeLayout(layout.data)
-      }
+        response: normalizeHomeLayout(layout.data),
+        layoutLoadError: null,
+      },
     }
   } catch (err) {
-    console.log(`Facing An Error ${err}`)
+    // Do not send users to /404 when the API is down or misconfigured — still render the shell.
+    console.error('[index] getLayouts failed:', err?.message || err)
     return {
-      redirect: {
-        destination: '/404',
-        permanent: false,
+      props: {
+        response: normalizeHomeLayout(null),
+        layoutLoadError:
+          process.env.NODE_ENV === 'development'
+            ? 'Home layout API failed (is SERVER running and Client/.env.local ServerUrl correct?).'
+            : 'We could not load featured content. Please refresh in a moment.',
       },
     }
   }
-
 }
 
-export default function Home({ response }) {
+export default function Home({ response, layoutLoadError }) {
   const { QuickVw } = useContext(ContentControl)
 
   const [layout] = useState(response)
@@ -93,6 +95,13 @@ export default function Home({ response }) {
       </Head>
       <main>
         <Header />
+        {layoutLoadError && (
+          <div className="container py-3">
+            <div className="alert alert-warning mb-0" role="alert">
+              {layoutLoadError}
+            </div>
+          </div>
+        )}
         {QuickVw.active && <QuickView />}
         <Slider layout={layout} />
         <HomePost layout={layout} />

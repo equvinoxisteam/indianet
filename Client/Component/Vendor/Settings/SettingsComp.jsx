@@ -1,11 +1,24 @@
-import { vendorAxios } from "@/Config/Server"
-import { useState } from "react"
+import { vendorAxios, ServerId } from "@/Config/Server"
+import { useState, useEffect, useRef } from "react"
 import toast from 'react-hot-toast';
+import { useRouter } from "next/router";
+
+const MAX_STORE_CERTIFICATES = 5
 
 function SettingsComp({ venderLogged, setVendorLogged }) {
+    const router = useRouter()
+    
     const [formData, setFormData] = useState({
         email: venderLogged.email,
         number: venderLogged.number,
+        country: venderLogged.country || 'India',
+        state: venderLogged.state || '',
+        city: venderLogged.city || '',
+        locality: venderLogged.locality || '',
+        address: venderLogged.address || '',
+        pinCode: venderLogged.pinCode || '',
+        gstin: venderLogged.gstin || '',
+        panNumber: venderLogged.panNumber || '',
         vendorIdCheck: venderLogged._id,
         bankAccOwner: venderLogged.bankAccOwner,
         bankName: venderLogged.bankName,
@@ -15,13 +28,142 @@ function SettingsComp({ venderLogged, setVendorLogged }) {
         bankBranchNumber: venderLogged.bankBranchNumber,
     })
 
+    const [profileData, setProfileData] = useState({
+        website: '',
+        description: '',
+        companyInfo: '',
+        backgroundImage: '',
+        logo: '',
+        socialLinks: {
+            facebook: '',
+            instagram: '',
+            twitter: '',
+            linkedin: ''
+        },
+        companyIntroduction: '',
+        businessType: '',
+        yearsInIndustry: '',
+        cooperatedSuppliers: '',
+        countryRegion: '',
+        mainCategories: '',
+        mainMarkets: [],
+        yearEstablished: '',
+        employeesRange: '',
+        factorySizeRange: '',
+        annualOutputRange: '',
+        verificationTags: [],
+        companyHighlights: [],
+        certificateImages: [],
+        designCustomization: false,
+        fullCustomization: false,
+        annualRevenueNote: '',
+        exhibitionsNote: ''
+    })
+
+    const [bannerFile, setBannerFile] = useState(null)
+    const [logoFile, setLogoFile] = useState(null)
+    /** New certificate uploads with live preview: { id, file, url } */
+    const [pendingCerts, setPendingCerts] = useState([])
+
+    const [loading, setLoading] = useState(false)
+    const [activeTab, setActiveTab] = useState('profile')
+
+    const [bannerPreviewUrl, setBannerPreviewUrl] = useState(null)
+    const [logoPreviewUrl, setLogoPreviewUrl] = useState(null)
+
+    const pendingCertsRef = useRef([])
+    pendingCertsRef.current = pendingCerts
+    useEffect(() => () => {
+        pendingCertsRef.current.forEach((c) => {
+            if (c?.url) try { URL.revokeObjectURL(c.url) } catch (_) { /* noop */ }
+        })
+    }, [])
+
+    useEffect(() => {
+        if (!bannerFile) {
+            setBannerPreviewUrl(null)
+            return
+        }
+        const u = URL.createObjectURL(bannerFile)
+        setBannerPreviewUrl(u)
+        return () => URL.revokeObjectURL(u)
+    }, [bannerFile])
+
+    useEffect(() => {
+        if (!logoFile) {
+            setLogoPreviewUrl(null)
+            return
+        }
+        const u = URL.createObjectURL(logoFile)
+        setLogoPreviewUrl(u)
+        return () => URL.revokeObjectURL(u)
+    }, [logoFile])
+
+    useEffect(() => {
+        fetchVendorProfile()
+    }, [])
+
+    const fetchVendorProfile = () => {
+        setLoading(true)
+        vendorAxios((server) => {
+            server.get('/vendor/getProfile').then((res) => {
+                if (res.data.status !== false && res.data._id) {
+                    const d = res.data
+                    setProfileData({
+                        website: d.website || '',
+                        description: d.description || '',
+                        companyInfo: d.companyInfo || '',
+                        backgroundImage: d.backgroundImage || '',
+                        logo: d.logo || '',
+                        socialLinks: d.socialLinks || {
+                            facebook: '',
+                            instagram: '',
+                            twitter: '',
+                            linkedin: ''
+                        },
+                        companyIntroduction: d.companyIntroduction || '',
+                        businessType: d.businessType || '',
+                        yearsInIndustry: d.yearsInIndustry || '',
+                        cooperatedSuppliers: d.cooperatedSuppliers || '',
+                        countryRegion: d.countryRegion || '',
+                        mainCategories: d.mainCategories || '',
+                        mainMarkets: Array.isArray(d.mainMarkets) ? d.mainMarkets : [],
+                        yearEstablished: d.yearEstablished || '',
+                        employeesRange: d.employeesRange || '',
+                        factorySizeRange: d.factorySizeRange || '',
+                        annualOutputRange: d.annualOutputRange || '',
+                        verificationTags: Array.isArray(d.verificationTags) ? d.verificationTags : [],
+                        companyHighlights: Array.isArray(d.companyHighlights) ? d.companyHighlights : [],
+                        certificateImages: (Array.isArray(d.certificateImages) ? d.certificateImages : []).slice(0, MAX_STORE_CERTIFICATES),
+                        designCustomization: d.designCustomization === true,
+                        fullCustomization: d.fullCustomization === true,
+                        annualRevenueNote: d.annualRevenueNote || '',
+                        exhibitionsNote: d.exhibitionsNote || ''
+                    })
+                }
+            }).catch(() => {
+                console.log('Error fetching profile')
+            }).finally(() => {
+                setLoading(false)
+            })
+        })
+    }
+
     const updateUserDetails = (e) => {
         e.preventDefault()
-        if (formData.number.length === 10) {
+        if (String(formData.number || '').replace(/\D/g, '').length === 10) {
             vendorAxios((server) => {
                 server.put('/vendor/updateUserDetails', {
                     email: formData.email,
                     number: formData.number,
+                    country: formData.country,
+                    state: formData.state,
+                    city: formData.city,
+                    locality: formData.locality,
+                    address: formData.address,
+                    pinCode: formData.pinCode,
+                    gstin: formData.gstin,
+                    panNumber: formData.panNumber,
                     vendorIdCheck: formData.vendorIdCheck
                 }).then((res) => {
                     if (res.data.login) {
@@ -40,7 +182,15 @@ function SettingsComp({ venderLogged, setVendorLogged }) {
                             setVendorLogged({
                                 ...venderLogged,
                                 email: formData.email.toLowerCase(),
-                                number: formData.number
+                                number: formData.number,
+                                country: formData.country,
+                                state: formData.state,
+                                city: formData.city,
+                                locality: formData.locality,
+                                address: formData.address,
+                                pinCode: formData.pinCode,
+                                gstin: formData.gstin,
+                                panNumber: formData.panNumber
                             })
 
                             setFormData({
@@ -54,7 +204,15 @@ function SettingsComp({ venderLogged, setVendorLogged }) {
                     setFormData({
                         ...formData,
                         email: venderLogged.email,
-                        number: venderLogged.number
+                        number: venderLogged.number,
+                        country: venderLogged.country || 'India',
+                        state: venderLogged.state || '',
+                        city: venderLogged.city || '',
+                        locality: venderLogged.locality || '',
+                        address: venderLogged.address || '',
+                        pinCode: venderLogged.pinCode || '',
+                        gstin: venderLogged.gstin || '',
+                        panNumber: venderLogged.panNumber || ''
                     })
                     toast.error("Error")
                 })
@@ -107,206 +265,873 @@ function SettingsComp({ venderLogged, setVendorLogged }) {
         })
     }
 
+    const appendStoreProfileForm = (formDataUpload) => {
+        formDataUpload.append('website', profileData.website)
+        formDataUpload.append('description', profileData.description)
+        formDataUpload.append('companyInfo', profileData.companyInfo)
+        formDataUpload.append('socialLinks', JSON.stringify(profileData.socialLinks))
+        formDataUpload.append('companyIntroduction', profileData.companyIntroduction)
+        formDataUpload.append('businessType', profileData.businessType)
+        formDataUpload.append('yearsInIndustry', profileData.yearsInIndustry)
+        formDataUpload.append('cooperatedSuppliers', profileData.cooperatedSuppliers)
+        formDataUpload.append('countryRegion', profileData.countryRegion)
+        formDataUpload.append('mainCategories', profileData.mainCategories)
+        formDataUpload.append('mainMarkets', JSON.stringify(profileData.mainMarkets || []))
+        formDataUpload.append('yearEstablished', profileData.yearEstablished)
+        formDataUpload.append('employeesRange', profileData.employeesRange)
+        formDataUpload.append('factorySizeRange', profileData.factorySizeRange)
+        formDataUpload.append('annualOutputRange', profileData.annualOutputRange)
+        formDataUpload.append('companyHighlights', JSON.stringify(profileData.companyHighlights || []))
+        formDataUpload.append('existingCertificates', JSON.stringify(profileData.certificateImages || []))
+        formDataUpload.append('designCustomization', profileData.designCustomization ? 'true' : 'false')
+        formDataUpload.append('fullCustomization', profileData.fullCustomization ? 'true' : 'false')
+        formDataUpload.append('annualRevenueNote', profileData.annualRevenueNote)
+        formDataUpload.append('exhibitionsNote', profileData.exhibitionsNote)
+        formDataUpload.append('vendorId', venderLogged._id)
+    }
+
+    const updateProfile = (e) => {
+        e.preventDefault()
+        const existingCount = (profileData.certificateImages || []).length
+        const pendingCount = pendingCerts.length
+        if (existingCount + pendingCount > MAX_STORE_CERTIFICATES) {
+            toast.error(`You can upload at most ${MAX_STORE_CERTIFICATES} certificate images (you have ${existingCount}, adding ${pendingCount}).`)
+            return
+        }
+        const formDataUpload = new FormData()
+        appendStoreProfileForm(formDataUpload)
+        if (bannerFile) {
+            formDataUpload.append('images', bannerFile)
+        }
+        if (logoFile) {
+            formDataUpload.append('logo', logoFile)
+        }
+        pendingCerts.forEach((c) => formDataUpload.append('certificates', c.file))
+
+        vendorAxios((server) => {
+            server.put('/vendor/updateProfile', formDataUpload, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            }).then((res) => {
+                toast.success('Profile updated successfully!')
+                pendingCerts.forEach((c) => { if (c?.url) try { URL.revokeObjectURL(c.url) } catch (_) { /* noop */ } })
+                setPendingCerts([])
+                setBannerFile(null)
+                setLogoFile(null)
+                fetchVendorProfile()
+            }).catch(() => {
+                toast.error('Error updating profile')
+            })
+        })
+    }
+
+    const slotsForCerts = () => MAX_STORE_CERTIFICATES - (profileData.certificateImages || []).length - pendingCerts.length
+
+    const addPendingCertificates = (fileList) => {
+        const picked = Array.from(fileList || [])
+        if (picked.length === 0) return
+        const prev = pendingCertsRef.current
+        const existing = (profileData.certificateImages || []).length
+        const room = MAX_STORE_CERTIFICATES - existing - prev.length
+        if (room <= 0) {
+            toast.error(`Maximum ${MAX_STORE_CERTIFICATES} certificates reached.`)
+            return
+        }
+        const slice = picked.slice(0, room)
+        if (picked.length > room) {
+            toast.error(`Only ${room} more certificate image(s) allowed.`)
+        }
+        setPendingCerts([
+            ...prev,
+            ...slice.map((file, i) => ({
+                id: `pc-${Date.now()}-${i}-${file.name}`,
+                file,
+                url: URL.createObjectURL(file)
+            }))
+        ])
+    }
+
+    const removePendingCert = (id) => {
+        setPendingCerts((prev) => {
+            const t = prev.find((x) => x.id === id)
+            if (t?.url) URL.revokeObjectURL(t.url)
+            return prev.filter((x) => x.id !== id)
+        })
+    }
+
     return (
         <div className='SettingsComp containerVendor'>
             <div className="row">
                 <div className="col-lg-3 col-md-4">
-                    <div className="accDetailsMain">
-                        <div className="row">
-                            <div className="col-12 text-center">
-                                <svg
-                                    width="150px"
-                                    height="150px"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
+                    <div className="accDetailsMain sticky-top" style={{ top: '118px', zIndex: 10 }}>
+                        {/* Tab Navigation */}
+                        <div className="mb-1">
+                            <button
+                                type="button"
+                                className={`settingsNavPill ${activeTab === 'profile' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('profile')}
+                            >
+                                <span>Store profile</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`settingsNavPill ${activeTab === 'details' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('details')}
+                            >
+                                <span>Personal details</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`settingsNavPill ${activeTab === 'bank' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('bank')}
+                            >
+                                <span>Bank account</span>
+                            </button>
+                        </div>
+
+                        {activeTab === 'profile' && (
+                            <div className="text-center p-3 border-top mt-2 pt-3">
+                                <div
+                                    className="rounded-circle overflow-hidden mx-auto mb-3 border bg-light"
+                                    style={{ width: '100px', height: '100px' }}
                                 >
-                                    <path
-                                        d="M12 14.4C11.0617 14.402 10.1439 14.1254 9.36285 13.6054C8.58183 13.0853 7.97274 12.3451 7.61274 11.4786C7.25274 10.6121 7.15803 9.65817 7.34061 8.73777C7.52318 7.81737 7.97483 6.97186 8.63833 6.30836C9.30183 5.64486 10.1473 5.19321 11.0677 5.01064C11.9881 4.82806 12.942 4.92277 13.8085 5.28277C14.6751 5.64277 15.4153 6.25186 15.9353 7.03288C16.4554 7.8139 16.732 8.7317 16.73 9.67004C16.73 10.9245 16.2317 12.1276 15.3446 13.0147C14.4576 13.9017 13.2545 14.4 12 14.4ZM12 6.40004C11.3588 6.39806 10.7314 6.5864 10.1972 6.94121C9.66311 7.29602 9.24628 7.80134 8.99952 8.3932C8.75275 8.98505 8.68716 9.63682 8.81105 10.266C8.93493 10.8951 9.24272 11.4734 9.69544 11.9275C10.1482 12.3816 10.7255 12.6912 11.3542 12.817C11.983 12.9429 12.635 12.8793 13.2276 12.6344C13.8202 12.3894 14.3268 11.9741 14.6833 11.4411C15.0397 10.9081 15.23 10.2813 15.23 9.64004C15.2221 8.78767 14.8787 7.97275 14.274 7.37189C13.6694 6.77103 12.8524 6.43263 12 6.43004V6.40004Z"
-                                        fill='#333'
-                                    />
-                                    <path
-                                        d="M19 19.28C18.832 19.2794 18.6691 19.2217 18.5383 19.1163C18.4074 19.0109 18.3163 18.864 18.28 18.7C17.9815 17.4723 17.2788 16.3807 16.2848 15.6008C15.2909 14.8208 14.0634 14.3979 12.8 14.4H11.2C9.93828 14.4001 8.71317 14.8241 7.72124 15.6039C6.72932 16.3836 6.02807 17.474 5.73 18.7C5.70636 18.7958 5.66408 18.8861 5.60555 18.9656C5.54703 19.0452 5.47341 19.1124 5.38891 19.1635C5.30441 19.2145 5.21068 19.2485 5.11306 19.2633C5.01545 19.2781 4.91587 19.2736 4.82 19.25C4.72414 19.2263 4.63387 19.1841 4.55435 19.1255C4.47482 19.067 4.40761 18.9934 4.35654 18.9089C4.30546 18.8244 4.27154 18.7307 4.25669 18.633C4.24184 18.5354 4.24636 18.4358 4.27 18.34C4.64867 16.7879 5.53761 15.408 6.79426 14.4216C8.0509 13.4351 9.60243 12.8993 11.2 12.9H12.79C14.3898 12.8963 15.9442 13.4322 17.2017 14.4212C18.4592 15.4102 19.3465 16.7944 19.72 18.35C19.7655 18.5435 19.7334 18.7471 19.6306 18.9172C19.5278 19.0873 19.3625 19.2103 19.17 19.26L19 19.28Z"
-                                        fill='#333'
-                                    />
-                                    <path
-                                        d="M12 22.31C9.96088 22.31 7.96755 21.7053 6.27208 20.5725C4.57661 19.4396 3.25515 17.8294 2.47481 15.9455C1.69447 14.0616 1.4903 11.9886 1.88811 9.98863C2.28592 7.98868 3.26786 6.15162 4.70974 4.70974C6.15162 3.26786 7.98868 2.28592 9.98863 1.88811C11.9886 1.4903 14.0616 1.69447 15.9455 2.47481C17.8294 3.25515 19.4396 4.57661 20.5725 6.27208C21.7053 7.96755 22.31 9.96088 22.31 12C22.3074 14.7336 21.2203 17.3544 19.2874 19.2874C17.3544 21.2203 14.7336 22.3074 12 22.31ZM12 3.19001C10.2576 3.19001 8.55423 3.7067 7.10543 4.67476C5.65664 5.64282 4.52744 7.01875 3.86063 8.62857C3.19382 10.2384 3.01935 12.0098 3.35929 13.7188C3.69922 15.4277 4.5383 16.9975 5.7704 18.2296C7.0025 19.4617 8.57229 20.3008 10.2813 20.6407C11.9902 20.9807 13.7616 20.8062 15.3714 20.1394C16.9813 19.4726 18.3572 18.3434 19.3253 16.8946C20.2933 15.4458 20.81 13.7425 20.81 12C20.8074 9.66426 19.8783 7.42494 18.2267 5.77332C16.5751 4.1217 14.3358 3.19265 12 3.19001Z"
-                                        fill='#333'
-                                    />
-                                </svg>
+                                    {logoPreviewUrl ? (
+                                        <img src={logoPreviewUrl} alt="" className="w-100 h-100" style={{ objectFit: 'cover' }} />
+                                    ) : profileData.logo ? (
+                                        <img src={`${ServerId}${profileData.logo}`} alt="" className="w-100 h-100" style={{ objectFit: 'cover' }} />
+                                    ) : (
+                                        <div className="w-100 h-100 bg-primary d-flex align-items-center justify-content-center">
+                                            <i className="fa-solid fa-store text-white" style={{ fontSize: '2.5rem' }}></i>
+                                        </div>
+                                    )}
+                                </div>
+                                <h6 className="font-bold mb-1">{venderLogged.name}</h6>
+                                <small className="text-muted d-block text-truncate px-1" title={venderLogged.email}>{venderLogged.email}</small>
                             </div>
+                        )}
 
-                            <div className="col-12">
-                                <div className="row pt-2">
-                                    <div className="col-12">
-                                        <label htmlFor="name">Name</label>
-                                        <input type="text" value={venderLogged.adharName} disabled />
-                                    </div>
-
-                                    <div className="col-12">
-                                        <label htmlFor="email">Email</label>
-                                        <input type="text" value={venderLogged.email} disabled />
-                                    </div>
-
-                                    <div className="col-12">
-                                        <label htmlFor="number">Number</label>
-                                        <input type="text" value={venderLogged.number} disabled />
-                                    </div>
-
-                                    <div className="col-12">
-                                        <label htmlFor="adhar">Adhar Number</label>
-                                        <input type="text" value={venderLogged.adharNumber} disabled />
-                                    </div>
-
-                                    <div className="col-12">
-                                        <label htmlFor="pan">Pan Number</label>
-                                        <input type="text" value={venderLogged.panNumber} disabled />
-                                    </div>
-
-                                    <div className="col-12">
-                                        <label htmlFor="gstin">Gstin</label>
-                                        <input type="text" value={venderLogged.gstin} disabled />
-                                    </div>
+                        {activeTab === 'details' && (
+                            <div className="row g-2 pt-2 small">
+                                <div className="col-12">
+                                    <label className="form-label text-muted mb-0 small">Legal name</label>
+                                    <input className="form-control form-control-sm" type="text" value={venderLogged.adharName} disabled readOnly />
+                                </div>
+                                <div className="col-12">
+                                    <label className="form-label text-muted mb-0 small">Email</label>
+                                    <input className="form-control form-control-sm" type="text" value={venderLogged.email} disabled readOnly />
+                                </div>
+                                <div className="col-12">
+                                    <label className="form-label text-muted mb-0 small">Mobile</label>
+                                    <input className="form-control form-control-sm" type="text" value={venderLogged.number} disabled readOnly />
+                                </div>
+                                <div className="col-12">
+                                    <label className="form-label text-muted mb-0 small">Aadhaar</label>
+                                    <input className="form-control form-control-sm" type="text" value={venderLogged.adharNumber} disabled readOnly />
+                                </div>
+                                <div className="col-12">
+                                    <label className="form-label text-muted mb-0 small">PAN</label>
+                                    <input
+                                        className="form-control form-control-sm"
+                                        type="text"
+                                        value={formData.panNumber}
+                                        onInput={(e) => setFormData({ ...formData, panNumber: e.target.value.toUpperCase() })}
+                                        placeholder="PAN / tax ID"
+                                    />
+                                </div>
+                                <div className="col-12">
+                                    <label className="form-label text-muted mb-0 small">GSTIN</label>
+                                    <input className="form-control form-control-sm" type="text" value={venderLogged.gstin} disabled readOnly />
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
 
                 <div className="col-lg-9 col-md-8">
-                    <div data-for='updateDetails'>
-                        <div aria-label="address">
-                            <form>
+                    {/* Store Profile Tab */}
+                    {activeTab === 'profile' && (
+                        <div className="settingsProfileCard">
+                            <div className="vendorPageHeader">
+                                <h1 className="vendorPageTitle">Store profile</h1>
+                                <p className="vendorPageSubtitle">Banner, logo, certificates, and fields shown on your public storefront.</p>
+                            </div>
+
+                            <form onSubmit={updateProfile}>
                                 <div className="row">
-                                    <div className="col-md-6">
-                                        <label>Locality</label>
-                                        <input type="text" value={venderLogged.locality} disabled />
+                                    <div className="col-12 mb-4">
+                                        <h3 className="settingsProfileCardTitle">Store imagery</h3>
                                     </div>
 
-                                    <div className="col-md-6">
-                                        <label>PinCode</label>
-                                        <input type="number" value={venderLogged.pinCode} disabled />
+                                    <div className="col-12 mb-4">
+                                        <label className="form-label fw-bold">Store banner (1 image)</label>
+                                        {(bannerPreviewUrl || profileData.backgroundImage) && (
+                                            <div className="mb-3 rounded overflow-hidden border" style={{ maxHeight: 220 }}>
+                                                <img
+                                                    src={bannerPreviewUrl || `${ServerId}${profileData.backgroundImage}`}
+                                                    alt="Store banner"
+                                                    className="w-100 h-100"
+                                                    style={{ maxHeight: 220, objectFit: 'cover' }}
+                                                />
+                                            </div>
+                                        )}
+                                        <label className="vendorDropZone mb-2 d-block">
+                                            <input
+                                                type="file"
+                                                className="d-none"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const f = e.target.files?.[0]
+                                                    setBannerFile(f || null)
+                                                    e.target.value = ''
+                                                }}
+                                            />
+                                            <p className="vendorDropZoneTitle mb-1"><i className="fa-solid fa-panorama me-2" aria-hidden></i>Choose banner image</p>
+                                            <p className="vendorDropZoneHint">Wide banner · recommended 1600×400px or 1200×300px (4:1)</p>
+                                        </label>
+                                        {bannerFile && (
+                                            <button type="button" className="vendorBtnSecondary" onClick={() => setBannerFile(null)}>Clear new banner</button>
+                                        )}
+                                        <span className="vendorDimHint">Saves when you click Save profile.</span>
                                     </div>
 
-                                    <div className="col-md-6">
-                                        <label>Address</label>
-                                        <textarea value={venderLogged.address} disabled />
+                                    <div className="col-12 mb-4">
+                                        <label className="form-label fw-bold">Store logo</label>
+                                        <div className="row g-3 align-items-start">
+                                            <div className="col-auto">
+                                                <div className="rounded-circle overflow-hidden border bg-light" style={{ width: 120, height: 120 }}>
+                                                    {logoPreviewUrl || profileData.logo ? (
+                                                        <img
+                                                            src={logoPreviewUrl || `${ServerId}${profileData.logo}`}
+                                                            alt=""
+                                                            className="w-100 h-100"
+                                                            style={{ objectFit: 'cover' }}
+                                                        />
+                                                    ) : (
+                                                        <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                                            <i className="fa-solid fa-image fa-2x" aria-hidden></i>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="col">
+                                                <label className="vendorDropZone mb-0 d-block">
+                                                    <input
+                                                        type="file"
+                                                        className="d-none"
+                                                        accept="image/*"
+                                                        onChange={(e) => {
+                                                            const f = e.target.files?.[0]
+                                                            setLogoFile(f || null)
+                                                            e.target.value = ''
+                                                        }}
+                                                    />
+                                                    <p className="vendorDropZoneTitle mb-1"><i className="fa-solid fa-cloud-arrow-up me-2" aria-hidden></i>Upload logo</p>
+                                                    <p className="vendorDropZoneHint">Square works best · recommended 400×400px (1:1)</p>
+                                                </label>
+                                                {logoFile && (
+                                                    <button type="button" className="vendorBtnSecondary mt-2" onClick={() => setLogoFile(null)}>Remove new logo</button>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <span className="vendorDimHint">Shown on your storefront and in the sidebar preview.</span>
                                     </div>
 
-                                    <div className="col-md-6">
-                                        <label>City/District/Town</label>
-                                        <input type="text" value={venderLogged.city} disabled />
+                                    <div className="col-12 mb-4">
+                                        <h3 className="settingsProfileCardTitle">Business details</h3>
                                     </div>
 
-                                    <div className="col-md-6">
-                                        <label>State</label>
-                                        <input type="text" value={venderLogged.state} disabled />
+                                    <div className="col-md-6 mb-3">
+                                        <label className="form-label fw-bold">Website URL</label>
+                                        <input 
+                                            type="url" 
+                                            className="form-control" 
+                                            value={profileData.website}
+                                            onChange={(e) => setProfileData({...profileData, website: e.target.value})}
+                                            placeholder="https://yourwebsite.com"
+                                        />
                                     </div>
 
+                                    <div className="col-md-6 mb-3">
+                                        <label className="form-label fw-bold">Company Name</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            value={profileData.companyInfo}
+                                            onChange={(e) => setProfileData({...profileData, companyInfo: e.target.value})}
+                                            placeholder="Your Company Name"
+                                        />
+                                    </div>
+
+                                    <div className="col-12 mb-3">
+                                        <label className="form-label fw-bold">Store Description</label>
+                                        <textarea 
+                                            className="form-control" 
+                                            rows="4"
+                                            value={profileData.description}
+                                            onChange={(e) => setProfileData({...profileData, description: e.target.value})}
+                                            placeholder="Tell customers about your store..."
+                                        ></textarea>
+                                    </div>
+
+                                    <div className="col-12 mb-3">
+                                        <label className="form-label fw-bold">Company introduction (public profile)</label>
+                                        <textarea 
+                                            className="form-control" 
+                                            rows="5"
+                                            value={profileData.companyIntroduction}
+                                            onChange={(e) => setProfileData({...profileData, companyIntroduction: e.target.value})}
+                                            placeholder="Long introduction shown on your storefront company tab..."
+                                        />
+                                    </div>
+
+                                    <div className="col-md-6 mb-3">
+                                        <label className="form-label fw-bold">Business type</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            value={profileData.businessType}
+                                            onChange={(e) => setProfileData({...profileData, businessType: e.target.value})}
+                                            placeholder="e.g. Custom Manufacturer"
+                                        />
+                                    </div>
+                                    <div className="col-md-6 mb-3">
+                                        <label className="form-label fw-bold">Country / region</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            value={profileData.countryRegion}
+                                            onChange={(e) => setProfileData({...profileData, countryRegion: e.target.value})}
+                                            placeholder="e.g. Jiangsu, China"
+                                        />
+                                    </div>
+                                    <div className="col-md-4 mb-3">
+                                        <label className="form-label fw-bold">Years in industry</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            value={profileData.yearsInIndustry}
+                                            onChange={(e) => setProfileData({...profileData, yearsInIndustry: e.target.value})}
+                                            placeholder="e.g. 5"
+                                        />
+                                    </div>
+                                    <div className="col-md-4 mb-3">
+                                        <label className="form-label fw-bold">Cooperated suppliers</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            value={profileData.cooperatedSuppliers}
+                                            onChange={(e) => setProfileData({...profileData, cooperatedSuppliers: e.target.value})}
+                                            placeholder="e.g. 80"
+                                        />
+                                    </div>
+                                    <div className="col-md-4 mb-3">
+                                        <label className="form-label fw-bold">Year established</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            value={profileData.yearEstablished}
+                                            onChange={(e) => setProfileData({...profileData, yearEstablished: e.target.value})}
+                                            placeholder="e.g. 2020"
+                                        />
+                                    </div>
+                                    <div className="col-12 mb-3">
+                                        <label className="form-label fw-bold">Main categories</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            value={profileData.mainCategories}
+                                            onChange={(e) => setProfileData({...profileData, mainCategories: e.target.value})}
+                                            placeholder="e.g. dental, industrial molds, aerospace"
+                                        />
+                                    </div>
+                                    <div className="col-12 mb-3">
+                                        <label className="form-label fw-bold">Main markets (one per line)</label>
+                                        <textarea 
+                                            className="form-control" 
+                                            rows="3"
+                                            value={(profileData.mainMarkets || []).join('\n')}
+                                            onChange={(e) => setProfileData({
+                                                ...profileData,
+                                                mainMarkets: e.target.value.split('\n').map((s) => s.trim()).filter(Boolean)
+                                            })}
+                                            placeholder={'Domestic Market\nSouth Asia'}
+                                        />
+                                    </div>
+                                    <div className="col-md-6 mb-3">
+                                        <label className="form-label fw-bold">Employees</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            value={profileData.employeesRange}
+                                            onChange={(e) => setProfileData({...profileData, employeesRange: e.target.value})}
+                                            placeholder="e.g. 101 - 200"
+                                        />
+                                    </div>
+                                    <div className="col-md-6 mb-3">
+                                        <label className="form-label fw-bold">Factory / office size</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            value={profileData.factorySizeRange}
+                                            onChange={(e) => setProfileData({...profileData, factorySizeRange: e.target.value})}
+                                            placeholder="e.g. 1,000-3,000 sqm"
+                                        />
+                                    </div>
+                                    <div className="col-md-6 mb-3">
+                                        <label className="form-label fw-bold">Annual output value</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            value={profileData.annualOutputRange}
+                                            onChange={(e) => setProfileData({...profileData, annualOutputRange: e.target.value})}
+                                            placeholder="e.g. US$10M - US$50M"
+                                        />
+                                    </div>
+                                    <div className="col-md-6 mb-3">
+                                        <label className="form-label fw-bold">Annual revenue note</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            value={profileData.annualRevenueNote}
+                                            onChange={(e) => setProfileData({...profileData, annualRevenueNote: e.target.value})}
+                                            placeholder="e.g. Confidential"
+                                        />
+                                    </div>
+                                    <div className="col-12 mb-3">
+                                        <label className="form-label fw-bold">Exhibitions / trade shows</label>
+                                        <input 
+                                            type="text" 
+                                            className="form-control" 
+                                            value={profileData.exhibitionsNote}
+                                            onChange={(e) => setProfileData({...profileData, exhibitionsNote: e.target.value})}
+                                            placeholder="e.g. 3 exhibitions"
+                                        />
+                                    </div>
+                                    <div className="col-12 mb-3">
+                                        <label className="form-label fw-bold">Verification badge</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={(profileData.verificationTags || []).join(', ') || 'Not included on your current plan'}
+                                            readOnly
+                                            disabled
+                                        />
+                                        <p className="form-text small mb-0">
+                                            Verified vendor badge is included on Plus, Pro, and Premium plans and appears on your store and products automatically.
+                                        </p>
+                                    </div>
+                                    <div className="col-12 mb-3">
+                                        <label className="form-label fw-bold">Company highlights (one per line)</label>
+                                        <textarea 
+                                            className="form-control" 
+                                            rows="4"
+                                            value={(profileData.companyHighlights || []).join('\n')}
+                                            onChange={(e) => setProfileData({
+                                                ...profileData,
+                                                companyHighlights: e.target.value.split('\n').map((s) => s.trim()).filter(Boolean)
+                                            })}
+                                            placeholder={'Strong R&D\nFull customization'}
+                                        />
+                                    </div>
+                                    <div className="col-12 mb-3 d-flex flex-wrap gap-3">
+                                        <label className="form-check-label d-flex align-items-center gap-2">
+                                            <input 
+                                                type="checkbox" 
+                                                className="form-check-input"
+                                                checked={profileData.designCustomization}
+                                                onChange={(e) => setProfileData({...profileData, designCustomization: e.target.checked})}
+                                            />
+                                            Design-based customization
+                                        </label>
+                                        <label className="form-check-label d-flex align-items-center gap-2">
+                                            <input 
+                                                type="checkbox" 
+                                                className="form-check-input"
+                                                checked={profileData.fullCustomization}
+                                                onChange={(e) => setProfileData({...profileData, fullCustomization: e.target.checked})}
+                                            />
+                                            Full customization
+                                        </label>
+                                    </div>
+
+                                    <div className="col-12 mb-4">
+                                        <h3 className="settingsProfileCardTitle">Certificates</h3>
+                                        <label className="form-label fw-bold">Certificate images (max {MAX_STORE_CERTIFICATES})</label>
+                                        <p className="small text-muted mb-2">
+                                            {(profileData.certificateImages || []).length} saved
+                                            {pendingCerts.length > 0 ? ` · ${pendingCerts.length} new (upload on save)` : ''}
+                                            {' · '}
+                                            {slotsForCerts()} slot(s) left
+                                        </p>
+                                        <div className="vendorPreviewGrid mb-3">
+                                            {(profileData.certificateImages || []).map((src, i) => (
+                                                <div key={`saved-${i}`} className="vendorPreviewTile">
+                                                    <img src={`${ServerId}${src}`} alt="" />
+                                                    <span className="vendorPreviewLabel">Saved</span>
+                                                    <button
+                                                        type="button"
+                                                        className="vendorPreviewRemove"
+                                                        title="Remove from profile"
+                                                        onClick={() => setProfileData({
+                                                            ...profileData,
+                                                            certificateImages: profileData.certificateImages.filter((_, j) => j !== i)
+                                                        })}
+                                                    >
+                                                        <i className="fa-solid fa-xmark" aria-hidden></i>
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {pendingCerts.map((c) => (
+                                                <div key={c.id} className="vendorPreviewTile">
+                                                    <img src={c.url} alt="" />
+                                                    <span className="vendorPreviewLabel">New</span>
+                                                    <button
+                                                        type="button"
+                                                        className="vendorPreviewRemove"
+                                                        title="Remove"
+                                                        onClick={() => removePendingCert(c.id)}
+                                                    >
+                                                        <i className="fa-solid fa-xmark" aria-hidden></i>
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <label
+                                            className={`vendorDropZone d-block ${slotsForCerts() <= 0 ? 'opacity-50 pe-none' : ''}`}
+                                            aria-disabled={slotsForCerts() <= 0}
+                                        >
+                                            <input
+                                                type="file"
+                                                className="d-none"
+                                                accept="image/*"
+                                                multiple
+                                                disabled={slotsForCerts() <= 0}
+                                                onChange={(e) => {
+                                                    addPendingCertificates(e.target.files)
+                                                    e.target.value = ''
+                                                }}
+                                            />
+                                            <p className="vendorDropZoneTitle mb-1"><i className="fa-solid fa-certificate me-2" aria-hidden></i>Add certificates</p>
+                                            <p className="vendorDropZoneHint">Select one or many · recommended ~800×1100px (portrait) or A4 ratio</p>
+                                        </label>
+                                        <span className="vendorDimHint">
+                                            {slotsForCerts() <= 0
+                                                ? 'Maximum reached — remove a saved or pending image to add more.'
+                                                : 'ISO, compliance scans, awards — previews update as you pick files.'}
+                                        </span>
+                                    </div>
+
+                                    <div className="col-12 mb-2">
+                                        <h3 className="settingsProfileCardTitle">Social links</h3>
+                                    </div>
+
+                                    <div className="col-md-6 mb-2">
+                                        <div className="input-group">
+                                            <span className="input-group-text"><i className="fa-brands fa-facebook"></i></span>
+                                            <input 
+                                                type="url" 
+                                                className="form-control" 
+                                                placeholder="Facebook URL"
+                                                value={profileData.socialLinks?.facebook || ''}
+                                                onChange={(e) => setProfileData({
+                                                    ...profileData, 
+                                                    socialLinks: {...profileData.socialLinks, facebook: e.target.value}
+                                                })}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-6 mb-2">
+                                        <div className="input-group">
+                                            <span className="input-group-text"><i className="fa-brands fa-instagram"></i></span>
+                                            <input 
+                                                type="url" 
+                                                className="form-control" 
+                                                placeholder="Instagram URL"
+                                                value={profileData.socialLinks?.instagram || ''}
+                                                onChange={(e) => setProfileData({
+                                                    ...profileData, 
+                                                    socialLinks: {...profileData.socialLinks, instagram: e.target.value}
+                                                })}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-6 mb-2">
+                                        <div className="input-group">
+                                            <span className="input-group-text"><i className="fa-brands fa-twitter"></i></span>
+                                            <input 
+                                                type="url" 
+                                                className="form-control" 
+                                                placeholder="Twitter URL"
+                                                value={profileData.socialLinks?.twitter || ''}
+                                                onChange={(e) => setProfileData({
+                                                    ...profileData, 
+                                                    socialLinks: {...profileData.socialLinks, twitter: e.target.value}
+                                                })}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-6 mb-2">
+                                        <div className="input-group">
+                                            <span className="input-group-text"><i className="fa-brands fa-linkedin"></i></span>
+                                            <input 
+                                                type="url" 
+                                                className="form-control" 
+                                                placeholder="LinkedIn URL"
+                                                value={profileData.socialLinks?.linkedin || ''}
+                                                onChange={(e) => setProfileData({
+                                                    ...profileData, 
+                                                    socialLinks: {...profileData.socialLinks, linkedin: e.target.value}
+                                                })}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="col-12 mt-3">
+                                        <button type="submit" className="vendorBtnPrimary">
+                                            Save profile
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
+                    )}
 
-                        <div aria-label="UserDetails" className="pt-3">
-                            <form onSubmit={updateUserDetails}>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                        <label>Email</label>
-                                        <input type="email" value={formData.email} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                email: e.target.value
-                                            })
-                                        }} placeholder='Enter Email' required />
+                    {/* Personal Details Tab */}
+                    {activeTab === 'details' && (
+                        <div>
+                            <div className="vendorPageHeader">
+                                <h1 className="vendorPageTitle">Personal details</h1>
+                                <p className="vendorPageSubtitle">KYC address is read-only; update contact email and phone below.</p>
+                            </div>
+                            <div className="settingsProfileCard mb-3" aria-label="address">
+                                <h3 className="settingsProfileCardTitle">Registered address</h3>
+                                <form>
+                                    <div className="row g-3">
+                                        <div className="col-md-6">
+                                            <label className="form-label small text-muted">Locality</label>
+                                            <input className="form-control" type="text" value={venderLogged.locality} disabled readOnly />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label small text-muted">PIN code</label>
+                                            <input className="form-control" type="text" value={venderLogged.pinCode} disabled readOnly />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label small text-muted">Address</label>
+                                            <textarea className="form-control" rows={3} value={venderLogged.address} disabled readOnly />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label small text-muted">City / district</label>
+                                            <input className="form-control" type="text" value={venderLogged.city} disabled readOnly />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label small text-muted">State</label>
+                                            <input className="form-control" type="text" value={venderLogged.state} disabled readOnly />
+                                        </div>
                                     </div>
+                                </form>
+                            </div>
 
-                                    <div className="col-md-6">
-                                        <label>Number</label>
-                                        <input type="number" value={formData.number} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                number: e.target.value
-                                            })
-                                        }} placeholder='Enter Number' required />
+                            <div className="settingsProfileCard" aria-label="UserDetails">
+                                <h3 className="settingsProfileCardTitle">Contact</h3>
+                                <form onSubmit={updateUserDetails}>
+                                    <div className="row g-3">
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">Email</label>
+                                            <input
+                                                className="form-control"
+                                                type="email"
+                                                value={formData.email}
+                                                onInput={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                placeholder="Email"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">Mobile (10 digits)</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                inputMode="numeric"
+                                                maxLength={10}
+                                                value={formData.number}
+                                                onInput={(e) => setFormData({ ...formData, number: e.target.value })}
+                                                placeholder="Mobile number"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">GSTIN</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                value={formData.gstin}
+                                                onInput={(e) => setFormData({ ...formData, gstin: e.target.value.toUpperCase() })}
+                                                placeholder="Optional GSTIN"
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">Country</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                value={formData.country}
+                                                onInput={(e) => setFormData({ ...formData, country: e.target.value })}
+                                                placeholder="Country"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">State</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                value={formData.state}
+                                                onInput={(e) => setFormData({ ...formData, state: e.target.value })}
+                                                placeholder="State"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">City</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                value={formData.city}
+                                                onInput={(e) => setFormData({ ...formData, city: e.target.value })}
+                                                placeholder="City"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">PIN / ZIP</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                value={formData.pinCode}
+                                                onInput={(e) => setFormData({ ...formData, pinCode: e.target.value })}
+                                                placeholder="Postal code"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">Locality</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                value={formData.locality}
+                                                onInput={(e) => setFormData({ ...formData, locality: e.target.value })}
+                                                placeholder="Locality / street"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">Address</label>
+                                            <textarea
+                                                className="form-control"
+                                                rows={2}
+                                                value={formData.address}
+                                                onInput={(e) => setFormData({ ...formData, address: e.target.value })}
+                                                placeholder="Address"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-12">
+                                            <button type="submit" className="vendorBtnPrimary mt-1">Save contact</button>
+                                        </div>
                                     </div>
-
-                                    <div className='col-12'>
-                                        <button>Update</button>
-                                    </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
+                    )}
 
-                        <div aria-label="bankAccount" className='pt-3'>
-                            <form onSubmit={updateBankAccount}>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                        <label>Account Owner Name</label>
-                                        <input type="text" value={formData.bankAccOwner} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                bankAccOwner: e.target.value
-                                            })
-                                        }} required placeholder='Enter Account Owner Name' />
+                    {/* Bank Account Tab */}
+                    {activeTab === 'bank' && (
+                        <div aria-label="bankAccount">
+                            <div className="vendorPageHeader">
+                                <h1 className="vendorPageTitle">Bank account</h1>
+                                <p className="vendorPageSubtitle">Payout details for your vendor account.</p>
+                            </div>
+                            <div className="settingsProfileCard">
+                                <form onSubmit={updateBankAccount}>
+                                    <div className="row g-3">
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">Account holder name</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                value={formData.bankAccOwner}
+                                                onInput={(e) => setFormData({ ...formData, bankAccOwner: e.target.value })}
+                                                required
+                                                placeholder="Name as per bank"
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">Bank name</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                value={formData.bankName}
+                                                onInput={(e) => setFormData({ ...formData, bankName: e.target.value })}
+                                                required
+                                                placeholder="Bank name"
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">Account number</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                inputMode="numeric"
+                                                value={formData.bankAccNumber}
+                                                onInput={(e) => setFormData({ ...formData, bankAccNumber: e.target.value })}
+                                                required
+                                                placeholder="Account number"
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">IFSC</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                value={formData.bankIFSC}
+                                                onInput={(e) => setFormData({ ...formData, bankIFSC: e.target.value })}
+                                                required
+                                                placeholder="IFSC code"
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">Branch name</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                value={formData.bankBranchName}
+                                                onInput={(e) => setFormData({ ...formData, bankBranchName: e.target.value })}
+                                                required
+                                                placeholder="Branch"
+                                            />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <label className="form-label fw-semibold">Branch phone</label>
+                                            <input
+                                                className="form-control"
+                                                type="text"
+                                                inputMode="tel"
+                                                value={formData.bankBranchNumber}
+                                                onInput={(e) => setFormData({ ...formData, bankBranchNumber: e.target.value })}
+                                                required
+                                                placeholder="Branch contact"
+                                            />
+                                        </div>
+                                        <div className="col-12">
+                                            <button type="submit" className="vendorBtnPrimary mt-1">Save bank details</button>
+                                        </div>
                                     </div>
-
-                                    <div className="col-md-6">
-                                        <label>Bank Name</label>
-                                        <input type="text" value={formData.bankName} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                bankName: e.target.value
-                                            })
-                                        }} required placeholder='Enter Bank Name' />
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <label>Account Number</label>
-                                        <input type="number" value={formData.bankAccNumber} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                bankAccNumber: e.target.value
-                                            })
-                                        }} required placeholder='Enter Account Number' />
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <label>IFSC</label>
-                                        <input type="text" value={formData.bankIFSC} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                bankIFSC: e.target.value
-                                            })
-                                        }} required placeholder='Enter IFSC' />
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <label>Branch Name</label>
-                                        <input type="text" value={formData.bankBranchName} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                bankBranchName: e.target.value
-                                            })
-                                        }} required placeholder='Enter Branch Name' />
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <label>Branch Number</label>
-                                        <input type="number" value={formData.bankBranchNumber} onInput={(e) => {
-                                            setFormData({
-                                                ...formData,
-                                                bankBranchNumber: e.target.value
-                                            })
-                                        }} required placeholder='Enter Branch Number' />
-                                    </div>
-
-                                    <div className='col-12'>
-                                        <button>Update</button>
-                                    </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 

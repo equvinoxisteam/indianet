@@ -1,0 +1,168 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba($neutral-900, 0.58);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+.rfq-modal-card {
+    max-width: 560px;
+    width: 100%;
+    padding: 1.5rem;
+    border-radius: 18px !important;
+    border: 1px solid #e6edf5 !important;
+    box-shadow: 0 22px 48px rgba(15, 23, 42, 0.28) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%) !important;
+}
+
+.rfq-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.1rem;
+    gap: 1rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid #eef3f8;
+}
+
+.rfq-modal-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: $font-weight-bold;
+    color: $neutral-900;
+    letter-spacing: 0.01em;
+}
+
+.rfq-modal-close {
+    background: #f8fbff;
+    border: 1px solid #dce7f3;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #4b5563;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background $transit-fast, color $transit-fast, border-color $transit-fast;
+
+    &:hover {
+        color: #111827;
+        background: #eef6ff;
+        border-color: #c9dbef;
+    }
+}
+
+.rfq-modal-product {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.15rem;
+    align-items: center;
+    background: linear-gradient(180deg, #f8fbff 0%, #f2f7fd 100%);
+    padding: 0.85rem;
+    border-radius: 12px;
+    border: 1px solid #dbe7f3;
+}
+
+.rfq-modal-product-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 1px solid #e5edf6;
+    background: #fff;
+    padding: 3px;
+}
+
+.rfq-modal-product-name {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: $font-weight-semibold;
+    color: $neutral-800;
+}
+
+.rfq-modal-product-variant {
+    display: inline-block;
+    font-size: 0.78rem;
+    color: #52627a;
+    margin-top: 0.2rem;
+    background: #ffffff;
+    border: 1px solid #dbe7f3;
+    border-radius: 999px;
+    padding: 0.18rem 0.55rem;
+}
+
+.rfq-form-group {
+    margin-bottom: .9rem;
+}
+
+.rfq-form-group--message {
+    margin-bottom: 1.15rem;
+}
+
+.rfq-modal-form {
+    margin: 0;
+
+    .form-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #334155;
+        letter-spacing: 0.01em;
+        margin-bottom: .35rem;
+    }
+
+    .input-field {
+        border-radius: 11px;
+        border: 1px solid #d6e3f0;
+        background: #ffffff;
+        min-height: 42px;
+        font-size: 0.88rem;
+        color: #0f172a;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        transition: border-color .18s ease, box-shadow .18s ease;
+
+        &:focus {
+            border-color: #0b66c3;
+            box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.12);
+        }
+    }
+
+    textarea.input-field {
+        min-height: 92px;
+        resize: vertical;
+    }
+}
+
+.rfq-submit-btn {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 999px !important;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    background: linear-gradient(135deg, #0b66c3, #1f8cff) !important;
+    border: 1px solid #0b66c3 !important;
+    box-shadow: 0 10px 20px rgba(11, 102, 195, 0.28);
+}
+
+@media (max-width: 480px) {
+    .rfq-modal-card {
+        padding: 1.25rem;
+    }
+
+    .rfq-modal-product-img {
+        width: 52px;
+        height: 52px;
+    }
+}
+

@@ -7,6 +7,7 @@ import BrandLogo from '@/Component/Common/BrandLogo'
 import Server from '../../../Config/Server'
 import ContentControl from '../../../ContentControl/ContentControl'
 import toast from 'react-hot-toast';
+import { Countries } from '../../../Config/GlobalData';
 
 function Login({ LoginModal, setLoginModal }) {
 
@@ -31,6 +32,7 @@ function Login({ LoginModal, setLoginModal }) {
         name: '',
         email: '',
         password: '',
+        countryCode: '+91',
         number: '',
         otp: ''
     })
@@ -247,24 +249,19 @@ function Login({ LoginModal, setLoginModal }) {
         <div className='Login'>
             <div className="Item" ref={modalRef}>
                 <div className="Main">
-                    <div className="text-center pb-3">
+                    <div className="modal-header-section text-center pb-4">
                         <BrandLogo href="/" />
-                        <p className="small text-muted mb-0 mt-2" style={{ fontSize: '0.85rem' }}>
-                            Sign in to your Indianet account
+                        <h2 className="UserBlackMain mt-3 mb-1">
+                            {LoginModal.forgot ? 'Reset Password' : LoginModal.member ? 'Welcome Back' : 'Create Account'}
+                        </h2>
+                        <p className="small text-muted mb-0" style={{ fontSize: '0.9rem' }}>
+                            {LoginModal.forgot ? 'Enter your details to reset your password' : LoginModal.member ? 'Sign in to your Indianet account' : 'Join Indianet multi-vendor marketplace'}
                         </p>
                     </div>
 
                     {
                         LoginModal.member ? (
                             <div id="Login" className='row'>
-                                <div className="col-12">
-                                    <h3 className='text-center font-bold UserBlackMain'>
-                                        {
-                                            LoginModal.forgot ? 'Forgot Password'
-                                                : 'Login'
-                                        }
-                                    </h3>
-                                </div>
                                 <label ref={extraErrorRef} className="text-center"
                                     style={{ color: 'red', fontSize: 'small', display: 'none' }}>
                                     {extraError}
@@ -380,10 +377,9 @@ function Login({ LoginModal, setLoginModal }) {
                                             }
 
                                             <div className="col-12 mt-4">
-                                                {
-                                                    !otpSend.status ? <button type='submit' className='loginBtn'>{otpSend.btn}</button>
-                                                        : <button type='submit' className='loginBtn'>{otpSend.btn}</button>
-                                                }
+                                                <button type='submit' className='loginBtn'>
+                                                    {otpSend.status ? 'Reset Password' : 'Send OTP'}
+                                                </button>
 
                                                 <button type='button' className='notMember'>
                                                     If you remember password ? <span onClick={() => {
@@ -572,9 +568,6 @@ function Login({ LoginModal, setLoginModal }) {
                         ) : (
                             <div id="SignUp" className='row'>
                                 <form onSubmit={SignUpForm}>
-                                    <div className="col-12">
-                                        <h3 className='text-center font-bold UserBlackMain'>SignUp</h3>
-                                    </div>
                                     <label ref={extraErrorRef} className="text-center"
                                         style={{ color: 'red', fontSize: 'small', display: 'none' }}>
                                         {extraError}
@@ -590,14 +583,22 @@ function Login({ LoginModal, setLoginModal }) {
                                         }} type="text" required />
                                     </div>
                                     <div className='col-12 mt-3'>
-                                        <label>Phone</label>
-                                        <br />
-                                        <input value={SignUpData.number} onInput={(e) => {
-                                            setSignUpData({
-                                                ...SignUpData,
-                                                number: e.target.value
-                                            })
-                                        }} type="number" required />
+                                        <label className='font-bold text-xs'>Phone Number</label>
+                                        <div className='d-flex gap-2' style={{ height: '44px' }}>
+                                            <select className='input-field px-1' style={{ width: '80px', flexShrink: 0 }} 
+                                                value={SignUpData.countryCode} 
+                                                onChange={(e) => setSignUpData({ ...SignUpData, countryCode: e.target.value })}>
+                                                {Countries.map((c, i) => (
+                                                    <option key={i} value={c.code}>{c.code}</option>
+                                                ))}
+                                            </select>
+                                            <input value={SignUpData.number} onInput={(e) => {
+                                                setSignUpData({
+                                                    ...SignUpData,
+                                                    number: e.target.value
+                                                })
+                                            }} type="number" placeholder='Mobile Number' className='flex-grow-1' required />
+                                        </div>
                                     </div>
                                     <div className='col-12 mt-3'>
                                         <label>Email</label>
@@ -696,7 +697,9 @@ function Login({ LoginModal, setLoginModal }) {
                                         )
                                     }
                                     <div className="col-12 mt-4">
-                                        <button type='submit' className='loginBtn'>{otpSend.btn}</button>
+                                        <button type='submit' className='loginBtn'>
+                                            {otpSend.status ? 'Sign Up' : 'Send OTP'}
+                                        </button>
 
                                         <button type='button' className='Member'>
                                             Already a member ? <span onClick={() => {

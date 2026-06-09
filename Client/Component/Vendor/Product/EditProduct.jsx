@@ -1,9 +1,11 @@
-import React, { useRef, Fragment, useContext } from 'react'
+import React, { useRef, Fragment, useContext, useEffect, useState } from 'react'
 import JoditEditor from 'jodit-react';
 import { vendorAxios } from '../../../Config/Server';
 import ContentControl from '../../../ContentControl/ContentControl';
 import { useRouter } from 'next/router';
 import ObjectId from 'bson-objectid';
+
+const MAX_PRODUCT_IMAGES = 4
 
 function EditProduct({
   productDetails, setProductDetails, categories, proId,
@@ -17,9 +19,23 @@ function EditProduct({
   const { setVendorLogged } = useContext(ContentControl)
 
   const editor = useRef(null);
+  const [planAccess, setPlanAccess] = useState(null)
+
+  useEffect(() => {
+    vendorAxios((server) => {
+      server.get('/vendor/getPlanAccess').then((res) => {
+        if (!res.data.login) setPlanAccess(res.data)
+      }).catch(() => {})
+    })
+  }, [])
 
   const FormSubmit = (e) => {
     e.preventDefault();
+
+    if (!serverImg || serverImg.length > MAX_PRODUCT_IMAGES) {
+      alert(`This product can have at most ${MAX_PRODUCT_IMAGES} images.`)
+      return
+    }
 
     let formData = new FormData();
 
@@ -27,10 +43,11 @@ function EditProduct({
     formData.append("uni_id_2", productDetails.uni_id_2)
     formData.append("_id", productDetails._id)
     formData.append("name", productDetails.name)
-    formData.append("price", productDetails.price)
-    formData.append("mrp", productDetails.mrp)
+    formData.append("price", 0)
+    formData.append("mrp", 0)
     formData.append("variant", JSON.stringify(productDetails.variant))
     formData.append("available", productDetails.available)
+    formData.append("publishStatus", productDetails.publishStatus || 'draft')
     formData.append("cancellation", productDetails.cancellation)
     formData.append("category", productDetails.category)
     formData.append("categorySlug", productDetails.categorySlug)
@@ -40,9 +57,23 @@ function EditProduct({
     formData.append("seoKeyword", productDetails.seoKeyword)
     formData.append("seoTitle", productDetails.seoTitle)
     formData.append("return", productDetails.return)
-    formData.append('allowCod', productDetails.allowCod)
-    formData.append('allowOnline', productDetails.allowOnline)
-    formData.append('allowRfq', productDetails.allowRfq)
+    formData.append('allowCod', false)
+    formData.append('allowOnline', false)
+    formData.append('allowRfq', true)
+    formData.append('rfqTiers', JSON.stringify(productDetails.rfqTiers || []))
+    formData.append('rfqAttributes', JSON.stringify(productDetails.rfqAttributes || []))
+    formData.append('rfqCustomization', productDetails.rfqCustomization || false)
+    formData.append('rfqCustomizationDesc', productDetails.rfqCustomizationDesc || '')
+    formData.append('rfqHandlingTime', productDetails.rfqHandlingTime || '')
+    formData.append('rfqLeadTime', productDetails.rfqLeadTime || '')
+    formData.append('rfqCertificates', JSON.stringify(productDetails.rfqCertificates || []))
+    formData.append('isShowcase', productDetails.isShowcase ? 'true' : 'false')
+
+    // ShipRocket shipment dimension/weight inputs
+    formData.append('weightKg', productDetails.weightKg ?? 2.5)
+    formData.append('lengthCm', productDetails.lengthCm ?? 10)
+    formData.append('breadthCm', productDetails.breadthCm ?? 15)
+    formData.append('heightCm', productDetails.heightCm ?? 20)
 
     formData.append('deleteImg', JSON.stringify(delImages));
 
@@ -53,6 +84,17 @@ function EditProduct({
       for (var i = 0; i < images.length; i++) {
         formData.append('images', uplodImages[i]);
       }
+    }
+
+    // Append variant images
+    if (productDetails.variant) {
+        productDetails.variant.forEach((v, index) => {
+            if (v.variantFiles && v.variantFiles.length > 0) {
+                for (let i = 0; i < v.variantFiles.length; i++) {
+                    formData.append(`variantImage_${index}`, v.variantFiles[i]);
+                }
+            }
+        })
     }
 
     vendorAxios((server) => {
@@ -69,16 +111,25 @@ function EditProduct({
           navigate.push('/vendor/products')
         }
       }).catch((err) => {
-        alert("Sorry Server Has Some Problem")
+        const msg = err.response?.data?.error
+        alert(msg || 'Sorry, the server had a problem updating this product.')
       })
     })
   }
 
   return (
     <div className='EditProduct containerVendor'>
-      <form onSubmit={FormSubmit}>
+      <div className="vendorPageHeader">
+        <h1 className="vendorPageTitle">Edit product</h1>
+        <p className="vendorPageSubtitle">Update pricing, RFQ options, variants and media in one place</p>
+      </div>
+      <form onSubmit={FormSubmit} className="productEditorForm settingsProfileCard">
 
-        <div className="row">
+        <div className="row g-3">
+          <div className='col-12 editorSection'>
+            <h5 className="editorSectionTitle">Step 1: Basic product details</h5>
+            <p className="editorSectionHint">Set core status and policies buyers will see on the product page.</p>
+          </div>
           <div className='col-12'>
             <label >Product Name</label><br />
             <input value={productDetails.name} type="text" required onInput={(e) => {
@@ -86,21 +137,6 @@ function EditProduct({
             }} />
           </div>
 
-          <div className='col-6'>
-            <label >Price</label><br />
-            <input value={productDetails.price} type="number" onInput={(e) => {
-              setProductDetails({ ...productDetails, price: e.target.value })
-            }} disabled={productDetails.variant && productDetails.variant.length > 0 ? true : false}
-              required={!productDetails.variant || productDetails.variant.length === 0 ? true : false} />
-          </div>
-
-          <div className='col-6'>
-            <label >MRP</label><br />
-            <input value={productDetails.mrp} type="number" onInput={(e) => {
-              setProductDetails({ ...productDetails, mrp: e.target.value })
-            }} disabled={productDetails.variant && productDetails.variant.length > 0 ? true : false}
-              required={!productDetails.variant || productDetails.variant.length === 0 ? true : false} />
-          </div>
 
           <div className='col-12'>
             <label>Cancellation</label><br />
@@ -121,6 +157,16 @@ function EditProduct({
               <option value="false">Not Available</option>
             </select>
           </div>
+          <div className='col-md-6'>
+            <label>Status</label><br />
+            <select value={productDetails.publishStatus || 'draft'} onInput={(e) => {
+              setProductDetails({ ...productDetails, publishStatus: e.target.value })
+            }}>
+              <option value="draft">Draft</option>
+              <option value="published">Publish</option>
+              <option value="archived">Archive</option>
+            </select>
+          </div>
 
           <div className='col-md-6'>
             <label>Return</label><br />
@@ -132,37 +178,225 @@ function EditProduct({
             </select>
           </div>
 
-          <div className='col-md-4'>
-            <label>Cash on Delivery (COD)</label><br />
-            <select value={productDetails.allowCod !== false ? 'true' : 'false'} onChange={(e) => {
-              setProductDetails({ ...productDetails, allowCod: e.target.value === 'true' })
-            }} >
-              <option value="true">Yes</option>
-              <option value="false">No</option>
-            </select>
-          </div>
+          {planAccess?.isActive && (
+            <div className='col-md-12'>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={!!productDetails.isShowcase}
+                  onChange={(e) => {
+                    const checked = e.target.checked
+                    if (checked) {
+                      const used = planAccess.showcaseUsed ?? 0
+                      const limit = planAccess.showcaseLimit ?? 0
+                      const alreadyShowcase = !!productDetails.isShowcase
+                      const newUsed = alreadyShowcase ? used : used + 1
+                      if (newUsed >= limit) {
+                        const ok = window.confirm(
+                          `This uses your last showcase slot (${limit} on ${planAccess.planLabel}). ` +
+                          'You cannot change showcased products later unless you upgrade to Pro or Premium. Continue?'
+                        )
+                        if (!ok) return
+                      }
+                    }
+                    setProductDetails({ ...productDetails, isShowcase: checked })
+                  }}
+                  disabled={
+                    productDetails.publishStatus !== 'published' ||
+                    (planAccess.showcaseLocked && !planAccess.canChangeShowcase) ||
+                    (!productDetails.isShowcase && (planAccess.showcaseUsed ?? 0) >= (planAccess.showcaseLimit ?? 0))
+                  }
+                />
+                {' '}Product showcase ({planAccess.showcaseUsed ?? 0}/{planAccess.showcaseLimit ?? 0} used)
+              </label>
+              {planAccess.showcaseLocked && !planAccess.canChangeShowcase && (
+                <p className="text-muted small mt-1 mb-0">Showcase selection is locked. Upgrade to Pro to change showcased products.</p>
+              )}
+            </div>
+          )}
 
-          <div className='col-md-4'>
-            <label>Online Payment</label><br />
-            <select value={productDetails.allowOnline !== false ? 'true' : 'false'} onChange={(e) => {
-              setProductDetails({ ...productDetails, allowOnline: e.target.value === 'true' })
-            }} >
-              <option value="true">Yes</option>
-              <option value="false">No</option>
-            </select>
-          </div>
+          {productDetails.allowRfq && (
+            <>
+            <div className="col-md-12 editorSection">
+              <h5 className="editorSectionTitle">Step 2: RFQ pricing & specifications</h5>
+              <p className="editorSectionHint">Add MOQ tiers and product attributes so buyers understand your quotation structure.</p>
+            </div>
+            <div className="col-md-12">
+              <label>Pricing blocks (shown in client RFQ pricing)</label><br />
+              {(productDetails['rfqTiers'] || []).map((obj, key) => (
+                <div key={key} className='variantBox'>
+                  <div className='row'>
+                    <div className="col-md-3">
+                      <label>Minimum quantity</label>
+                      <input type="number" value={obj.minQty} onChange={(e) => {
+                        var newArr = [...(productDetails['rfqTiers'] || [])]
+                        newArr[key].minQty = e.target.value
+                        setProductDetails({ ...productDetails, rfqTiers: newArr })
+                      }} required />
+                    </div>
+                    <div className="col-md-3">
+                      <label>Maximum quantity (optional)</label>
+                      <input type="number" value={obj.maxQty} onChange={(e) => {
+                        var newArr = [...(productDetails['rfqTiers'] || [])]
+                        newArr[key].maxQty = e.target.value
+                        setProductDetails({ ...productDetails, rfqTiers: newArr })
+                      }} />
+                    </div>
+                    <div className="col-md-3">
+                      <label>Quote price</label>
+                      <input type="number" value={obj.price} onChange={(e) => {
+                        var newArr = [...(productDetails['rfqTiers'] || [])]
+                        newArr[key].price = e.target.value
+                        setProductDetails({ ...productDetails, rfqTiers: newArr })
+                      }} required />
+                    </div>
+                    <div className="col-md-3">
+                      <label>Action</label><br />
+                      <button type='button' onClick={() => {
+                        setProductDetails({
+                          ...productDetails,
+                          rfqTiers: (productDetails['rfqTiers'] || []).filter((_, index) => index !== key)
+                        })
+                      }}>Remove</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <button className="editorAddBtn" data-for="variantAdd" type='button' onClick={() => {
+                setProductDetails({
+                  ...productDetails,
+                  rfqTiers: [...(productDetails.rfqTiers || []), {
+                    minQty: '',
+                    maxQty: '',
+                    price: ''
+                  }]
+                })
+              }}>Add pricing block</button>
+            </div>
 
-          <div className='col-md-4'>
-            <label>Request for Quote (RFQ)</label><br />
-            <select value={productDetails.allowRfq === true ? 'true' : 'false'} onChange={(e) => {
-              setProductDetails({ ...productDetails, allowRfq: e.target.value === 'true' })
-            }} >
-              <option value="true">Yes</option>
-              <option value="false">No</option>
-            </select>
-          </div>
+            <div className="col-md-12 mt-3">
+              <label>Specifications (shown in "Specifications" tab)</label><br />
+              <p className="editorFieldHint">You can add up to 20 specification rows.</p>
+              {(productDetails['rfqAttributes'] || []).map((obj, key) => (
+                <div key={key} className='variantBox mb-2 p-2'>
+                  <div className='row'>
+                    <div className="col-md-5">
+                        <label>Specification name (e.g. Type, Material)</label>
+                        <input type="text" value={obj.key} onChange={(e) => {
+                        var newArr = [...(productDetails['rfqAttributes'] || [])]
+                        newArr[key].key = e.target.value
+                        setProductDetails({ ...productDetails, rfqAttributes: newArr })
+                        }} required />
+                    </div>
+                    <div className="col-md-5">
+                        <label>Specification value</label>
+                        <input type="text" value={obj.value} onChange={(e) => {
+                        var newArr = [...(productDetails['rfqAttributes'] || [])]
+                        newArr[key].value = e.target.value
+                        setProductDetails({ ...productDetails, rfqAttributes: newArr })
+                        }} required />
+                    </div>
+                    <div className="col-md-2">
+                        <label>Action</label><br />
+                        <button type='button' className="btn-sm" onClick={() => {
+                        setProductDetails({
+                            ...productDetails,
+                            rfqAttributes: (productDetails['rfqAttributes'] || []).filter((_, index) => index !== key)
+                        })
+                        }}>Remove</button>
+                    </div>
+                   </div>
+                </div>
+              ))}
+              {(productDetails['rfqAttributes'] || []).length < 20 && (
+                <button className="editorAddBtn" data-for="variantAdd" type='button' onClick={() => {
+                    setProductDetails({
+                    ...productDetails,
+                    rfqAttributes: [...(productDetails.rfqAttributes || []), { key: '', value: '' }]
+                    })
+                }}>Add specification</button>
+              )}
+            </div>
 
-          <div className="col-md-12">
+            <div className="col-md-12 mt-3">
+                <label>Customization Option Available?</label><br/>
+                <select value={productDetails.rfqCustomization} onChange={(e) => {
+                    setProductDetails({ ...productDetails, rfqCustomization: e.target.value === 'true' })
+                }}>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+                {productDetails.rfqCustomization && (
+                    <div className="mt-2">
+                        <label>Customization Details / Description</label><br/>
+                        <textarea rows="3" style={{width: '100%'}} value={productDetails.rfqCustomizationDesc || ''} onChange={(e) => {
+                             setProductDetails({ ...productDetails, rfqCustomizationDesc: e.target.value })
+                        }} placeholder="E.g., Logo/graphic design(+ from +₹4.74/piece/Min. order: 500 pieces)"></textarea>
+                    </div>
+                )}
+            </div>
+
+            <div className="col-md-12 mt-3 mb-4">
+                <label>Handling Time (separate from lead time)</label><br/>
+                <textarea rows="2" style={{width: '100%'}} value={productDetails.rfqHandlingTime || ''} onChange={(e) => {
+                    setProductDetails({ ...productDetails, rfqHandlingTime: e.target.value })
+                }} placeholder="E.g., Ships in 5 business days"></textarea>
+            </div>
+
+            <div className="col-md-12 mt-1 mb-4">
+                <label>Lead Time Description</label><br/>
+                <textarea rows="3" style={{width: '100%'}} value={productDetails.rfqLeadTime || ''} onChange={(e) => {
+                    setProductDetails({ ...productDetails, rfqLeadTime: e.target.value })
+                }} placeholder="E.g., Quantity (pieces) 1 - 50,000 : 31 days | > 50,000 : To be negotiated"></textarea>
+            </div>
+
+            <div className="col-md-12 mt-3">
+              <label>Certificates / compliance labels</label><br />
+              {(productDetails.rfqCertificates || []).map((obj, key) => (
+                <div key={key} className="variantBox mb-2 p-2">
+                  <div className="row">
+                    <div className="col-md-5">
+                      <label>Name</label>
+                      <input type="text" value={obj.name || ''} onChange={(e) => {
+                        const arr = [...(productDetails.rfqCertificates || [])]
+                        arr[key] = { ...arr[key], name: e.target.value }
+                        setProductDetails({ ...productDetails, rfqCertificates: arr })
+                      }} placeholder="e.g. CP65" />
+                    </div>
+                    <div className="col-md-5">
+                      <label>Description (optional)</label>
+                      <input type="text" value={obj.description || ''} onChange={(e) => {
+                        const arr = [...(productDetails.rfqCertificates || [])]
+                        arr[key] = { ...arr[key], description: e.target.value }
+                        setProductDetails({ ...productDetails, rfqCertificates: arr })
+                      }} />
+                    </div>
+                    <div className="col-md-2">
+                      <label> </label><br />
+                      <button type="button" onClick={() => {
+                        setProductDetails({
+                          ...productDetails,
+                          rfqCertificates: (productDetails.rfqCertificates || []).filter((_, i) => i !== key)
+                        })
+                      }}>Remove</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <button className="editorAddBtn" type="button" data-for="variantAdd" onClick={() => {
+                setProductDetails({
+                  ...productDetails,
+                  rfqCertificates: [...(productDetails.rfqCertificates || []), { name: '', description: '' }]
+                })
+              }}>Add certificate</button>
+            </div>
+            </>
+          )}
+          <div className="col-md-12 editorSection">
+            <h5 className="editorSectionTitle">Step 3: Variants</h5>
+            <p className="editorSectionHint">Define size/option-wise pricing and upload variant images if available.</p>
+          </div>
+          <div className="col-md-12 variantEditorSection">
             <label>Variants</label><br />
             {
               productDetails['variant'] && productDetails['variant'].length > 0 && (
@@ -172,11 +406,14 @@ function EditProduct({
                       return (
                         <div key={key} className='variantBox' >
                           <div className='row' >
-                            <div className="col-md-3">
+                            <div className="col-lg-3 col-md-6">
                               <label>Size</label>
-                              <select value={obj.size} onChange={(e) => {
+                              <select value={obj.size === 'Other' ? 'Other' : obj.size} onChange={(e) => {
                                 var newArr = [...productDetails['variant']]
                                 newArr[key].size = e.target.value
+                                if (e.target.value !== 'Other') {
+                                    newArr[key].customSize = '';
+                                }
                                 setProductDetails({
                                   ...productDetails,
                                   variant: newArr
@@ -186,9 +423,17 @@ function EditProduct({
                                 <option>M</option>
                                 <option>L</option>
                                 <option>XL</option>
+                                <option>Other</option>
                               </select>
+                            {obj.size === 'Other' && (
+                                <input type={"text"} className="mt-2" placeholder="Custom Variant / Size" value={obj.customSize || ''} onChange={(e) => {
+                                    var newArr = [...productDetails['variant']]
+                                    newArr[key].customSize = e.target.value
+                                    setProductDetails({ ...productDetails, variant: newArr })
+                                }} required />
+                            )}
                             </div>
-                            <div className="col-md-3">
+                            <div className="col-lg-2 col-md-6">
                               <label>Price</label>
                               <input type="number" value={obj.price} onChange={(e) => {
                                 var newArr = [...productDetails['variant']]
@@ -199,7 +444,7 @@ function EditProduct({
                                 })
                               }} required />
                             </div>
-                            <div className="col-md-3">
+                            <div className="col-lg-2 col-md-6">
                               <label>MRP</label>
                               <input type="number" value={obj.mrp} onChange={(e) => {
                                 var newArr = [...productDetails['variant']]
@@ -210,9 +455,9 @@ function EditProduct({
                                 })
                               }} required />
                             </div>
-                            <div className="col-md-3">
+                            <div className="col-lg-5 col-md-6">
                               <div className="row">
-                                <div className="col-9 col-md-6">
+                                <div className="col-8 col-md-8">
                                   <label>Details</label>
                                   <input type="text" value={obj.details} onChange={(e) => {
                                     var newArr = [...productDetails['variant']]
@@ -223,19 +468,34 @@ function EditProduct({
                                     })
                                   }} required />
                                 </div>
-                                <div className="col-3 col-md-6">
-                                  <label>Action</label><br />
-                                  <button type='button' onClick={() => {
-                                    setProductDetails({
-                                      ...productDetails,
-                                      variant: productDetails['variant'].filter((old) => {
-                                        return old.id !== obj.id
+                                  <div className="col-4 col-md-4">
+                                    <label>Action</label><br />
+                                    <button className="editorRemoveBtn" type='button' onClick={() => {
+                                      setProductDetails({
+                                        ...productDetails,
+                                        variant: productDetails['variant'].filter((old) => {
+                                          return old.id !== obj.id
+                                        })
                                       })
-                                    })
-                                  }} >X</button>
+                                    }} >Remove</button>
+                                  </div>
+                                </div>
+                                <div className="row mt-2">
+                                  <div className="col-12">
+                                    <label>Variant Images (Max 3)</label><br />
+                                    <input className="editorFileInput" type="file" multiple accept="image/*" onChange={(e) => {
+                                        if (e.target.files.length > 3) {
+                                            alert('Maximum 3 images allowed per variant');
+                                            e.target.value = null;
+                                        } else {
+                                            var newArr = [...productDetails['variant']]
+                                            newArr[key].variantFiles = Array.from(e.target.files)
+                                            setProductDetails({ ...productDetails, variant: newArr })
+                                        }
+                                    }} />
+                                  </div>
                                 </div>
                               </div>
-                            </div>
                           </div>
                         </div>
                       )
@@ -244,7 +504,7 @@ function EditProduct({
                 </>
               )
             }
-            <button data-for="variantAdd" type='button' onClick={() => {
+            <button className="editorAddBtn" data-for="variantAdd" type='button' onClick={() => {
               if (productDetails['variant']) {
                 setProductDetails({
                   ...productDetails,
@@ -271,6 +531,10 @@ function EditProduct({
             }} >Add Variant</button>
           </div>
 
+          <div className='col-12 editorSection'>
+            <h5 className="editorSectionTitle">Step 4: Category & media</h5>
+            <p className="editorSectionHint">Choose the right category and keep image slots clean for best discoverability.</p>
+          </div>
           <div className='col-md-12'>
             <label>Category</label><br />
             <select onInput={(e) => {
@@ -323,41 +587,65 @@ function EditProduct({
             </select>
           </div>
 
-          <div className='col-12'>
-            <label>Images</label><br />
+          <div className='col-12 mb-2'>
+            <label className="form-label fw-bold">Product images (max {MAX_PRODUCT_IMAGES})</label>
+            <p className="vendorDimHint mb-0">Replace any slot · recommended 1000×1000px (1:1) or 1200×900px</p>
           </div>
 
-          {
-            images.map((obj, key) => {
-
-              return (
-                <div className='col-12 col-md-6' key={key}>
-                  <div className="imagesProductDiv">
+          <div className="col-12 mb-4">
+            <div className="vendorPreviewGrid">
+              {
+                images.map((obj, key) => (
+                  <div className="vendorPreviewTile" key={key}>
                     <img src={obj} alt="" />
+                    <span className="vendorPreviewLabel">{key === 0 ? 'Cover' : `Image ${key + 1}`}</span>
+                    <label
+                      className="position-absolute bottom-0 start-0 end-0 m-0"
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <span
+                        className="d-block text-center py-2 small fw-semibold text-white"
+                        style={{ background: 'linear-gradient(transparent, rgba(0,0,0,0.75))' }}
+                      >
+                        <i className="fa-solid fa-camera me-1" aria-hidden></i>
+                        Replace
+                      </span>
+                      <input
+                        accept="image/*"
+                        className="d-none"
+                        type="file"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (!file) return
+                          var serverimg = [...serverImg]
+                          var oldArray = [...images]
+                          oldArray[key] = URL.createObjectURL(file)
+                          setImages(oldArray)
+
+                          var Uplimgs = [...uplodImages]
+                          Uplimgs.push(file)
+                          setUploadImg(Uplimgs)
+
+                          var DeleteImgs = [...delImages]
+                          DeleteImgs.push(serverimg[key].filename)
+                          setDelImg(DeleteImgs)
+
+                          serverimg[key].filename = productDetails.uni_id_1 + file.name
+                          setServerImg(serverimg)
+                          e.target.value = ''
+                        }}
+                      />
+                    </label>
                   </div>
-                  <input accept='image/*' onChange={(e) => {
+                ))
+              }
+            </div>
+          </div>
 
-                    var serverimg = [...serverImg]
-                    var oldArray = [...images]
-                    oldArray[key] = URL.createObjectURL(e.target.files[0])
-                    setImages(oldArray)
-
-                    var Uplimgs = [...uplodImages]
-                    Uplimgs.push(e.target.files[0])
-                    setUploadImg(Uplimgs)
-
-                    var DeleteImgs = [...delImages]
-                    DeleteImgs.push(serverimg[key].filename)
-                    setDelImg(DeleteImgs)
-
-                    serverimg[key].filename = productDetails.uni_id_1 + e.target.files[0].name
-                    setServerImg(serverimg)
-                  }} type="file" name="" id="" />
-                </div>
-              )
-            })
-          }
-
+          <div className='col-12 editorSection'>
+            <h5 className="editorSectionTitle">Step 5: SEO & descriptions</h5>
+            <p className="editorSectionHint">Improve search ranking and conversion with complete SEO and rich descriptions.</p>
+          </div>
           <div className='col-12'>
             <label>SEO Title</label><br />
             <input value={productDetails.seoTitle} type="text" onInput={(e) => {
@@ -417,8 +705,13 @@ function EditProduct({
             />
           </div>
 
-          <div className='col-12'>
-            <button className='submitBnt'>Edit Product</button>
+          <div className='col-12 pt-2'>
+            <div className="editorSubmitRow">
+              <button className='vendorBtnPrimary editorSubmitPrimary'>
+                <i className="fa-solid fa-cloud-arrow-up me-2"></i>
+                Save product
+              </button>
+            </div>
           </div>
 
         </div>

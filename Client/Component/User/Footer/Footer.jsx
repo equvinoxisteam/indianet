@@ -1,75 +1,89 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link';
 import style from './Footer.module.scss'
-import Script from 'next/script';
+import BrandLogo from '@/Component/Common/BrandLogo';
 
 function Footer() {
     const [year, setYear] = useState('')
 
     useEffect(() => {
-        var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-        (function () {
-            var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
-            s1.async = true;
-            s1.src = 'https://embed.tawk.to/63f323a031ebfa0fe7ee35ac/1gpms6b79';
-            s1.charset = 'UTF-8';
-            s1.setAttribute('crossorigin', '*');
-            s0.parentNode.insertBefore(s1, s0);
-        })();
-        var currYear = new Date()
-        currYear = currYear.getFullYear()
-
-        setYear(currYear)
+        setYear(new Date().getFullYear())
     }, [])
+
     return (
         <>
-            <div className="container pt-5">
-                <div className="row">
-                    <div className="col-12 col-md-3">
-                        <h6 className='font-bolder'>Useful Links</h6>
-                        <ul className={style.FooterItems}>
-                            <li><Link href={'/account'}>Account & Settings</Link></li>
-                            <li><Link href={'/wishlist'}>Wishlist</Link></li>
-                            <li><Link href={'/vendor/login'}>Vendor Login</Link></li>
-                        </ul>
-                    </div>
-                    <div className="col-12 col-md-3">
-                        <h6 className='font-bolder'>Company Info</h6>
-                        <ul className={style.FooterItems}>
-                            <li><Link href="/help">Help & FAQs</Link></li>
-                            <li><Link href="/company">Company Info</Link></li>
-                            <li><Link href="/about">About Us</Link></li>
-                        </ul>
-                    </div>
-                    <div className="col-12 col-md-3">
-                        <h6 className='font-bolder'>Policy</h6>
-                        <ul className={style.FooterItems}>
-                            <li><Link href="/terms">Terms & Condition</Link></li>
-                            <li><Link href="/privacy-policy">Privacy Policy</Link></li>
-                            <li><Link href="/shipping">Shipping & Delivery</Link></li>
-                        </ul>
-                    </div>
-                    <div className="col-12 col-md-3">
-                        <h6 className='font-bolder'>Social Media</h6>
+            <footer className={style.FooterWrapper}>
+                <div className="container">
+                    <div className="row">
+                        <div className="col-12 col-lg-4 mb-4">
+                            <div className={style.FooterBrand}>
+                                <BrandLogo variant="light" href="/" />
+                                <p className={style.brandDesc}>
+                                    Indianet is the B2B marketplace where your brand meets serious buyers.
+                                    Source industrial machinery, list with confidence, and scale with verified partners worldwide.
+                                </p>
+                                <ul className={style.brandHighlights}>
+                                    <li><i className="fa-solid fa-check"></i> Verified sellers &amp; secure sourcing</li>
+                                    <li><i className="fa-solid fa-check"></i> Built for manufacturers &amp; distributors</li>
+                                    <li><i className="fa-solid fa-check"></i> Global reach, professional support</li>
+                                </ul>
+                            </div>
+                        </div>
 
+                        <div className="col-6 col-md-4 col-lg-2 mb-4">
+                            <h6 className={style.FooterHeading}>Your Account</h6>
+                            <ul className={style.FooterItems}>
+                                <li><Link href="/account">My Account</Link></li>
+                                <li><Link href="/wishlist">Wishlist</Link></li>
+                            </ul>
+                        </div>
+
+                        <div className="col-6 col-md-4 col-lg-3 mb-4">
+                            <h6 className={style.FooterHeading}>Sell on Indianet</h6>
+                            <ul className={style.FooterItems}>
+                                <li><Link href="/vendor/register">Register as Vendor</Link></li>
+                                <li><Link href="/vendor/login">Vendor Login</Link></li>
+                            </ul>
+                        </div>
+
+                        <div className="col-6 col-md-4 col-lg-3 mb-4">
+                            <h6 className={style.FooterHeading}>Company</h6>
+                            <ul className={style.FooterItems}>
+                                <li><Link href="/help">Help &amp; FAQs</Link></li>
+                                <li><Link href="/company">About Indianet</Link></li>
+                                <li><Link href="/categories">Browse Categories</Link></li>
+                                <li><Link href="/privacy-policy">Privacy Policy</Link></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className={style.FooterSocialRow}>
+                        <div>
+                            <h6 className={style.FooterHeading}>Connect With Us</h6>
+                            <p className={style.socialNote}>Follow Indianet for product updates, industry news, and seller success stories.</p>
+                        </div>
                         <ul className={style.FooterSMicons}>
-                            <li><button><i className="fa-brands fa-facebook-f"></i></button></li>
-                            <li><button><i className="fa-brands fa-instagram"></i></button></li>
-                            <li><button><i className="fa-brands fa-youtube"></i></button></li>
+                            <li><button type="button" aria-label="Instagram"><i className="fa-brands fa-instagram"></i></button></li>
+                            <li><button type="button" aria-label="YouTube"><i className="fa-brands fa-youtube"></i></button></li>
+                            <li><button type="button" aria-label="LinkedIn"><i className="fa-brands fa-linkedin-in"></i></button></li>
                         </ul>
-
                     </div>
                 </div>
 
-                <div className={style.CopyRightArea}>
-                    <p className='pt-4 text-center text-small font-normal UserGrayMain'>&#169; {year} Indianet. All Rights Reserved.</p>
+                <hr className={style.FooterDivider} />
+                <div className="container">
+                    <div className={style.CopyRightArea}>
+                        <p className={style.copyMain}>&#169; {year} Indianet. All rights reserved.</p>
+                        <p className={style.copySub}>
+                            By using this site you agree to our policies. For questions about your account or listings, visit{' '}
+                            <Link href="/help">Help &amp; FAQs</Link>.
+                        </p>
+                        <div className={style.footerLinks}>
+                            <Link href="/terms">Terms &amp; Conditions</Link>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <Script
-                src="/font-awesome/js/all-min.js"
-                referrerPolicy='no-referrer'
-                strategy='afterInteractive'
-            />
+            </footer>
         </>
     )
 }

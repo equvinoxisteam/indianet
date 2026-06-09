@@ -1,450 +1,376 @@
 @import '../app.module.scss';
 
+// ============================================
+// CART PAGE — Modern B2B Style
+// ============================================
 .CartComp {
-    padding-top: 2em;
-    padding-bottom: 3em;
+    padding-top: 1.5rem;
+    padding-bottom: 4rem;
+    font-family: $font-primary;
 
-    @media only screen and (max-width: 767px) {
-        padding-bottom: 0em;
+    .cartPageHeader {
+        background: $surface-white;
+        border: 1px solid $neutral-200;
+        border-radius: $radius-lg;
+        box-shadow: $shadow-xs;
+        padding: 1rem 1.25rem;
+
+        h1 {
+            font-size: 1.2rem;
+            font-weight: $font-weight-bold;
+            color: $neutral-900;
+        }
     }
 
+    @media (max-width: 767px) { padding-bottom: 5rem; }
+
+    // ---- DESKTOP ----
     .desktop {
         display: block;
         width: 100%;
         clear: both;
-
-        @media only screen and (max-width: 767px) {
-            display: none;
-        }
-
-        &:before,
-        &::after {
-            content: '';
-            display: table;
-            clear: both;
-        }
+        &::before, &::after { content: ''; display: table; clear: both; }
+        @media (max-width: 767px) { display: none; }
 
         .leftDiv {
-            width: 70%;
+            width: 66%;
             display: inline-block;
             vertical-align: top;
             float: left;
-
-            @media only screen and (max-width: 991px) {
-                width: 60%;
-            }
+            padding-right: 1.25rem;
+            @media (max-width: 991px) { width: 60%; }
 
             .cartCard {
-                margin-top: 1em;
-                border: 1px solid $MainLtGrey;
+                background: $surface-white;
+                border-radius: $radius-lg;
+                border: 1px solid $neutral-200;
+                box-shadow: $shadow-xs;
+                margin-bottom: 1rem;
                 display: grid;
-                grid-template-columns: 170px auto;
+                grid-template-columns: 160px auto;
+                overflow: hidden;
+                transition: box-shadow $transit-fast;
+
+                &:hover { box-shadow: $shadow-md; }
 
                 .imgDiv {
-                    width: 170px;
-                    height: 170px;
-                    text-align: center;
-                    justify-content: center;
-                    align-items: center;
+                    width: 160px;
+                    height: 160px;
                     display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: $neutral-50;
+                    border-right: 1px solid $neutral-100;
+                    padding: 12px;
 
                     img {
-                        max-width: 130px;
-                        max-height: 130px;
+                        max-width: 120px;
+                        max-height: 120px;
+                        object-fit: contain;
                     }
                 }
 
                 .content {
-                    padding-top: 1em;
-                    padding-bottom: .5em;
+                    padding: 1.1rem 1.25rem;
 
                     .RmvNQunty {
                         display: flex;
+                        align-items: center;
+                        flex-wrap: wrap;
+                        gap: 10px;
+                        margin-top: 0.75rem;
 
                         .quantityDiv {
-                            padding-top: .5em;
                             display: flex;
+                            align-items: center;
+                            border: 1.5px solid $neutral-200;
+                            border-radius: $radius-md;
+                            overflow: hidden;
 
-                            .btnMinus {
-                                height: 40px;
-                                width: 30px;
-                                border: 1px solid $MainLtGrey;
-                                background: transparent;
-                                border-top-left-radius: 3px;
-                                border-bottom-left-radius: 3px;
-                            }
-
-                            .btnPlus {
-                                height: 40px;
-                                width: 30px;
-                                border: 1px solid $MainLtGrey;
-                                background: transparent;
-                                border-top-right-radius: 3px;
-                                border-bottom-right-radius: 3px;
+                            .btnMinus, .btnPlus {
+                                height: 38px;
+                                width: 32px;
+                                border: none;
+                                background: $neutral-100;
+                                cursor: pointer;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: $neutral-600;
+                                font-size: 0.9rem;
+                                transition: background $transit-fast;
+                                &:hover { background: $neutral-200; }
                             }
 
                             input {
-                                width: 50px;
-                                height: 40px;
+                                width: 44px;
+                                height: 38px;
                                 text-align: center;
-                                border-top: 1px solid $MainLtGrey;
-                                border-bottom: 1px solid $MainLtGrey;
+                                border: none;
                                 outline: none;
-                                border-left: none;
-                                border-right: none;
-                                background: transparent;
-
-                                @media only screen and (max-width: 991px) {
-                                    width: 40px;
-                                }
+                                font-size: 0.9rem;
+                                font-weight: $font-weight-semibold;
+                                background: white;
+                                @media (max-width: 991px) { width: 36px; }
                             }
                         }
 
-                        .RemoveBtnDiv {
-                            padding-top: .5em;
-                            padding-left: 1em;
-
-                            button {
-                                width: 8em;
-                                height: 2.5em;
-                                background: $Main2ndBlack;
-                                color: white;
-                                border: 3px solid $Main2ndBlack;
-                                border-radius: 3px;
-                                transition: all .5s linear;
-                                -moz-transition: all .5s linear;
-
-                                @media only screen and (max-width: 991px) {
-                                    width: 7em;
-                                }
-
-                                &:hover {
-                                    background: white;
-                                    color: $Main2ndBlack;
-                                }
-                            }
+                        .RemoveBtnDiv button {
+                            height: 36px;
+                            padding: 0 16px;
+                            background: $danger-light;
+                            color: $danger;
+                            border: none;
+                            border-radius: $radius-sm;
+                            font-size: 0.8rem;
+                            font-weight: $font-weight-semibold;
+                            cursor: pointer;
+                            transition: all $transit-fast;
+                            &:hover { background: $danger; color: white; }
                         }
 
-                        .StockBtnDiv {
-                            padding-top: .5em;
-
-                            button {
-                                width: 7em;
-                                height: 2.5em;
-                                background: $MainGreen;
-                                color: white;
-                                border: 3px solid $MainGreen;
-                                border-radius: 3px;
-                                transition: all .5s linear;
-                                -moz-transition: all .5s linear;
-
-                                @media only screen and (max-width: 991px) {
-                                    width: 6em;
-                                }
-
-                                &:hover {
-                                    background: white;
-                                    color: $MainGreen;
-                                }
-                            }
+                        .StockBtnDiv button {
+                            height: 36px;
+                            padding: 0 16px;
+                            background: rgba($success, 0.1);
+                            color: $success;
+                            border: none;
+                            border-radius: $radius-sm;
+                            font-size: 0.8rem;
+                            font-weight: $font-weight-semibold;
+                            cursor: pointer;
+                            transition: all $transit-fast;
+                            &:hover { background: $success; color: white; }
                         }
                     }
-
                 }
             }
         }
 
         .rightDiv {
-            width: 30%;
+            width: 34%;
             float: right;
             position: sticky;
-            top: 10px;
-
-            @media only screen and (max-width: 991px) {
-                width: 40%;
-            }
+            top: 80px;
+            @media (max-width: 991px) { width: 40%; }
 
             .cartAmtCard {
-                margin-top: 1em;
-                border: 1px solid $MainLtGrey;
-                margin-left: 1em;
-                height: auto;
+                background: $surface-white;
+                border-radius: $radius-lg;
+                border: 1px solid $neutral-200;
+                box-shadow: $shadow-sm;
+                overflow: hidden;
+
+                .cardHeading {
+                    background: $primary;
+                    color: white;
+                    padding: 13px 16px;
+                    font-size: 0.9rem;
+                    font-weight: $font-weight-semibold;
+                }
 
                 .subDiv {
-                    border-bottom: 1px solid $MainLtGrey;
-                    padding-left: 1em;
-                    padding-top: .7em;
-                    padding-bottom: .2em;
+                    padding: 0.875rem 1rem;
+                    border-bottom: 1px solid $neutral-100;
                 }
 
                 .AmtDiv {
-                    padding-top: .3em;
-                    display: grid;
-                    grid-template-columns: 50% 50%;
-                    color: $MainBLack;
-                    padding-bottom: .4em;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 5px 0;
+                    font-size: 0.875rem;
+                    color: $neutral-600;
+
+                    .lbl { color: $neutral-500; }
+                    .val { font-weight: $font-weight-semibold; color: $neutral-800; }
+                    &.total {
+                        .lbl { font-weight: $font-weight-bold; color: $neutral-800; }
+                        .val { font-weight: $font-weight-bold; color: $brand-orange; font-size: 1.1rem; }
+                    }
+                    &.discount .val { color: $success; }
                 }
 
                 .orderBtnDiv {
-                    padding-left: 1em;
-                    padding-right: 1em;
-                    padding-top: 1em;
-                    padding-bottom: 1em;
+                    padding: 1rem;
+                    background: $neutral-50;
+                    border-top: 1px solid $neutral-200;
 
                     .orderBtn {
+                        @include btn-primary;
                         width: 100%;
-                        height: 2.5em;
-                        background: $Main2ndGreen;
-                        border: 3px solid $Main2ndGreen;
-                        border-radius: 3px;
-                        color: white;
-                        transition: all .5s ease-in-out;
-                        -moz-transition: all .5s ease-in-out;
-                        text-transform: uppercase;
-                        font-weight: bold;
-
-                        &:hover {
-                            background: white;
-                            color: $MainBLack;
-                        }
+                        height: 46px;
+                        border-radius: $radius-md;
+                        font-size: 0.9rem;
                     }
                 }
-
             }
         }
     }
 
+    // ---- MOBILE ----
     .Mobile {
         display: none;
 
-        @media only screen and (max-width: 767px) {
+        @media (max-width: 767px) {
             display: block;
 
             .products {
                 .cartCard {
-                    margin-top: 1em;
-                    border: 1px solid $MainLtGrey;
+                    background: white;
+                    border-radius: $radius-md;
+                    border: 1px solid $neutral-200;
+                    margin-bottom: 0.875rem;
                     display: grid;
-                    grid-template-columns: 130px auto;
-
-                    @media only screen and (max-width:374px) {
-                        grid-template-columns: 100px auto;
-                    }
+                    grid-template-columns: 110px auto;
+                    overflow: hidden;
+                    @media (max-width: 374px) { grid-template-columns: 85px auto; }
 
                     .imgDiv {
-                        width: 130px;
-                        height: 130px;
-                        text-align: center;
-                        justify-content: center;
-                        align-items: center;
                         display: flex;
-
-                        @media only screen and (max-width:374px) {
-                            width: 100px;
-                        }
+                        align-items: center;
+                        justify-content: center;
+                        background: $neutral-50;
+                        border-right: 1px solid $neutral-100;
+                        padding: 10px;
+                        width: 110px;
+                        height: 110px;
+                        @media (max-width: 374px) { width: 85px; height: 85px; }
 
                         img {
-                            max-width: 100px;
-                            max-height: 100px;
-
-                            @media only screen and (max-width:374px) {
-                                max-width: 80px;
-                            }
+                            max-width: 85px;
+                            max-height: 85px;
+                            object-fit: contain;
+                            @media (max-width: 374px) { max-width: 65px; max-height: 65px; }
                         }
                     }
 
                     .content {
-                        padding-top: 1em;
-                        padding-bottom: .5em;
-
-                        @media only screen and (max-width:400px) {
-                            h4 {
-                                font-size: 16px;
-                            }
-
-                            h6 {
-                                font-size: small;
-                            }
-                        }
+                        padding: 0.75rem;
 
                         .RmvNQunty {
                             display: flex;
+                            align-items: center;
+                            gap: 6px;
+                            margin-top: 0.5rem;
+                            flex-wrap: wrap;
 
                             .quantityDiv {
-                                padding-top: .5em;
                                 display: flex;
+                                align-items: center;
+                                border: 1.5px solid $neutral-200;
+                                border-radius: $radius-sm;
+                                overflow: hidden;
 
-                                .btnMinus {
-                                    height: 40px;
-                                    width: 25px;
-                                    border: 1px solid $MainLtGrey;
-                                    background: transparent;
-                                    border-top-left-radius: 3px;
-                                    border-bottom-left-radius: 3px;
-
-                                    @media only screen and (max-width:374px) {
-                                        width: 20px;
-                                    }
+                                .btnMinus, .btnPlus {
+                                    height: 32px;
+                                    width: 24px;
+                                    border: none;
+                                    background: $neutral-100;
+                                    cursor: pointer;
+                                    @media (max-width: 374px) { width: 20px; }
                                 }
-
-                                .btnPlus {
-                                    height: 40px;
-                                    width: 25px;
-                                    border: 1px solid $MainLtGrey;
-                                    background: transparent;
-                                    border-top-right-radius: 3px;
-                                    border-bottom-right-radius: 3px;
-
-                                    @media only screen and (max-width:374px) {
-                                        width: 20px;
-                                    }
-                                }
-
                                 input {
-                                    width: 35px;
-                                    height: 40px;
+                                    width: 30px;
+                                    height: 32px;
                                     text-align: center;
-                                    border-top: 1px solid $MainLtGrey;
-                                    border-bottom: 1px solid $MainLtGrey;
+                                    border: none;
                                     outline: none;
-                                    border-left: none;
-                                    border-right: none;
-                                    background: transparent;
-
-                                    @media only screen and (max-width:374px) {
-                                        width: 25px;
-                                    }
+                                    font-size: 0.85rem;
+                                    background: white;
+                                    @media (max-width: 374px) { width: 22px; }
                                 }
                             }
 
-                            .StockBtnDiv {
-                                padding-top: .5em;
-
-                                @media only screen and (max-width:374px) {
-                                    padding-left: .5em;
-                                }
-
-                                button {
-                                    width: 5em;
-                                    height: 2.5em;
-                                    background: $MainGreen;
-                                    color: white;
-                                    border: 3px solid $MainGreen;
-                                    border-radius: 3px;
-                                    transition: all .5s linear;
-                                    -moz-transition: all .5s linear;
-
-                                    @media only screen and (max-width:374px) {
-                                        width: 4em;
-                                        font-size: small;
-                                        height: 3em;
-                                    }
-
-                                    &:hover {
-                                        background: white;
-                                        color: $Main2ndBlack;
-                                    }
-                                }
+                            .StockBtnDiv button {
+                                height: 30px;
+                                padding: 0 10px;
+                                background: rgba($success, 0.1);
+                                color: $success;
+                                border: none;
+                                border-radius: $radius-sm;
+                                font-size: 0.75rem;
+                                font-weight: $font-weight-semibold;
+                                cursor: pointer;
+                                @media (max-width: 374px) { padding: 0 6px; font-size: 0.7rem; }
                             }
 
                             .RemoveBtnDiv {
-                                padding-top: .5em;
-                                padding-left: 1em;
-
-                                @media only screen and (max-width:374px) {
-                                    padding-left: .5em;
-                                }
-
+                                padding-left: 2px;
                                 button {
-                                    width: 6em;
-                                    height: 2.5em;
-                                    background: $Main2ndBlack;
-                                    color: white;
-                                    border: 3px solid $Main2ndBlack;
-                                    border-radius: 3px;
-                                    transition: all .5s linear;
-                                    -moz-transition: all .5s linear;
-
-                                    @media only screen and (max-width:374px) {
-                                        width: 5em;
-                                        font-size: small;
-                                        height: 3em;
-                                    }
-
-                                    &:hover {
-                                        background: white;
-                                        color: $Main2ndBlack;
-                                    }
+                                    height: 30px;
+                                    padding: 0 10px;
+                                    background: $danger-light;
+                                    color: $danger;
+                                    border: none;
+                                    border-radius: $radius-sm;
+                                    font-size: 0.75rem;
+                                    font-weight: $font-weight-semibold;
+                                    cursor: pointer;
+                                    @media (max-width: 374px) { padding: 0 6px; font-size: 0.7rem; }
                                 }
                             }
                         }
-
                     }
                 }
             }
 
             .cartAmtCard {
-                margin-top: 1em;
-                border: 1px solid $MainLtGrey;
-                height: auto;
+                background: white;
+                border-radius: $radius-md;
+                border: 1px solid $neutral-200;
+                overflow: hidden;
+                margin-bottom: 1rem;
 
                 .subDiv {
-                    border-bottom: 1px solid $MainLtGrey;
-                    padding-left: 1em;
-                    padding-top: .7em;
-                    padding-bottom: .2em;
+                    padding: 0.75rem 1rem;
+                    border-bottom: 1px solid $neutral-100;
                 }
-
                 .AmtDiv {
-                    padding-top: .3em;
-                    display: grid;
-                    grid-template-columns: 50% 50%;
-                    color: $MainBLack;
-                    padding-bottom: .4em;
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 4px 0;
+                    font-size: 0.85rem;
+                    color: $neutral-600;
                 }
-
-                .lastSub {
-                    padding-left: 1em;
-                    padding-top: .7em;
-                    padding-bottom: .2em;
-                }
-
+                .lastSub { padding: 0.75rem 1rem; }
             }
         }
     }
 
+    // Mobile sticky order bar
     .amtCardFixed {
         display: none;
 
-        @media only screen and (max-width: 767px) {
+        @media (max-width: 767px) {
+            display: block;
             position: fixed;
             bottom: 0;
-            background: white;
-            width: 100%;
-            height: 4em;
-            box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+            left: 0;
+            right: 0;
+            background: $surface-white;
+            border-top: 1px solid $neutral-200;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.10);
+            z-index: 200;
 
             .MainDiv {
-                display: grid;
-                grid-template-columns: 50% 50%;
-                padding-top: 0.5em;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px 16px;
+                gap: 10px;
+
+                .totalLabel {
+                    .lbl { font-size: 0.72rem; color: $neutral-500; }
+                    .val { font-size: 1.05rem; font-weight: $font-weight-bold; }
+                }
 
                 .orderBtn {
-                    width: 100%;
-                    height: 89%;
-                    background: $Main2ndGreen;
-                    border: 3px solid $Main2ndGreen;
-                    border-radius: 3px;
-                    color: white;
-                    transition: all .5s ease-in-out;
-                    -moz-transition: all .5s ease-in-out;
-                    text-transform: uppercase;
-                    font-weight: bold;
-
-                    &:hover {
-                        background: white;
-                        color: $MainBLack;
-                    }
+                    @include btn-primary;
+                    height: 42px;
+                    min-width: 130px;
+                    font-size: 0.85rem;
+                    border-radius: $radius-md;
                 }
             }
         }

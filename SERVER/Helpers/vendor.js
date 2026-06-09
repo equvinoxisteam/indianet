@@ -26,6 +26,88 @@ export default {
             }
         })
     },
+    updateVendorProfile: (vendorId, profileData) => {
+        return new Promise((resolve, reject) => {
+            try {
+                const setDoc = {
+                    website: profileData.website || '',
+                    description: profileData.description || '',
+                    companyInfo: profileData.companyInfo || '',
+                    socialLinks: profileData.socialLinks || {},
+                    companyIntroduction: profileData.companyIntroduction || '',
+                    businessType: profileData.businessType || '',
+                    yearsInIndustry: profileData.yearsInIndustry || '',
+                    cooperatedSuppliers: profileData.cooperatedSuppliers || '',
+                    countryRegion: profileData.countryRegion || '',
+                    mainCategories: profileData.mainCategories || '',
+                    mainMarkets: profileData.mainMarkets || [],
+                    yearEstablished: profileData.yearEstablished || '',
+                    employeesRange: profileData.employeesRange || '',
+                    factorySizeRange: profileData.factorySizeRange || '',
+                    annualOutputRange: profileData.annualOutputRange || '',
+                    verificationTags: profileData.verificationTags || [],
+                    companyHighlights: profileData.companyHighlights || [],
+                    certificateImages: profileData.certificateImages || [],
+                    designCustomization: profileData.designCustomization === true,
+                    fullCustomization: profileData.fullCustomization === true,
+                    annualRevenueNote: profileData.annualRevenueNote || '',
+                    exhibitionsNote: profileData.exhibitionsNote || ''
+                }
+                if (profileData.backgroundImage) {
+                    setDoc.backgroundImage = profileData.backgroundImage
+                }
+                if (profileData.logo) {
+                    setDoc.logo = profileData.logo
+                }
+                db.get().collection(collections.VENDORS).updateOne(
+                    { _id: new ObjectId(vendorId) },
+                    { $set: setDoc }
+                ).then((result) => {
+                    resolve({ success: true })
+                }).catch((err) => {
+                    console.error('Error updating vendor profile:', err)
+                    reject(err)
+                })
+            } catch (error) {
+                console.error('Error in updateVendorProfile:', error)
+                reject(error)
+            }
+        })
+    },
+    getVendorByUserId: (userId) => {
+        return new Promise((resolve, reject) => {
+            try {
+                db.get().collection(collections.VENDORS).findOne({
+                    user: new ObjectId(userId)
+                }).then((vendor) => {
+                    resolve(vendor)
+                }).catch((err) => {
+                    reject(err)
+                })
+            } catch (error) {
+                reject(error)
+            }
+        })
+    },
+    getVendorById: (vendorId) => {
+        return new Promise((resolve, reject) => {
+            try {
+                if (!ObjectId.isValid(vendorId)) {
+                    resolve(null)
+                    return
+                }
+                db.get().collection(collections.VENDORS).findOne({
+                    _id: new ObjectId(vendorId)
+                }).then((vendor) => {
+                    resolve(vendor)
+                }).catch((err) => {
+                    reject(err)
+                })
+            } catch (error) {
+                reject(error)
+            }
+        })
+    },
     checkVendorAccept: (email) => {
         return new Promise((resolve, reject) => {
             db.get().collection(collections.VENDORS).findOne({
@@ -164,6 +246,7 @@ export default {
                     price: data.price,
                     mrp: data.mrp,
                     available: data.available,
+                    publishStatus: data.publishStatus || 'draft',
                     category: data.category,
                     categorySlug: data.categorySlug,
                     srtDescription: data.srtDescription,
@@ -178,12 +261,26 @@ export default {
                     return: data.return,
                     cancellation: data.cancellation,
                     pickup_location: data.pickup_location,
+                    // ShipRocket shipment dimensions/weight
+                    weightKg: data.weightKg,
+                    lengthCm: data.lengthCm,
+                    breadthCm: data.breadthCm,
+                    heightCm: data.heightCm,
                     variant: data.variant,
                     variantDetails: data.variantDetails,
                     currVariantSize: data.currVariantSize,
                     allowCod: data.allowCod,
                     allowOnline: data.allowOnline,
-                    allowRfq: data.allowRfq
+                    allowRfq: data.allowRfq,
+                    rfqTiers: data.rfqTiers,
+                    rfqAttributes: data.rfqAttributes,
+                    rfqCustomization: data.rfqCustomization,
+                    rfqCustomizationDesc: data.rfqCustomizationDesc,
+                    rfqHandlingTime: data.rfqHandlingTime || '',
+                    rfqLeadTime: data.rfqLeadTime,
+                    rfqPackaging: data.rfqPackaging || {},
+                    rfqCertificates: data.rfqCertificates || [],
+                    isShowcase: data.isShowcase === true
                 }
             }).then((done) => {
                 resolve()
@@ -237,6 +334,36 @@ export default {
             }).sort({ _id: -1 }).skip(skip).limit(limit).toArray().catch((err) => {
                 reject(err)
             })
+            resolve(products)
+        })
+    },
+    getPublicVendorProductCount: (vendorId, search) => {
+        return new Promise((resolve, reject) => {
+            const filter = { vendor: true, vendorId: vendorId }
+            if (search && String(search).trim()) {
+                filter.name = { $regex: String(search).trim(), $options: 'i' }
+            }
+            db.get().collection(collections.PRODUCTS).countDocuments(filter).then((c) => {
+                resolve(c)
+            }).catch((err) => {
+                reject(err)
+            })
+        })
+    },
+    getPublicVendorProducts: (vendorId, skip, limit, search) => {
+        return new Promise(async (resolve, reject) => {
+            const filter = { vendor: true, vendorId: vendorId }
+            if (search && String(search).trim()) {
+                filter.name = { $regex: String(search).trim(), $options: 'i' }
+            }
+            let products = await db.get().collection(collections.PRODUCTS).find(filter, {
+                projection: {
+                    name: 1, slug: 1, price: 1, mrp: 1, files: 1, uni_id_1: 1, uni_id_2: 1,
+                    discount: 1, allowRfq: 1, rfqTiers: 1, category: 1, available: 1
+                }
+            }).sort({ _id: -1 }).skip(skip).limit(limit).toArray().catch((err) => {
+                    reject(err)
+                })
             resolve(products)
         })
     },
@@ -397,8 +524,22 @@ export default {
             }
         })
     },
-    updateUserDetails: ({ email, number, vendorId }) => {
+    updateUserDetails: (details) => {
         return new Promise(async (resolve, reject) => {
+            const email = String(details.email || '').toLowerCase().trim()
+            const vendorId = details.vendorId
+            const setDoc = {
+                number: String(details.number || ''),
+                gstin: String(details.gstin || ''),
+                panNumber: String(details.panNumber || '').toUpperCase(),
+                locality: String(details.locality || ''),
+                pinCode: String(details.pinCode || ''),
+                address: String(details.address || ''),
+                city: String(details.city || ''),
+                state: String(details.state || ''),
+                country: String(details.country || '')
+            }
+
             let ownEmail = await db.get().collection(collections.VENDORS).findOne({
                 _id: ObjectId(vendorId),
                 email: email
@@ -410,9 +551,7 @@ export default {
                 db.get().collection(collections.VENDORS).updateOne({
                     _id: ObjectId(vendorId)
                 }, {
-                    $set: {
-                        number: number
-                    }
+                    $set: setDoc
                 }).then(() => {
                     resolve({ email: false })
                 }).catch(() => {
@@ -433,7 +572,7 @@ export default {
                     }, {
                         $set: {
                             email: email,
-                            number: number
+                            ...setDoc
                         }
                     }).then(() => {
                         resolve({ email: false })
@@ -462,6 +601,58 @@ export default {
             }).catch(() => {
                 reject()
             })
+        })
+    },
+    getDashboardAnalytics: (vendorId) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const products = await db.get().collection(collections.PRODUCTS).countDocuments({
+                    vendor: true,
+                    vendorId: vendorId
+                })
+
+                const rfqTotal = await db.get().collection(collections.RFQ).countDocuments({
+                    vendorId: vendorId,
+                    status: 'approved',
+                })
+
+                const rfqQuoted = await db.get().collection(collections.RFQ).countDocuments({
+                    vendorId: vendorId,
+                    status: 'approved',
+                    quotedPrice: { $ne: null },
+                })
+
+                const rfqPending = Math.max(0, rfqTotal - rfqQuoted)
+
+                const orderStatusRaw = await db.get().collection(collections.ORDERS).aggregate([
+                    { $unwind: '$order' },
+                    { $match: { 'order.vendorId': vendorId } },
+                    {
+                        $group: {
+                            _id: '$order.OrderStatus',
+                            count: { $sum: 1 }
+                        }
+                    },
+                    { $sort: { count: -1 } }
+                ]).toArray()
+
+                const orderTotal = orderStatusRaw.reduce((sum, s) => sum + (s.count || 0), 0)
+                const orderStatus = orderStatusRaw.map((s) => ({
+                    status: s._id || 'Unknown',
+                    count: s.count || 0
+                }))
+
+                resolve({
+                    products: products || 0,
+                    rfqTotal: rfqTotal || 0,
+                    rfqPending: rfqPending || 0,
+                    rfqResponded: rfqQuoted || 0,
+                    orderTotal,
+                    orderStatus
+                })
+            } catch (err) {
+                reject(err)
+            }
         })
     },
     getDashboardTotal: (vendorId) => {

@@ -113,6 +113,21 @@ function Categories({ res }) {
             <main>
                 <Header />
                 {QuickVw.active && <QuickView />}
+                <section className="container pt-3 pb-1">
+                    <div className="card-flat" style={{ borderRadius: '16px', border: '1px solid #e6edf5', boxShadow: '0 10px 24px rgba(15,23,42,0.06)', background: 'linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)' }}>
+                        <div className="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                            <div>
+                                <div className="small text-muted text-uppercase" style={{ letterSpacing: '.08em' }}>Category</div>
+                                <h1 className="h4 mb-1 text-capitalize">{String(router.query.category || '').replace(/-/g, ' ')}</h1>
+                                <p className="mb-0 text-muted small">Explore curated products with smart filters and premium sorting</p>
+                            </div>
+                            <div className="small text-muted">
+                                <i className="fa-solid fa-layer-group me-1" />
+                                {response?.total || products.length} items
+                            </div>
+                        </div>
+                    </div>
+                </section>
                 <Result
                     setPageNum={setPageNum}
                     products={products}

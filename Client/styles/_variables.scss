@@ -1,74 +1,237 @@
-// Variables & Design Tokens
+// ============================================
+// INDIANET — Design System v2.0
+// Inspired by Alibaba B2B — Professional Grade
+// ============================================
 
-// Primary palette
-$primary: #4F46E5;         // Indigo
-$primary-light: #818CF8;
-$primary-dark: #3730A3;
+// --- Font Stack ---
+// Helvetica Neue > Inter > system-ui
+$font-primary: 'Helvetica Neue', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+$font-weight-light:  300;
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
 
-// Secondary/Accent
-$accent: #F59E0B;          // Amber
-$accent-light: #FCD34D;
-$accent-dark: #B45309;
+// --- Brand Colors (blue/white theme) ---
+// Keep variable names for existing SCSS usage, but shift values to blue.
+$brand-orange:   #1A3C5E;        // Primary blue CTA
+$brand-orange-dark: #0F253D;
+$brand-orange-light: #2D5F8A;
 
-// Neutral Palette
-$neutral-50: #F8FAFC;
-$neutral-100: #F1F5F9;
-$neutral-200: #E2E8F0;
-$neutral-300: #CBD5E1;
-$neutral-500: #64748B;
-$neutral-700: #334155;
-$neutral-800: #1E293B;
-$neutral-900: #0F172A;
+$primary:        #1A3C5E;        // Deep navy — trustworthy B2B
+$primary-light:  #2D5F8A;
+$primary-dark:   #0F253D;
+$primary-extra-dark: #081929;
 
-// Status
-$success: #10B981;
-$warning: #F59E0B;
-$danger: #EF4444;
-$info: #3B82F6;
+$accent:         #1A3C5E;        // Same as brand-orange — CTAs
+$accent-light:   #2D5F8A;
+$accent-dark:    #0F253D;
 
-// Legacy Colors (keeping for compatibility, transitioning them)
-$MainGreen: #10B981; // replacing with modern green
-$MainBLack: #0f172a;
-$Main2ndBlack: #334155;
-$MainBgGray: #f8fafc;
-$MainLtGrey: #e2e8f0;
-$MainGrey: #64748b;
+// --- Neutrals ---
+$neutral-50:     #F8FAFC;
+$neutral-100:    #F1F5F9;
+$neutral-150:    #EBF0F7;
+$neutral-200:    #E2E8F0;
+$neutral-300:    #CBD5E1;
+$neutral-400:    #94A3B8;
+$neutral-500:    #64748B;
+$neutral-600:    #475569;
+$neutral-700:    #334155;
+$neutral-800:    #1E293B;
+$neutral-900:    #0F172A;
 
-// Effects
-$shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-$shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-$shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-$shadow-hover: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-$shadow-inner: inset 0 2px 4px 0 rgba(0,0,0,0.06);
+// --- Status ---
+$success:        #2D5F8A;        // Professional blue for success
+$success-light:  #EBF0F7;
+$warning:        #1A3C5E;        // Deep blue for warning
+$warning-light:  #F1F5F9;
+$danger:         #DC2626;
+$danger-light:   #FEE2E2;
+$info:           #2563EB;
+$info-light:     #DBEAFE;
 
-// Border Radius
-$radius-sm: 6px;
-$radius-md: 10px;
-$radius-lg: 16px;
-$radius-xl: 24px;
-$radius-full: 9999px;
+// --- Surfaces ---
+$surface-white:  #FFFFFF;
+$surface-bg:     #F4F6F9;
+$surface-card:   #FFFFFF;
+$surface-hover:  #F0F4F8;
 
-// Transitions
-$transit-fast: 0.15s ease-in-out;
-$transit-normal: 0.3s ease-in-out;
+// --- Legacy aliases (keep compatibility) ---
+$MainGreen:      $primary;
+$MainBLack:      $neutral-900;
+$Main2ndBlack:   $neutral-800;
+$MainBgGray:     $surface-bg;
+$MainLtGrey:     $neutral-200;
+$MainGrey:       $neutral-500;
+$Main2ndGreen:   $primary;
+$PrimaryBlue:    $primary;
+$AdminMainColor: $primary-dark;
+$IndianetSurface: $surface-bg;
 
-// Global Mixins
+// --- Shadows ---
+$shadow-xs:    0 1px 2px rgba(0,0,0,0.04);
+$shadow-sm:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+$shadow-md:    0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+$shadow-lg:    0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+$shadow-xl:    0 20px 25px -5px rgba(0,0,0,0.10), 0 10px 10px -5px rgba(0,0,0,0.04);
+$shadow-hover: 0 25px 50px -12px rgba(0,0,0,0.18);
+$shadow-inner: inset 0 2px 4px 0 rgba(0,0,0,0.04);
+$shadow-orange: 0 4px 14px rgba(255, 106, 0, 0.25);
+$shadow-navy:   0 4px 14px rgba(26, 60, 94, 0.20);
+
+// --- Border Radius ---
+$radius-xs:    4px;
+$radius-sm:    6px;
+$radius-md:    10px;
+$radius-lg:    14px;
+$radius-xl:    20px;
+$radius-2xl:   28px;
+$radius-full:  9999px;
+
+// --- Transitions ---
+$transit-fast:    0.15s cubic-bezier(0.4, 0, 0.2, 1);
+$transit-normal:  0.25s cubic-bezier(0.4, 0, 0.2, 1);
+$transit-slow:    0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+// --- Sidebar ---
+$sidebar-width:        240px;
+$sidebar-collapsed:    72px;
+$sidebar-bg:           $primary-extra-dark;
+$sidebar-text:         rgba(255,255,255,0.75);
+$sidebar-active-bg:    rgba(26,60,94,0.15);
+$sidebar-active-text:  $brand-orange;
+$sidebar-hover-bg:     rgba(255,255,255,0.06);
+$sidebar-border:       rgba(255,255,255,0.07);
+
+// --- Mixins ---
 @mixin flex-center {
     display: flex;
     justify-content: center;
     align-items: center;
 }
-
 @mixin flex-between {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
+@mixin flex-start {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+@mixin card-base {
+    background: $surface-card;
+    border-radius: $radius-lg;
+    border: 2px solid $PrimaryBlue;
+    box-shadow: $shadow-sm;
+}
 @mixin card-hover {
     transition: all $transit-normal;
     &:hover {
-        transform: translateY(-5px);
-        box-shadow: $shadow-hover;
+        transform: translateY(-3px);
+        box-shadow: $shadow-lg;
+    }
+}
+@mixin input-base {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    font-family: $font-primary;
+    font-size: 0.9rem;
+    color: $neutral-800;
+    background: $surface-white;
+    border: 1.5px solid $neutral-200;
+    border-radius: $radius-md;
+    outline: none;
+    transition: border-color $transit-fast, box-shadow $transit-fast;
+    &::placeholder { color: $neutral-400; }
+    &:hover { border-color: $neutral-400; }
+    &:focus {
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba(26, 60, 94, 0.10);
+    }
+}
+@mixin btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 22px;
+    background: linear-gradient(135deg, $brand-orange 0%, $brand-orange-dark 100%);
+    color: white;
+    border: none;
+    border-radius: $radius-md;
+    font-family: $font-primary;
+    font-weight: $font-weight-semibold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all $transit-fast;
+    box-shadow: $shadow-orange;
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(26,60,94,0.35);
+        filter: brightness(1.08);
+    }
+    &:active { transform: translateY(0); }
+}
+@mixin btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 22px;
+    background: white;
+    color: $neutral-700;
+    border: 1.5px solid $neutral-200;
+    border-radius: $radius-md;
+    font-family: $font-primary;
+    font-weight: $font-weight-medium;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all $transit-fast;
+    .active {
+        color: white;
+        background: $PrimaryBlue;
+    }
+    &:hover {
+        border-color: $neutral-400;
+        background: $neutral-50;
+        color: $neutral-900;
+    }
+}
+@mixin btn-navy {
+    @include btn-primary;
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+    box-shadow: $shadow-navy;
+    &:hover {
+        box-shadow: 0 6px 20px rgba(26,60,94,0.35);
+    }
+}
+
+// --- Responsive Breakpoints (Bootstrap-aligned) ---
+$bp-xs:  480px;
+$bp-sm:  576px;
+$bp-md:  768px;
+$bp-lg:  992px;
+$bp-xl:  1200px;
+$bp-xxl: 1400px;
+
+@mixin respond-to($breakpoint) {
+    @if $breakpoint == xs {
+        @media (max-width: #{$bp-xs - 1}) { @content; }
+    } @else if $breakpoint == sm {
+        @media (max-width: #{$bp-sm - 1}) { @content; }
+    } @else if $breakpoint == md {
+        @media (max-width: #{$bp-md - 1}) { @content; }
+    } @else if $breakpoint == lg {
+        @media (max-width: #{$bp-lg - 1}) { @content; }
+    } @else if $breakpoint == xl {
+        @media (max-width: #{$bp-xl - 1}) { @content; }
+    } @else if $breakpoint == tablet {
+        @media (min-width: $bp-md) and (max-width: #{$bp-lg - 1}) { @content; }
+    } @else if $breakpoint == mobile {
+        @media (max-width: #{$bp-md - 1}) { @content; }
     }
 }

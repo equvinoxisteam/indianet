@@ -100,6 +100,10 @@ function CategoriesComp({ loaded, setLoaded }) {
             {
                 loaded ? (
                     <div className='AdminContainer CategoriesComp pb-3'>
+                        <div className="adminPageHeader mb-3 pt-3">
+                            <h1>Categories</h1>
+                            <p>Manage category tree, sub-categories and menu headers</p>
+                        </div>
 
                         <div className='ActionAreaDiv text-center pt-3 pb-5'>
                             <div className="row">

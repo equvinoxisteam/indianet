@@ -40,7 +40,12 @@ function AddProduct() {
             allowCod: true,
             allowOnline: true,
             allowRfq: false,
-            uni_id_1: Date.now() + Math.random()
+            uni_id_1: Date.now() + Math.random(),
+            // ShipRocket shipment dimension/weight inputs
+            weightKg: 2.5,
+            lengthCm: 10,
+            breadthCm: 15,
+            heightCm: 20
         }
     )
 
@@ -96,6 +101,12 @@ function AddProduct() {
         formData.append('allowCod', productDetails.allowCod)
         formData.append('allowOnline', productDetails.allowOnline)
         formData.append('allowRfq', productDetails.allowRfq)
+
+        // Shipping estimation / payload inputs for ShipRocket
+        formData.append('weightKg', productDetails.weightKg)
+        formData.append('lengthCm', productDetails.lengthCm)
+        formData.append('breadthCm', productDetails.breadthCm)
+        formData.append('heightCm', productDetails.heightCm)
 
         formData.append('images', thumb);
 
@@ -212,6 +223,38 @@ function AddProduct() {
                                 <option value="true">Yes</option>
                                 <option value="false">No</option>
                             </select>
+                        </div>
+                        <div className='col-md-3'>
+                            <label>Weight (Kg)</label><br />
+                            <input
+                                type='number'
+                                value={productDetails.weightKg}
+                                onInput={(e) => setProductDetails({ ...productDetails, weightKg: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-3'>
+                            <label>Length (Cm)</label><br />
+                            <input
+                                type='number'
+                                value={productDetails.lengthCm}
+                                onInput={(e) => setProductDetails({ ...productDetails, lengthCm: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-3'>
+                            <label>Breadth (Cm)</label><br />
+                            <input
+                                type='number'
+                                value={productDetails.breadthCm}
+                                onInput={(e) => setProductDetails({ ...productDetails, breadthCm: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-3'>
+                            <label>Height (Cm)</label><br />
+                            <input
+                                type='number'
+                                value={productDetails.heightCm}
+                                onInput={(e) => setProductDetails({ ...productDetails, heightCm: e.target.value })}
+                            />
                         </div>
 
                         <div className="col-md-12">
@@ -351,6 +394,36 @@ function AddProduct() {
                                     })
                                 }
 
+                            </select>
+                        </div>
+
+                        <div className='col-md-4'>
+                            <label>Cash on Delivery (COD)</label><br />
+                            <select value={productDetails.allowCod} onChange={(e) => {
+                                setProductDetails({ ...productDetails, allowCod: e.target.value === 'true' })
+                            }} >
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+
+                        <div className='col-md-4'>
+                            <label>Online Payment</label><br />
+                            <select value={productDetails.allowOnline} onChange={(e) => {
+                                setProductDetails({ ...productDetails, allowOnline: e.target.value === 'true' })
+                            }} >
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+
+                        <div className='col-md-4'>
+                            <label>Request for Quote (RFQ)</label><br />
+                            <select value={productDetails.allowRfq} onChange={(e) => {
+                                setProductDetails({ ...productDetails, allowRfq: e.target.value === 'true' })
+                            }} >
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
                             </select>
                         </div>
 

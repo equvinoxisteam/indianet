@@ -1,42 +1,112 @@
 @import "../../../styles/app.module.scss";
 
-.CategoriesCompUserMob {
-    .CardMob {
-        height: 155px;
-        border: 1px solid $MainLtGrey;
-
-        @media only screen and (max-width:330px) {
-            height: 135px;
+.CategoriesFullWidth {
+    width: 100%;
+    
+    // Hero Section
+    .CategoriesHero {
+        background: linear-gradient(135deg, $primary 0%, darken($primary, 10%) 100%);
+        color: white;
+        margin-bottom: 3rem;
+        
+        h1 {
+            font-size: 3rem;
+            @media (max-width: 768px) {
+                font-size: 2rem;
+            }
         }
+        
+        p {
+            opacity: 0.9;
+        }
+    }
 
-        .ImgDiv {
-            height: 120px;
-            padding: 10px;
-            text-align: center;
+    // Category Card - Professional Design
+    .CategoryCard {
+        background: white;
+        border-radius: $radius-lg;
+        overflow: hidden;
+        transition: all $transit-normal;
+        border: 1px solid $neutral-100;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-shadow: $shadow-sm;
 
-            @media only screen and (max-width:330px) {
-                height: 100px;
+        &:hover {
+            transform: translateY(-8px);
+            box-shadow: $shadow-xl;
+            border-color: $primary;
+
+            .CategoryImage img {
+                transform: scale(1.1);
             }
 
-            img {
-                max-height: 110px;
-                max-width: 110px;
+            .CategoryOverlay {
+                opacity: 1;
+            }
+        }
 
-                @media only screen and (max-width:330px) {
-                    max-height: 90px;
+        .CategoryImage {
+            height: 200px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+
+            img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+                mix-blend-mode: multiply;
+                transition: transform $transit-slow;
+            }
+
+            .CategoryOverlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba($primary, 0.9);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity $transit-fast;
+
+                i {
+                    color: white;
+                    font-size: 2rem;
                 }
             }
         }
 
-        .textArea {
-            padding-top: 8px;
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-    }
+        .CategoryInfo {
+            padding: 1.25rem;
+            text-align: center;
+            background: white;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.5rem;
 
-    .ErrorSection {
-        margin-top: 5em;
-        margin-bottom: 5em;
+            h5 {
+                font-size: 1rem;
+                line-height: 1.4;
+                min-height: 2.8rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            small {
+                font-size: 0.85rem;
+            }
+        }
     }
 }

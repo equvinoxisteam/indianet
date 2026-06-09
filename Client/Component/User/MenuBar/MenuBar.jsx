@@ -1,14 +1,15 @@
 import React from 'react'
-import { useEffect, useContext } from 'react'
-import { useRef } from 'react'
+import { useEffect, useContext, useRef } from 'react'
 import Link from 'next/link'
 import ContentControl from '../../../ContentControl/ContentControl'
+import BrandLogo from '@/Component/Common/BrandLogo'
+import { ServerId } from '@/Config/Server'
 
 function MenuBar({ menuBar, setMenuBar }) {
-  const { userLogged, setUserLogged,
-    LoginModal, setLoginModal } = useContext(ContentControl)
+    const { userLogged, setUserLogged,
+    LoginModal, setLoginModal, allCategories } = useContext(ContentControl)
 
-  var headerCategories = menuBar.categories
+  const headerCategories = Array.isArray(allCategories) ? allCategories : []
 
   var modalRef = useRef()
   useEffect(() => {
@@ -30,91 +31,126 @@ function MenuBar({ menuBar, setMenuBar }) {
       <div className='MenuContainer'>
 
         <div className='loginDiv'>
-          <div>
-            <i className="fa-solid fa-user color-white"></i>
+          <div className='avatarCircle' style={{ overflow: 'hidden', background: '#fff' }}>
+            {userLogged.status && userLogged.profileImage ? (
+              <img src={`${ServerId}/user/${userLogged._id}/${userLogged.profileImage}`}
+                alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <i className="fa-solid fa-user" style={{ color: '#aaa' }} />
+            )}
           </div>
-          <div>
-            {
-              userLogged.status ? (
-                <a>{userLogged.name}</a>
-              ) : (
-                <a role='button'>
-                  <span onClick={() => {
-                    setMenuBar({
-                      ...menuBar,
-                      active: false,
-                      btn: false
-                    })
-
-                    setLoginModal({
-                      ...LoginModal,
-                      member: true,
-                      forgot: false,
-                      btn: true,
-                      active: true
-                    })
-                  }}>Login</span> / <span onClick={() => {
-                    setMenuBar({
-                      ...menuBar,
-                      active: false,
-                      btn: false
-                    })
-
-                    setLoginModal({
-                      ...LoginModal,
-                      member: false,
-                      btn: true,
-                      active: true
-                    })
-                  }}>Sign Up</span>
-                </a>
-              )
-            }
+          <div className='userInfo'>
+            {userLogged.status ? (
+              <div className='text-small color-white'>
+                <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>Hello,</div>
+                <div style={{ fontSize: '1rem', fontWeight: 700 }}>{userLogged.name}</div>
+              </div>
+            ) : (
+              <div className='authLinks'>
+                <span onClick={() => {
+                  setMenuBar({ ...menuBar, active: false, btn: false })
+                  setLoginModal({ ...LoginModal, member: true, forgot: false, btn: true, active: true })
+                }}>Login</span> / <span onClick={() => {
+                  setMenuBar({ ...menuBar, active: false, btn: false })
+                  setLoginModal({ ...LoginModal, member: false, btn: true, active: true })
+                }}>Sign Up</span>
+              </div>
+            )}
           </div>
         </div>
 
         <div className='sectionOne'>
+          <div className='sectionTitle'>Browse</div>
           <ul>
-            <li>
-              <i className="fa-solid fa-border-all UserBlackMain Icons"></i>
-              <Link href={'/categories'} className='text-small font-bold'>All Categories</Link>
+            <li className='ExtraPad' onClick={() => setMenuBar(prev => ({ ...prev, active: false }))}>
+              <Link href={'/'} className='text-small font-bold'>
+                <i className="fa-solid fa-house UserBlackMain Icons"></i>
+                <span>Home</span>
+              </Link>
             </li>
-            <li><h6 className='UserBlackMain font-bold'>
-              <span><i className="fa-solid fa-arrow-trend-up UserBlackMain Icons"></i></span>
-              <span className='text-small'>Trending Categories</span>
-            </h6></li>
-            {
-              headerCategories.map((obj, key) => {
-                return (
-                  <li className='ExtraPad' key={key}>
-                    <Link href={`/c/${obj.slug}`} className='text-small font-bold'>{obj.name}</Link>
-                  </li>
-                )
-              })
-            }
-
+            <li className='ExtraPad'>
+                <div 
+                  className='text-small font-bold d-flex align-items-center justify-content-between pr-3' 
+                  style={{ padding: '10px 12px', cursor: 'pointer' }}
+                  onClick={() => setMenuBar(prev => ({ ...prev, categoryOpen: !prev.categoryOpen }))}
+                >
+                  <div className='d-flex align-items-center gap-3'>
+                    <i className="fa-solid fa-border-all UserBlackMain Icons"></i>
+                    <span>All Categories</span>
+                  </div>
+                  <i className={`fa-solid fa-chevron-${menuBar.categoryOpen ? 'up' : 'down'} text-muted`} style={{ fontSize: '0.8rem' }}></i>
+                </div>
+                
+                {menuBar.categoryOpen && (
+                  <ul className='categoryList'>
+                    {headerCategories.length > 0 ? (
+                      headerCategories.map((obj, key) => (
+                        <li key={key}>
+                          <Link 
+                            href={`/c/${obj.slug}`} 
+                            onClick={() => setMenuBar(prev => ({ ...prev, active: false }))}
+                          >
+                            {obj.name}
+                          </Link>
+                        </li>
+                      ))
+                    ) : (
+                      <li className='text-small text-muted py-2 px-3 text-center'>Loading categories...</li>
+                    )}
+                  </ul>
+                )}
+            </li>
           </ul>
         </div>
 
         <div className='sectionLast'>
+          <div className='sectionTitle'>Account</div>
           <ul>
-            <li>
-              <i className="fa-solid fa-user UserBlackMain Icons"></i>
-              <a className='text-small font-bold'>Account Details</a>
+            <li className='ExtraPad'>
+              <Link href={'/account'} className='text-small font-bold'>
+                <i className="fa-solid fa-user-gear UserBlackMain Icons"></i>
+                <span>My Account</span>
+              </Link>
             </li>
-            <li className='ExtraPad'><Link href={'/account'} className='text-small font-bold'>My Account</Link></li>
-            <li className='ExtraPad'><Link href={'/wishlist'} className='text-small font-bold'>My Wishlist</Link></li>
-            <li className='ExtraPad'><Link href={'/cart'} className='text-small font-bold'>My Cart</Link></li>
-            <li className='ExtraPad'><Link href={'/orders'} className='text-small font-bold'>My Orders</Link></li>
-            {
-              userLogged.status && (
-                <li className='ExtraPad'><a role='button' className='text-small font-bold' onClick={() => {
-                  localStorage.removeItem('token')
-                  setUserLogged({ status: false })
-                }}>Logout</a></li>
-              )
-            }
-            <li className='ExtraPad'><Link href='' className='text-small font-bold'>Help</Link></li>
+            <li className='ExtraPad'>
+              <Link href={'/wishlist'} className='text-small font-bold'>
+                <i className="fa-regular fa-heart UserBlackMain Icons"></i>
+                <span>My Wishlist</span>
+              </Link>
+            </li>
+            <li className='ExtraPad'>
+              <Link href={'/cart'} className='text-small font-bold'>
+                <i className="fa-solid fa-bag-shopping UserBlackMain Icons"></i>
+                <span>My Cart</span>
+              </Link>
+            </li>
+            <li className='ExtraPad'>
+              <Link href={'/orders'} className='text-small font-bold'>
+                <i className="fa-solid fa-box UserBlackMain Icons"></i>
+                <span>My Orders</span>
+              </Link>
+            </li>
+            <li className='ExtraPad'>
+              <Link href={'/help'} className='text-small font-bold'>
+                <i className="fa-regular fa-circle-question UserBlackMain Icons"></i>
+                <span>Help Center</span>
+              </Link>
+            </li>
+            {userLogged.status && (
+              <li className='LogoutPad mt-3'>
+                <button
+                  className='logoutBtnMobile'
+                  onClick={() => {
+                    localStorage.removeItem('token')
+                    setUserLogged({ status: false })
+                    setMenuBar({ ...menuBar, active: false })
+                  }}
+                >
+                  <i className="fa-solid fa-right-from-bracket mr-2"></i>
+                  Logout
+                </button>
+              </li>
+            )}
           </ul>
         </div>
 

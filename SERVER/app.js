@@ -7,25 +7,61 @@ import db from "./Config/Connection.js";
 import bodyParser from 'body-parser'
 import * as dotenv from 'dotenv'
 import { seedDefaultAdmin } from './Helpers/seedAdmin.js'
+import { isS3Enabled } from './Helpers/s3Client.js'
 dotenv.config()
 
 var app = express()
 
 var port = process.env.PORT || 5000
+let dbConnected = false
+
+const corsOrigins = (process.env.CORS_ORIGINS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
 
 db.connect((err) => {
-    if (err) console.log("Connection Error : ", err)
+    if (err) {
+        dbConnected = false
+        console.log("Connection Error : ", err)
+    }
     else {
+        dbConnected = true
         console.log('Database Connected')
+        if (isS3Enabled()) {
+            console.log('File storage: AWS S3')
+        } else {
+            console.log('File storage: local disk (./uploads)')
+        }
         seedDefaultAdmin(db.get()).catch((e) => console.error(e))
     }
 })
 
-app.use(cors())
+app.use(corsOrigins.length > 0
+    ? cors({ origin: corsOrigins, credentials: true })
+    : cors())
+
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        ok: true,
+        db: dbConnected,
+        storage: isS3Enabled() ? 's3' : 'local',
+    })
+})
+
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
-app.use(express.static('./uploads'))
+if (!isS3Enabled()) {
+    app.use(express.static('./uploads'))
+}
+
+app.use((req, res, next) => {
+    if (!dbConnected || !db.get()) {
+        return res.status(503).json({ status: false, message: 'Database is unavailable. Please try again shortly.' })
+    }
+    next()
+})
 
 app.use('/api/users/', users)
 app.use('/api/admin/', admin)
