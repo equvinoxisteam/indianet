@@ -26,7 +26,7 @@ async function testMongo() {
 }
 
 async function testMail() {
-    const to = process.env.ADMIN_MAIL || process.env.MAIL_USER
+    const to = process.env.ADMIN_MAIL || process.env.GMAIL_USER || process.env.MAIL_USER
     await sendMail({
         from: process.env.MAIL_FROM,
         to,
@@ -44,11 +44,13 @@ async function main() {
         check(key, !!val && String(val).trim().length > 0)
     }
 
-    check('RESEND_API_KEY', !!process.env.RESEND_API_KEY, 'required on Railway (SMTP blocked)')
-    check('MAIL_USER', !!process.env.MAIL_USER, 'SMTP — local dev only')
-    check('MAIL_PASS', !!process.env.MAIL_PASS, 'SMTP — local dev only')
-    if (process.env.MAIL_USER) {
-        check('MAIL_USER matches MAIL_FROM', process.env.MAIL_FROM?.includes(process.env.MAIL_USER))
+    check('MAIL_PROVIDER', !!process.env.MAIL_PROVIDER, 'use gmail on Railway')
+    check('GMAIL_CLIENT_ID', !!process.env.GMAIL_CLIENT_ID, 'Gmail API OAuth')
+    check('GMAIL_CLIENT_SECRET', !!process.env.GMAIL_CLIENT_SECRET, 'Gmail API OAuth')
+    check('GMAIL_REFRESH_TOKEN', !!process.env.GMAIL_REFRESH_TOKEN, 'Gmail API OAuth')
+    check('GMAIL_USER', !!(process.env.GMAIL_USER || process.env.MAIL_USER), 'sender account')
+    if (process.env.GMAIL_USER) {
+        check('GMAIL_USER matches MAIL_FROM', process.env.MAIL_FROM?.includes(process.env.GMAIL_USER))
     }
     check('SUPPORT_EMAIL', !!(process.env.SUPPORT_EMAIL || process.env.ADMIN_MAIL), 'optional but set')
 
@@ -77,7 +79,7 @@ async function main() {
             console.log(`FAIL Email (${getMailProvider()}) —`, e.message)
         }
     } else {
-        console.log('FAIL Email — set RESEND_API_KEY or MAIL_USER/MAIL_PASS or SES credentials')
+        console.log('FAIL Email — set GMAIL_* OAuth vars (see GMAIL_OAUTH_SETUP.md)')
     }
 
     console.log('\n=== CLIENT .env.local (check manually) ===')

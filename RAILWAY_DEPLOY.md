@@ -230,9 +230,13 @@ You do **not** need S3 on day one if you use a Railway volume.
 | `DB_URL` | `mongodb+srv://...` | MongoDB Atlas connection |
 | `DB_NAME` | `indianet` | Database name |
 | `JWT_SECRET` | long random | Auth tokens |
-| `MAIL_USER` | `you@gmail.com` | Gmail SMTP |
-| `MAIL_PASS` | app password | Gmail SMTP |
-| `MAIL_FROM` | `Indianet <you@gmail.com>` | From header |
+| `MAIL_PROVIDER` | `gmail` | Email transport (Gmail API — works on Railway) |
+| `GMAIL_CLIENT_ID` | OAuth client ID | From Google Cloud Console |
+| `GMAIL_CLIENT_SECRET` | OAuth secret | From Google Cloud Console |
+| `GMAIL_REFRESH_TOKEN` | `1//...` | From OAuth Playground (see `SERVER/GMAIL_OAUTH_SETUP.md`) |
+| `GMAIL_USER` | `info@equvinoxis.com` | Google account that sends mail |
+| `GMAIL_REDIRECT_URI` | `https://developers.google.com/oauthplayground` | OAuth redirect |
+| `MAIL_FROM` | `Indianet <info@equvinoxis.com>` | From header in emails |
 | `ADMIN_MAIL` | notifications inbox | RFQ / alerts |
 | `ADMIN_EMAIL` | admin login email | Dashboard login |
 | `ADMIN_PASSWORD` | strong password | Dashboard login |
@@ -255,7 +259,7 @@ You do **not** need S3 on day one if you use a Railway volume.
 | Problem | Fix |
 |---------|-----|
 | `Database is unavailable` | Check `DB_URL`, Atlas IP allowlist, password encoding |
-| OTP email not sent / `Connection timeout` | Railway **blocks SMTP** on Hobby/Free. Set `MAIL_PROVIDER=resend` + `RESEND_API_KEY` (verify `equvinoxis.com` in Resend), or use `MAIL_PROVIDER=ses`. SMTP only works on Railway **Pro** or locally. |
+| OTP email not sent / `Connection timeout` | Railway **blocks SMTP**. Use `MAIL_PROVIDER=gmail` + `GMAIL_*` OAuth vars (HTTPS Gmail API). Full steps: `SERVER/GMAIL_OAUTH_SETUP.md`. |
 | Images 404 after redeploy | Add Railway Volume or migrate to S3 |
 | CORS errors | Ensure `ServerUrl` matches deployed API URL exactly (HTTPS) |
 | Admin login fails | Confirm `ADMIN_EMAIL`/`ADMIN_PASSWORD` set; check MongoDB `admin` collection |

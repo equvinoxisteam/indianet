@@ -1,8 +1,10 @@
 import nodemailer from 'nodemailer'
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses'
+import { isGmailApiConfigured, sendViaGmailApi } from './gmailApi.js'
 
 function parseFromAddress(from) {
-    const raw = from || process.env.MAIL_FROM || `Indianet <${process.env.MAIL_USER}>`
+    const gmailUser = process.env.GMAIL_USER || process.env.MAIL_USER
+    const raw = from || process.env.MAIL_FROM || (gmailUser ? `Indianet <${gmailUser}>` : '')
     const match = String(raw).match(/^(.+?)\s*<([^>]+)>$/)
     if (match) {
         return { name: match[1].trim(), email: match[2].trim(), formatted: raw }
@@ -12,7 +14,8 @@ function parseFromAddress(from) {
 
 export function getMailProvider() {
     const explicit = (process.env.MAIL_PROVIDER || '').toLowerCase().trim()
-    if (explicit === 'resend' || explicit === 'ses' || explicit === 'smtp') return explicit
+    if (['gmail', 'resend', 'ses', 'smtp'].includes(explicit)) return explicit
+    if (isGmailApiConfigured()) return 'gmail'
     if (process.env.RESEND_API_KEY) return 'resend'
     if (process.env.MAIL_USE_SES === 'true' && process.env.AWS_ACCESS_KEY_ID) return 'ses'
     return 'smtp'
@@ -20,6 +23,7 @@ export function getMailProvider() {
 
 export function isMailConfigured() {
     const provider = getMailProvider()
+    if (provider === 'gmail') return isGmailApiConfigured()
     if (provider === 'resend') return !!process.env.RESEND_API_KEY
     if (provider === 'ses') {
         return !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY)
@@ -110,15 +114,34 @@ async function sendViaSes({ from, to, subject, text, html }) {
     )
 }
 
+function resolveFromHeader(from) {
+    const gmailUser = process.env.GMAIL_USER || process.env.MAIL_USER
+    const parsed = parseFromAddress(from || process.env.MAIL_FROM || `Indianet <${gmailUser}>`)
+
+    if (getMailProvider() === 'gmail' && gmailUser) {
+        const email = gmailUser.toLowerCase()
+        if (parsed.name) {
+            return `${parsed.name} <${email}>`
+        }
+        return email
+    }
+
+    return parsed.formatted
+}
+
 /**
- * Send email via HTTPS API (Resend / SES) or SMTP (local dev / Railway Pro).
- * Railway Hobby/Free blocks outbound SMTP — use MAIL_PROVIDER=resend or ses.
+ * Send email via Gmail API (HTTPS), Resend, SES, or SMTP.
+ * Railway Hobby blocks SMTP — use MAIL_PROVIDER=gmail with OAuth credentials.
  */
 export async function sendMail({ from, to, subject, text, html }) {
     const provider = getMailProvider()
-    const fromHeader = from || process.env.MAIL_FROM || `Indianet <${process.env.MAIL_USER}>`
+    const fromHeader = resolveFromHeader(from)
     const payload = { from: fromHeader, to, subject, text, html }
 
+    if (provider === 'gmail') {
+        await sendViaGmailApi(payload)
+        return
+    }
     if (provider === 'resend') {
         await sendViaResend(payload)
         return
