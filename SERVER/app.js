@@ -8,6 +8,7 @@ import bodyParser from 'body-parser'
 import * as dotenv from 'dotenv'
 import { seedDefaultAdmin } from './Helpers/seedAdmin.js'
 import { isS3Enabled } from './Helpers/s3Client.js'
+import { getMailProvider, isMailConfigured } from './Helpers/mailService.js'
 dotenv.config()
 
 var app = express()
@@ -32,6 +33,11 @@ db.connect((err) => {
             console.log('File storage: AWS S3')
         } else {
             console.log('File storage: local disk (./uploads)')
+        }
+        if (isMailConfigured()) {
+            console.log(`Email: ${getMailProvider()} (configured)`)
+        } else {
+            console.warn('Email: not configured — OTP emails will fail')
         }
         seedDefaultAdmin(db.get()).catch((e) => console.error(e))
     }

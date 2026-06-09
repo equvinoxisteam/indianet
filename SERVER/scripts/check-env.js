@@ -1,14 +1,14 @@
 import * as dotenv from 'dotenv'
 import { MongoClient } from 'mongodb'
 import { isS3Enabled, getPublicFileBaseUrl } from '../Helpers/s3Client.js'
-import { isMailConfigured } from '../Helpers/mailService.js'
-import nodemailer from 'nodemailer'
+import { isMailConfigured, getMailProvider } from '../Helpers/mailService.js'
+import { sendMail } from '../Helpers/mailTransport.js'
 
 dotenv.config()
 
 const required = [
     'PORT', 'DB_URL', 'DB_NAME', 'JWT_SECRET',
-    'MAIL_USER', 'MAIL_PASS', 'MAIL_FROM',
+    'MAIL_FROM',
     'ADMIN_MAIL', 'ADMIN_EMAIL', 'ADMIN_PASSWORD',
     'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_REGION', 'AWS_S3_BUCKET', 'S3_PUBLIC_URL',
     'CLIENT_URL', 'CORS_ORIGINS',
@@ -26,11 +26,14 @@ async function testMongo() {
 }
 
 async function testMail() {
-    const t = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS },
+    const to = process.env.ADMIN_MAIL || process.env.MAIL_USER
+    await sendMail({
+        from: process.env.MAIL_FROM,
+        to,
+        subject: 'Indianet mail test',
+        text: 'If you received this, email is working.',
+        html: '<p>If you received this, email is working.</p>',
     })
-    await t.verify()
 }
 
 async function main() {
@@ -41,7 +44,12 @@ async function main() {
         check(key, !!val && String(val).trim().length > 0)
     }
 
-    check('MAIL_USER matches MAIL_FROM', process.env.MAIL_FROM?.includes(process.env.MAIL_USER))
+    check('RESEND_API_KEY', !!process.env.RESEND_API_KEY, 'required on Railway (SMTP blocked)')
+    check('MAIL_USER', !!process.env.MAIL_USER, 'SMTP — local dev only')
+    check('MAIL_PASS', !!process.env.MAIL_PASS, 'SMTP — local dev only')
+    if (process.env.MAIL_USER) {
+        check('MAIL_USER matches MAIL_FROM', process.env.MAIL_FROM?.includes(process.env.MAIL_USER))
+    }
     check('SUPPORT_EMAIL', !!(process.env.SUPPORT_EMAIL || process.env.ADMIN_MAIL), 'optional but set')
 
   console.log('\n=== Optional (not required for your setup) ===')
@@ -59,15 +67,17 @@ async function main() {
 
     console.log(isS3Enabled() ? `OK  S3 — enabled (${getPublicFileBaseUrl()})` : 'FAIL S3 — not configured')
 
+    console.log(`INFO mail provider: ${getMailProvider()}`)
+
     if (isMailConfigured()) {
         try {
             await testMail()
-            console.log('OK  Gmail SMTP — credentials verified')
+            console.log(`OK  Email (${getMailProvider()}) — test message sent to ${process.env.ADMIN_MAIL || process.env.MAIL_USER}`)
         } catch (e) {
-            console.log('FAIL Gmail —', e.message)
+            console.log(`FAIL Email (${getMailProvider()}) —`, e.message)
         }
     } else {
-        console.log('FAIL Gmail — MAIL_USER/MAIL_PASS missing')
+        console.log('FAIL Email — set RESEND_API_KEY or MAIL_USER/MAIL_PASS or SES credentials')
     }
 
     console.log('\n=== CLIENT .env.local (check manually) ===')

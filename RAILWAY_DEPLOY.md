@@ -255,7 +255,7 @@ You do **not** need S3 on day one if you use a Railway volume.
 | Problem | Fix |
 |---------|-----|
 | `Database is unavailable` | Check `DB_URL`, Atlas IP allowlist, password encoding |
-| OTP email not sent | Verify Gmail app password; check Railway logs for `[mail]` errors |
+| OTP email not sent / `Connection timeout` | Railway **blocks SMTP** on Hobby/Free. Set `MAIL_PROVIDER=resend` + `RESEND_API_KEY` (verify `equvinoxis.com` in Resend), or use `MAIL_PROVIDER=ses`. SMTP only works on Railway **Pro** or locally. |
 | Images 404 after redeploy | Add Railway Volume or migrate to S3 |
 | CORS errors | Ensure `ServerUrl` matches deployed API URL exactly (HTTPS) |
 | Admin login fails | Confirm `ADMIN_EMAIL`/`ADMIN_PASSWORD` set; check MongoDB `admin` collection |

@@ -1,15 +1,6 @@
-import nodemailer from 'nodemailer'
+import { sendMail } from './mailTransport.js'
 
-/**
- * Gmail SMTP via App Password (not your normal Gmail password).
- * Create at: https://myaccount.google.com/apppasswords
- */
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-    },
-})
-
-export default transporter
+/** @deprecated Prefer sendTemplatedMail from mailService.js */
+export default {
+    sendMail: (options) => sendMail(options),
+}

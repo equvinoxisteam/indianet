@@ -1,8 +1,6 @@
-import nodeMailer from './nodeMailer.js'
+import { sendMail, isMailConfigured, getMailProvider } from './mailTransport.js'
 
-export function isMailConfigured() {
-    return !!(process.env.MAIL_USER && process.env.MAIL_PASS)
-}
+export { isMailConfigured, getMailProvider }
 
 /**
  * Send HTML + plain-text email via Gmail (MAIL_USER / MAIL_PASS app password).
@@ -15,7 +13,7 @@ export async function sendTemplatedMail({ to, subject, text, html, from }) {
     }
 
     try {
-        await nodeMailer.sendMail({
+        await sendMail({
             from: from || process.env.MAIL_FROM || `Indianet <${process.env.MAIL_USER}>`,
             to,
             subject,
@@ -24,7 +22,8 @@ export async function sendTemplatedMail({ to, subject, text, html, from }) {
         })
         return true
     } catch (err) {
-        console.error('[mail] Send failed:', subject, err?.message || err)
+        const provider = getMailProvider()
+        console.error('[mail] Send failed:', subject, `(${provider})`, err?.message || err)
         return false
     }
 }
