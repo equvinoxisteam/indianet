@@ -9,6 +9,7 @@ import * as dotenv from 'dotenv'
 import { seedDefaultAdmin } from './Helpers/seedAdmin.js'
 import { isS3Enabled } from './Helpers/s3Client.js'
 import { getMailProvider, isMailConfigured } from './Helpers/mailService.js'
+import { ensureOtpTtlIndex } from './Helpers/otpIndex.js'
 dotenv.config()
 
 var app = express()
@@ -39,6 +40,7 @@ db.connect((err) => {
         } else {
             console.warn('Email: not configured — OTP emails will fail')
         }
+        ensureOtpTtlIndex(db.get()).catch((e) => console.error('OTP index:', e.message))
         seedDefaultAdmin(db.get()).catch((e) => console.error(e))
     }
 })

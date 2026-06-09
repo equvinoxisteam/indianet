@@ -33,7 +33,11 @@ function LoginComp() {
                     toast.error('Your seller account is still pending admin approval.')
                 } else {
                     if (response.data.resent) {
-                        toast.success('Resent OTP')
+                        if (response.data.mail) {
+                            toast.success('OTP expired. A new code has been sent to your email.')
+                        } else {
+                            toast.error('OTP expired. Could not send a new code — try Resend code.')
+                        }
                     } else {
                         if (response.data.status) {
                             localStorage.setItem('vendorToken', response.data.token)

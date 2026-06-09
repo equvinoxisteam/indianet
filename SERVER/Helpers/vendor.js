@@ -139,34 +139,19 @@ export default {
     },
     insertOtp: (email, otp, type, otpFor) => {
         return new Promise((resolve, reject) => {
-            db.get().collection(collections.OTP).createIndex({ "createdAt": 1 }, { expireAfterSeconds: 10 }).then((done) => {
-                db.get().collection(collections.OTP).insertOne({
+            const col = db.get().collection(collections.OTP)
+            col.deleteMany({ email, type, for: otpFor }).then(() => {
+                return col.insertOne({
                     createdAt: new Date(),
-                    email: email,
-                    otp: otp,
-                    type: type,
-                    for: otpFor
-                }).then((done) => {
-                    resolve(done)
-                }).catch((err) => {
-                    reject(err)
+                    email,
+                    otp: String(otp),
+                    type,
+                    for: otpFor,
                 })
+            }).then((done) => {
+                resolve(done)
             }).catch((err) => {
-                if (err.code === 85) {
-                    db.get().collection(collections.OTP).insertOne({
-                        createdAt: new Date(),
-                        email: email,
-                        otp: otp,
-                        type: type,
-                        for: otpFor
-                    }).then((done) => {
-                        resolve(done)
-                    }).catch((err) => {
-                        reject(err)
-                    })
-                } else {
-                    reject(err)
-                }
+                reject(err)
             })
         })
     },
@@ -174,7 +159,7 @@ export default {
         return new Promise((resolve, reject) => {
             db.get().collection(collections.OTP).findOne({
                 email: email,
-                otp: otp,
+                otp: String(otp),
                 type: type,
                 for: otpFor
             }).then((data) => {

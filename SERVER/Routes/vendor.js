@@ -270,8 +270,16 @@ router.post('/login', (req, res) => {
                         }
                     })
                 } else {
-                    res.status(200).json({
-                        resent: true
+                    getOTP((otp) => {
+                        if (!otp) {
+                            return res.status(500).json('err')
+                        }
+                        vendor.insertOtp(req.body.email, otp, 'login', 'vendor').then(async () => {
+                            const sent = await sendVendorLoginOtp(req.body.email, otp)
+                            res.status(200).json({ resent: true, mail: sent })
+                        }).catch(() => {
+                            res.status(500).json('err')
+                        })
                     })
                 }
             }).catch(() => {
