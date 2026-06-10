@@ -15,6 +15,22 @@ import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import RfqModal from './RfqModal';
 
+function VendorLogoAvatar({ logo, size = 60 }) {
+  const url = logo ? `${ServerId}${logo}` : null
+  return (
+    <div
+      className={`rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 overflow-hidden${url ? '' : ' bg-primary'}`}
+      style={{ width: size, height: size, minWidth: size }}
+    >
+      {url ? (
+        <img src={url} alt="" className="w-100 h-100" style={{ objectFit: 'cover' }} />
+      ) : (
+        <i className="fa-solid fa-store text-white" style={{ fontSize: '1.8rem' }} />
+      )}
+    </div>
+  )
+}
+
 function ProductComp() {
   const {
     OrderDetails, setOrderDetails,
@@ -81,6 +97,7 @@ function ProductComp() {
   const hasVendorProfile = typeof vendorProfileId === 'string' && vendorProfileId.length === 24
   const showCompanyProfile = product?.showCompanyProfile === true
   const verifiedVendorBadge = product?.verifiedVendorBadge === true
+  const vendorLogo = product?.vendorLogo || ''
   // For RFQ items, we never show buy/cart actions (privacy).
   const canBuyOnline = !canRfq && product?.allowOnline !== false;
   const canBuyCod = !canRfq && product?.allowCod !== false;
@@ -622,12 +639,7 @@ function ProductComp() {
                     <div className="row align-items-center g-3">
                       <div className="col-lg-8">
                         <div className="d-flex align-items-start gap-3">
-                          <div
-                            className="rounded-circle bg-primary d-flex align-items-center justify-content-center flex-shrink-0"
-                            style={{ width: '60px', height: '60px', minWidth: '60px' }}
-                          >
-                            <i className="fa-solid fa-store text-white" style={{ fontSize: '1.8rem' }}></i>
-                          </div>
+                          <VendorLogoAvatar logo={vendorLogo} />
                           <div className="flex-grow-1">
                             <h5 className="font-bold mb-2 d-flex flex-wrap align-items-center gap-2">
                               {product.vendorName || 'Vendor'}
@@ -694,14 +706,7 @@ function ProductComp() {
                   <div className="row align-items-center g-3">
                     <div className="col-lg-8">
                       <div className="d-flex align-items-start gap-3">
-                        {/* Vendor Icon/Logo Placeholder */}
-                        <div 
-                          className="rounded-circle bg-primary d-flex align-items-center justify-content-center flex-shrink-0"
-                          style={{ width: '60px', height: '60px', minWidth: '60px' }}
-                        >
-                          <i className="fa-solid fa-store text-white" style={{ fontSize: '1.8rem' }}></i>
-                        </div>
-                        
+                        <VendorLogoAvatar logo={vendorLogo} />
                         <div className="flex-grow-1">
                           <h5 className="font-bold mb-2 d-flex flex-wrap align-items-center gap-2">
                             {product.vendorName || 'Vendor'}
@@ -712,7 +717,6 @@ function ProductComp() {
                               </span>
                             )}
                           </h5>
-                          
                           {product.vendorEmail && product.vendorEmail !== 'N/A' && (
                             <div className="mb-1">
                               <a href={`mailto:${product.vendorEmail}`} className="text-decoration-none text-secondary small">

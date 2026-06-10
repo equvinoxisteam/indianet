@@ -91,6 +91,7 @@ router.get('/product/:slug/:proId', (req, res, next) => {
                             item.vendorName = vendorData.companyInfo || vendorData.name
                             item.vendorEmail = vendorData.email || 'N/A'
                             item.vendorPhone = vendorData.number || vendorData.phone || 'N/A'
+                            item.vendorLogo = vendorData.logo || ''
                             item.vendorId = String(vendorId)
                             item.showCompanyProfile = access.showCompanyProfile
                             item.verifiedVendorBadge = access.verifiedBadge
