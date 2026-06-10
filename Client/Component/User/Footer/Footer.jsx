@@ -63,9 +63,26 @@ function Footer() {
                             <p className={style.socialNote}>Follow Indianet for product updates, industry news, and seller success stories.</p>
                         </div>
                         <ul className={style.FooterSMicons}>
-                            <li><button type="button" aria-label="Instagram"><i className="fa-brands fa-instagram"></i></button></li>
-                            <li><button type="button" aria-label="YouTube"><i className="fa-brands fa-youtube"></i></button></li>
-                            <li><button type="button" aria-label="LinkedIn"><i className="fa-brands fa-linkedin-in"></i></button></li>
+                            <li>
+                                <a
+                                    href="https://www.instagram.com/equvinoxis?utm_source=qr"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label="Instagram"
+                                >
+                                    <i className="fa-brands fa-instagram" />
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="https://www.linkedin.com/company/equvinoxis/?viewAsMember=true"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label="LinkedIn"
+                                >
+                                    <i className="fa-brands fa-linkedin-in" />
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
