@@ -96,10 +96,9 @@ router.get('/product/:slug/:proId', (req, res, next) => {
                         const vendorData = await vendor.getVendorById(vendorId)
                         if (vendorData) {
                             const access = getPlanAccess(vendorData)
-                            item.vendorName = vendorData.companyInfo || vendorData.name
-                            item.vendorEmail = vendorData.email || 'N/A'
-                            item.vendorPhone = vendorData.number || vendorData.phone || 'N/A'
+                            item.vendorName = vendorData.companyInfo || vendorData.companyName || vendorData.name
                             item.vendorLogo = vendorData.logo || ''
+                            item.vendorWebsite = vendorData.website || ''
                             item.vendorId = String(vendorId)
                             item.showCompanyProfile = access.showCompanyProfile
                             item.verifiedVendorBadge = access.verifiedBadge

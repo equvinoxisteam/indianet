@@ -650,19 +650,11 @@ function ProductComp() {
                                 </span>
                               )}
                             </h5>
-                            {product.vendorEmail && product.vendorEmail !== 'N/A' && (
+                            {product.vendorWebsite && (
                               <div className="mb-1">
-                                <a href={`mailto:${product.vendorEmail}`} className="text-decoration-none text-secondary small">
-                                  <i className="fa-solid fa-envelope me-2 text-primary"></i>
-                                  {product.vendorEmail}
-                                </a>
-                              </div>
-                            )}
-                            {product.vendorPhone && product.vendorPhone !== 'N/A' && (
-                              <div className="mb-1">
-                                <a href={`tel:${product.vendorPhone}`} className="text-decoration-none text-secondary small">
-                                  <i className="fa-solid fa-phone me-2 text-success"></i>
-                                  {product.vendorPhone}
+                                <a href={product.vendorWebsite.startsWith('http') ? product.vendorWebsite : `https://${product.vendorWebsite}`} target="_blank" rel="noopener noreferrer" className="text-decoration-none text-secondary small">
+                                  <i className="fa-solid fa-globe me-2 text-primary" />
+                                  {product.vendorWebsite.replace(/^https?:\/\//, '')}
                                 </a>
                               </div>
                             )}
@@ -717,20 +709,11 @@ function ProductComp() {
                               </span>
                             )}
                           </h5>
-                          {product.vendorEmail && product.vendorEmail !== 'N/A' && (
+                          {product.vendorWebsite && (
                             <div className="mb-1">
-                              <a href={`mailto:${product.vendorEmail}`} className="text-decoration-none text-secondary small">
-                                <i className="fa-solid fa-envelope me-2 text-primary"></i>
-                                {product.vendorEmail}
-                              </a>
-                            </div>
-                          )}
-                          
-                          {product.vendorPhone && product.vendorPhone !== 'N/A' && (
-                            <div className="mb-1">
-                              <a href={`tel:${product.vendorPhone}`} className="text-decoration-none text-secondary small">
-                                <i className="fa-solid fa-phone me-2 text-success"></i>
-                                {product.vendorPhone}
+                              <a href={product.vendorWebsite.startsWith('http') ? product.vendorWebsite : `https://${product.vendorWebsite}`} target="_blank" rel="noopener noreferrer" className="text-decoration-none text-secondary small">
+                                <i className="fa-solid fa-globe me-2 text-primary" />
+                                {product.vendorWebsite.replace(/^https?:\/\//, '')}
                               </a>
                             </div>
                           )}

@@ -108,20 +108,20 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
     )
   }
 
-  const displayName = vendor.companyInfo || vendor.name
+  const displayName = vendor.displayName || vendor.companyInfo || vendor.name
   const logoUrl = vendor.logo ? `${ServerId}${vendor.logo}` : null
   const bannerUrl = vendor.backgroundImage ? `${ServerId}${vendor.backgroundImage}` : null
-  const vendorPhone = vendor.number || vendor.phone || ''
-  const vendorAddress = [vendor.locality, vendor.address, vendor.city, vendor.state, vendor.pinCode, vendor.country]
-    .filter(Boolean)
-    .join(', ')
   const showCompanyProfile = vendor.showCompanyProfile === true
   const verifiedVendorBadge = vendor.verifiedVendorBadge === true
-  const highlights = showCompanyProfile && Array.isArray(vendor.companyHighlights) ? vendor.companyHighlights : []
+  const highlights = Array.isArray(vendor.companyHighlights) ? vendor.companyHighlights.filter(Boolean) : []
   const verifications = verifiedVendorBadge && Array.isArray(vendor.verificationTags) ? vendor.verificationTags : []
-  const markets = showCompanyProfile && Array.isArray(vendor.mainMarkets) ? vendor.mainMarkets : []
-  const certs = showCompanyProfile ? (Array.isArray(vendor.certificateImages) ? vendor.certificateImages : []).slice(0, 5) : []
-  const navTabs = ['home', 'products', ...(showCompanyProfile ? ['company', 'contacts'] : [])]
+  const markets = Array.isArray(vendor.mainMarkets) ? vendor.mainMarkets.filter(Boolean) : []
+  const certs = (Array.isArray(vendor.certificateImages) ? vendor.certificateImages : []).slice(0, 5)
+  const hasQuickFacts = !!(vendor.yearEstablished || vendor.employeesRange || vendor.factorySizeRange || vendor.annualOutputRange || vendor.annualRevenueNote || vendor.exhibitionsNote)
+  const hasSocial = vendor.socialLinks && Object.values(vendor.socialLinks).some((v) => v && String(v).trim())
+  const hasContactsContent = !!(vendor.website || vendor.countryRegion || vendor.businessType || hasSocial)
+  const navTabs = ['home', 'products', ...(showCompanyProfile ? ['company', ...(hasContactsContent ? ['contacts'] : [])] : [])]
+  const aboutText = vendor.companyIntroduction || vendor.description || ''
 
   return (
     <Fragment>
@@ -193,14 +193,14 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
                   </div>
                 </div>
                 <div className="col-lg-4 text-lg-end">
-                  {showCompanyProfile && vendor.email && (
-                    <a className="btn btn-light btn-sm rounded-pill px-3 me-2 mb-2" href={`mailto:${vendor.email}`}>
-                      <i className="fa-solid fa-envelope me-1" /> Contact supplier
-                    </a>
-                  )}
-                  {showCompanyProfile && vendorPhone && (
-                    <a className="btn btn-outline-light btn-sm rounded-pill px-3 mb-2" href={`tel:${vendorPhone}`}>
-                      <i className="fa-solid fa-phone me-1" /> Call
+                  {vendor.website && (
+                    <a
+                      className="btn btn-light btn-sm rounded-pill px-3 mb-2"
+                      href={vendor.website.startsWith('http') ? vendor.website : `https://${vendor.website}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <i className="fa-solid fa-globe me-1" /> Website
                     </a>
                   )}
                 </div>
@@ -232,14 +232,7 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
             {tab === 'home' && (
               <div className="row g-4">
                 <div className="col-lg-8">
-                  {!showCompanyProfile && (
-                    <div className="alert alert-light border mb-4">
-                      <p className="mb-0 small text-muted">
-                        Company profile is not available for this supplier.
-                      </p>
-                    </div>
-                  )}
-                  {highlights.length > 0 && (
+                  {highlights.length > 0 && showCompanyProfile && (
                     <div className="card border-0 shadow-sm mb-4">
                       <div className="card-body">
                         <h5 className="fw-bold mb-3">Why work with us</h5>
@@ -254,25 +247,19 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
                       </div>
                     </div>
                   )}
-                  {showCompanyProfile && (
+                  {aboutText && (
                   <div className="card border-0 shadow-sm">
                     <div className="card-body">
                       <h5 className="fw-bold mb-3">About</h5>
-                      {vendor.companyIntroduction ? (
-                        <div className="text-secondary" style={{ whiteSpace: 'pre-wrap' }}>
-                          {vendor.companyIntroduction}
-                        </div>
-                      ) : vendor.description ? (
-                        <p className="text-secondary mb-0">{vendor.description}</p>
-                      ) : (
-                        <p className="text-muted mb-0">This supplier has not added a detailed introduction yet.</p>
-                      )}
+                      <div className="text-secondary" style={{ whiteSpace: 'pre-wrap' }}>
+                        {aboutText}
+                      </div>
                     </div>
                   </div>
                   )}
                 </div>
                 <div className="col-lg-4">
-                  {showCompanyProfile && (
+                  {showCompanyProfile && hasQuickFacts && (
                   <div className="card border-0 shadow-sm mb-3">
                     <div className="card-body">
                       <h6 className="fw-bold text-uppercase small text-muted mb-3">Quick facts</h6>
@@ -414,21 +401,19 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
               </div>
             )}
 
-            {tab === 'company' && (
+            {tab === 'company' && showCompanyProfile && (
               <div className="row g-4">
                 <div className="col-lg-7">
+                  {(vendor.companyIntroduction || vendor.description) && (
                   <div className="card border-0 shadow-sm mb-4">
                     <div className="card-body">
                       <h5 className="fw-bold mb-3">Company introduction</h5>
-                      {vendor.companyIntroduction ? (
-                        <div className="text-secondary" style={{ whiteSpace: 'pre-wrap' }}>
-                          {vendor.companyIntroduction}
-                        </div>
-                      ) : (
-                        <p className="text-muted">{vendor.description || 'No introduction provided.'}</p>
-                      )}
+                      <div className="text-secondary" style={{ whiteSpace: 'pre-wrap' }}>
+                        {vendor.companyIntroduction || vendor.description}
+                      </div>
                     </div>
                   </div>
+                  )}
                 </div>
                 <div className="col-lg-5">
                   <div className="card border-0 shadow-sm mb-3">
@@ -484,37 +469,34 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
               </div>
             )}
 
-            {tab === 'contacts' && (
+            {tab === 'contacts' && showCompanyProfile && (
               <div className="row g-4">
                 <div className="col-md-6">
                   <div className="card border-0 shadow-sm h-100">
                     <div className="card-body">
-                      <h5 className="fw-bold mb-3">Contact</h5>
-                      {vendor.email && (
+                      <h5 className="fw-bold mb-3">Business contact</h5>
+                      {vendor.businessType && (
                         <p className="mb-2">
-                          <i className="fa-solid fa-envelope text-primary me-2" />
-                          <a href={`mailto:${vendor.email}`}>{vendor.email}</a>
+                          <i className="fa-solid fa-building text-primary me-2" />
+                          {vendor.businessType}
                         </p>
                       )}
-                      {vendorPhone && (
-                        <p className="mb-2">
-                          <i className="fa-solid fa-phone text-success me-2" />
-                          <a href={`tel:${vendorPhone}`}>{vendorPhone}</a>
-                        </p>
-                      )}
-                      {vendorAddress && (
+                      {vendor.countryRegion && (
                         <p className="mb-2">
                           <i className="fa-solid fa-location-dot text-danger me-2" />
-                          <span>{vendorAddress}</span>
+                          {vendor.countryRegion}
                         </p>
                       )}
                       {vendor.website && (
                         <p className="mb-0">
                           <i className="fa-solid fa-globe text-info me-2" />
-                          <a href={vendor.website} target="_blank" rel="noopener noreferrer">
+                          <a href={vendor.website.startsWith('http') ? vendor.website : `https://${vendor.website}`} target="_blank" rel="noopener noreferrer">
                             {vendor.website.replace(/^https?:\/\//, '')}
                           </a>
                         </p>
+                      )}
+                      {!hasContactsContent && (
+                        <p className="text-muted small mb-0">No public contact details added yet.</p>
                       )}
                     </div>
                   </div>

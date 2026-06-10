@@ -452,7 +452,10 @@ function SettingsComp({ venderLogged, setVendorLogged }) {
                         <div className="settingsProfileCard">
                             <div className="vendorPageHeader">
                                 <h1 className="vendorPageTitle">Store profile</h1>
-                                <p className="vendorPageSubtitle">Banner, logo, certificates, and fields shown on your public storefront.</p>
+                                <p className="vendorPageSubtitle">
+                                    Add any fields you like — only what you fill in appears on your public storefront.
+                                    Personal details and bank information are never shown to buyers (admin only).
+                                </p>
                             </div>
 
                             <form onSubmit={updateProfile}>
@@ -903,7 +906,7 @@ function SettingsComp({ venderLogged, setVendorLogged }) {
                         <div>
                             <div className="vendorPageHeader">
                                 <h1 className="vendorPageTitle">Personal details</h1>
-                                <p className="vendorPageSubtitle">KYC address is read-only; update contact email and phone below.</p>
+                                <p className="vendorPageSubtitle">For admin verification only — not shown on your public storefront or to buyers.</p>
                             </div>
                             <div className="settingsProfileCard mb-3" aria-label="address">
                                 <h3 className="settingsProfileCardTitle">Registered address</h3>
@@ -1051,7 +1054,7 @@ function SettingsComp({ venderLogged, setVendorLogged }) {
                         <div aria-label="bankAccount">
                             <div className="vendorPageHeader">
                                 <h1 className="vendorPageTitle">Bank account</h1>
-                                <p className="vendorPageSubtitle">Payout details for your vendor account.</p>
+                                <p className="vendorPageSubtitle">For admin payouts only — not shown on your public storefront or to buyers.</p>
                             </div>
                             <div className="settingsProfileCard">
                                 <form onSubmit={updateBankAccount}>

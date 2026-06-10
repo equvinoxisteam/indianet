@@ -1139,50 +1139,45 @@ router.get('/public/:vendorId', async (req, res) => {
                     ? getVerificationTagsForPlan(getPlanConfig(vendorData.plan))
                     : []
 
-                res.status(200).json({
+                const publicProfile = {
                     _id: vendorData._id,
                     name: vendorData.name,
-                    email: vendorData.email,
-                    phone: vendorData.number || vendorData.phone || '',
-                    number: vendorData.number || vendorData.phone || '',
+                    displayName: vendorData.companyInfo || vendorData.companyName || vendorData.name,
                     website: vendorData.website || '',
                     description: vendorData.description || '',
                     backgroundImage: vendorData.backgroundImage || '',
                     logo: vendorData.logo || '',
-                    companyName: vendorData.companyName || '',
-                    locality: vendorData.locality || '',
-                    pinCode: vendorData.pinCode || '',
-                    address: vendorData.address || '',
-                    city: vendorData.city || '',
-                    state: vendorData.state || '',
-                    country: vendorData.country || '',
-                    companyInfo: vendorData.companyInfo || '',
-                    socialLinks: vendorData.socialLinks || {},
-                    companyIntroduction: vendorData.companyIntroduction || '',
                     businessType: vendorData.businessType || '',
                     yearsInIndustry: vendorData.yearsInIndustry || '',
                     cooperatedSuppliers: vendorData.cooperatedSuppliers || '',
                     countryRegion: vendorData.countryRegion || '',
                     mainCategories: vendorData.mainCategories || '',
-                    mainMarkets: planAccess.showCompanyProfile ? (vendorData.mainMarkets || []) : [],
-                    yearEstablished: planAccess.showCompanyProfile ? (vendorData.yearEstablished || '') : '',
-                    employeesRange: planAccess.showCompanyProfile ? (vendorData.employeesRange || '') : '',
-                    factorySizeRange: planAccess.showCompanyProfile ? (vendorData.factorySizeRange || '') : '',
-                    annualOutputRange: planAccess.showCompanyProfile ? (vendorData.annualOutputRange || '') : '',
-                    verificationTags,
-                    companyHighlights: planAccess.showCompanyProfile ? (vendorData.companyHighlights || []) : [],
-                    certificateImages: planAccess.showCompanyProfile
-                        ? (vendorData.certificateImages || []).slice(0, MAX_VENDOR_STORE_CERTIFICATES)
-                        : [],
+                    socialLinks: vendorData.socialLinks || {},
                     designCustomization: vendorData.designCustomization === true,
                     fullCustomization: vendorData.fullCustomization === true,
-                    annualRevenueNote: planAccess.showCompanyProfile ? (vendorData.annualRevenueNote || '') : '',
-                    exhibitionsNote: planAccess.showCompanyProfile ? (vendorData.exhibitionsNote || '') : '',
+                    verificationTags,
                     showCompanyProfile: planAccess.showCompanyProfile,
                     verifiedVendorBadge: planAccess.verifiedBadge,
                     planLabel: planAccess.planLabel,
-                    status: true
-                })
+                    status: true,
+                }
+
+                if (planAccess.showCompanyProfile) {
+                    Object.assign(publicProfile, {
+                        companyIntroduction: vendorData.companyIntroduction || '',
+                        mainMarkets: vendorData.mainMarkets || [],
+                        yearEstablished: vendorData.yearEstablished || '',
+                        employeesRange: vendorData.employeesRange || '',
+                        factorySizeRange: vendorData.factorySizeRange || '',
+                        annualOutputRange: vendorData.annualOutputRange || '',
+                        companyHighlights: vendorData.companyHighlights || [],
+                        certificateImages: (vendorData.certificateImages || []).slice(0, MAX_VENDOR_STORE_CERTIFICATES),
+                        annualRevenueNote: vendorData.annualRevenueNote || '',
+                        exhibitionsNote: vendorData.exhibitionsNote || '',
+                    })
+                }
+
+                res.status(200).json(publicProfile)
             } else {
                 res.status(200).json({ status: false })
             }
