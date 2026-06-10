@@ -61,6 +61,7 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 if (!isS3Enabled()) {
+    app.use('/uploads', express.static('./uploads'))
     app.use(express.static('./uploads'))
 }
 

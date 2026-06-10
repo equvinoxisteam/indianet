@@ -176,13 +176,16 @@ export default {
             }
             const now = new Date()
             const period = details.period === 'semiannual' ? 'semiannual' : 'annual'
-            db.get().collection(collections.VENDORS).updateOne(
-                { _id: new ObjectId(vendorId) },
-                {
-                    $set: {
-                        planStatus: 'pending',
+            db.get().collection(collections.VENDORS).findOne({ _id: new ObjectId(vendorId) })
+                .then((vendor) => {
+                    if (!vendor) {
+                        reject(new Error('not_found'))
+                        return
+                    }
+                    const updates = {
                         planRequested: planKey,
                         planRequestedAt: now,
+                        planUpgradePending: true,
                         planRequestDetails: {
                             name: details.name || '',
                             email: details.email || '',
@@ -193,9 +196,17 @@ export default {
                             currency: details.currency || '',
                             price: details.price || '',
                         },
-                    },
-                }
-            ).then(() => resolve({ plan: planKey, period })).catch(() => reject())
+                    }
+                    if (vendor.planStatus !== 'active') {
+                        updates.planStatus = 'pending'
+                    }
+                    return db.get().collection(collections.VENDORS).updateOne(
+                        { _id: new ObjectId(vendorId) },
+                        { $set: updates }
+                    )
+                })
+                .then(() => resolve({ plan: planKey, period }))
+                .catch(() => reject())
         })
     },
 
@@ -281,7 +292,7 @@ export default {
 
     getPendingPlanVendors(skip = 0, limit = 20) {
         return db.get().collection(collections.VENDORS)
-            .find({ planStatus: 'pending' })
+            .find({ $or: [{ planStatus: 'pending' }, { planUpgradePending: true }] })
             .sort({ planRequestedAt: -1 })
             .skip(parseInt(skip, 10))
             .limit(limit)
@@ -289,7 +300,9 @@ export default {
     },
 
     countPendingPlanVendors() {
-        return db.get().collection(collections.VENDORS).countDocuments({ planStatus: 'pending' })
+        return db.get().collection(collections.VENDORS).countDocuments({
+            $or: [{ planStatus: 'pending' }, { planUpgradePending: true }],
+        })
     },
 
     getPlanLabel(planKey) {

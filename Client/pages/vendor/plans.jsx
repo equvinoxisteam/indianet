@@ -235,6 +235,12 @@ export default function VendorPlans() {
                             )}
                         </div>
                     )}
+                    {vendorData?.planAccess?.isPending && vendorData?.planAccess?.isActive && (
+                        <div className="alert alert-warning">
+                            <strong>Upgrade request pending.</strong> You requested {vendorData.planAccess.planRequestedLabel || vendorData.planAccess.planRequested}.
+                            Your current plan stays active until admin confirms payment and switches you over.
+                        </div>
+                    )}
                     {vendorData?.planAccess?.isPending && !vendorData?.planAccess?.isActive && (
                         <div className="alert alert-warning">
                             <strong>Plan request pending.</strong> You requested {vendorData.planAccess.planRequestedLabel || vendorData.planAccess.planRequested}.

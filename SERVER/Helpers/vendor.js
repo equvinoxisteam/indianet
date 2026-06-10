@@ -324,7 +324,7 @@ export default {
     },
     getPublicVendorProductCount: (vendorId, search) => {
         return new Promise((resolve, reject) => {
-            const filter = { vendor: true, vendorId: vendorId }
+            const filter = { vendor: true, vendorId: vendorId, publishStatus: 'published' }
             if (search && String(search).trim()) {
                 filter.name = { $regex: String(search).trim(), $options: 'i' }
             }
@@ -337,7 +337,7 @@ export default {
     },
     getPublicVendorProducts: (vendorId, skip, limit, search) => {
         return new Promise(async (resolve, reject) => {
-            const filter = { vendor: true, vendorId: vendorId }
+            const filter = { vendor: true, vendorId: vendorId, publishStatus: 'published' }
             if (search && String(search).trim()) {
                 filter.name = { $regex: String(search).trim(), $options: 'i' }
             }
