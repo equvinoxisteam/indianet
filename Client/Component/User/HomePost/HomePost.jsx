@@ -341,47 +341,44 @@ function HomePost({ layout }) {
                             1205: { slidesPerView: 5 },
                         }}
                     >
-                            {
-                                sectionFourItems.map((obj, key) => {
-                                    if (obj._id !== undefined) {
-                                        return (
-                                            <SwiperSlide key={key}>
-                                                <div className={style.usrLastHmMainDiv}>
-                                                    <Link href={`/p/${obj.slug}/${obj._id}`} className="LinkTagNonDec">
-                                                        <div className={style.usrLastHmGrid}>
-                                                            <div>
-                                                                <div className={style.UsrImgdivHomeLast}>
-                                                                    <img
-                                                                        src={`${ServerId}/product/${obj.uni_id_1}${obj.uni_id_2}/${obj.files[0].filename}`}
-                                                                        loading="lazy" alt={obj.name}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            <div className='flex-grow-1 p-2'>
-                                                                <h6 className={style.category}>{obj.category}</h6>
-                                                                <h6 className={style.proName + ' oneLineTxt'}>{obj.name}</h6>
-                                                                <div className={style.PriceSpan}>
-                                                                    {obj.allowRfq === true ? (
-                                                                        <span className={style.sale}>RFQ Product</span>
-                                                                    ) : (
-                                                                        <>
-                                                                            <span className={style.sale}>₹ {obj.price}</span>
-                                                                            <span className={style.mrp}>₹ {obj.mrp}</span>
-                                                                        </>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </Link>
+                            {sectionFourItems.map((obj, key) => (
+                                <SwiperSlide key={key}>
+                                    <div className={style.UserMainProCard}>
+                                        <div className={style.UserMainProimgDiv}>
+                                            {obj.discount > 0 && <span className={style.offerGreen}>{obj.discount}% OFF</span>}
+                                            <Link href={`/p/${obj.slug}/${obj._id}`}>
+                                                <img
+                                                    src={`${ServerId}/product/${obj.uni_id_1}${obj.uni_id_2}/${obj.files[0].filename}`}
+                                                    loading="lazy" alt={obj.name}
+                                                />
+                                            </Link>
+                                            <button type="button" className={style.QuickViewDiv} onClick={() => {
+                                                Server.get('/users/product/' + obj.slug + '/' + obj._id).then((item) => {
+                                                    setQuickVw({ ...QuickVw, active: true, btn: true, product: item.data.product });
+                                                }).catch(() => toast.error('Error'));
+                                            }}>
+                                                Quick View
+                                            </button>
+                                        </div>
+                                        <Link href={`/p/${obj.slug}/${obj._id}`} className="LinkTagNonDec">
+                                            <div className={style.textArea}>
+                                                <h6 className={style.category + ' oneLineTxt'} title={obj.category}>{obj.category}</h6>
+                                                <h6 className={style.proName + ' oneLineTxt'} title={obj.name}>{obj.name}</h6>
+                                                <div className={style.PriceSpan}>
+                                                    {obj.allowRfq === true ? (
+                                                        <span className={style.sale}>RFQ Product</span>
+                                                    ) : (
+                                                        <>
+                                                            <span className={style.sale}>₹ {obj.price}</span>
+                                                            <span className={style.mrp}>₹ {obj.mrp}</span>
+                                                        </>
+                                                    )}
                                                 </div>
-                                            </SwiperSlide>
-                                        )
-                                    } else {
-                                        return null
-                                    }
-
-                                })
-                            }
+                                            </div>
+                                        </Link>
+                                    </div>
+                                </SwiperSlide>
+                            ))}
 
                         </Swiper>
                 </div>

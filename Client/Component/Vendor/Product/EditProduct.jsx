@@ -180,38 +180,54 @@ function EditProduct({
 
           {planAccess?.isActive && (
             <div className='col-md-12'>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={!!productDetails.isShowcase}
-                  onChange={(e) => {
-                    const checked = e.target.checked
-                    if (checked) {
-                      const used = planAccess.showcaseUsed ?? 0
-                      const limit = planAccess.showcaseLimit ?? 0
-                      const alreadyShowcase = !!productDetails.isShowcase
-                      const newUsed = alreadyShowcase ? used : used + 1
-                      if (newUsed >= limit) {
-                        const ok = window.confirm(
-                          `This uses your last showcase slot (${limit} on ${planAccess.planLabel}). ` +
-                          'You cannot change showcased products later unless you upgrade to Pro or Premium. Continue?'
-                        )
-                        if (!ok) return
-                      }
-                    }
-                    setProductDetails({ ...productDetails, isShowcase: checked })
-                  }}
-                  disabled={
+              <div className="vendorShowcaseOption">
+                <label
+                  className={`vendorShowcaseOption__label${
                     productDetails.publishStatus !== 'published' ||
                     (planAccess.showcaseLocked && !planAccess.canChangeShowcase) ||
                     (!productDetails.isShowcase && (planAccess.showcaseUsed ?? 0) >= (planAccess.showcaseLimit ?? 0))
-                  }
-                />
-                {' '}Product showcase ({planAccess.showcaseUsed ?? 0}/{planAccess.showcaseLimit ?? 0} used)
-              </label>
-              {planAccess.showcaseLocked && !planAccess.canChangeShowcase && (
-                <p className="text-muted small mt-1 mb-0">Showcase selection is locked. Upgrade to Pro to change showcased products.</p>
-              )}
+                      ? ' vendorShowcaseOption__label--disabled' : ''
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="vendorShowcaseOption__input"
+                    checked={!!productDetails.isShowcase}
+                    onChange={(e) => {
+                      const checked = e.target.checked
+                      if (checked) {
+                        const used = planAccess.showcaseUsed ?? 0
+                        const limit = planAccess.showcaseLimit ?? 0
+                        const alreadyShowcase = !!productDetails.isShowcase
+                        const newUsed = alreadyShowcase ? used : used + 1
+                        if (newUsed >= limit) {
+                          const ok = window.confirm(
+                            `This uses your last showcase slot (${limit} on ${planAccess.planLabel}). ` +
+                            'You cannot change showcased products later unless you upgrade to Pro or Premium. Continue?'
+                          )
+                          if (!ok) return
+                        }
+                      }
+                      setProductDetails({ ...productDetails, isShowcase: checked })
+                    }}
+                    disabled={
+                      productDetails.publishStatus !== 'published' ||
+                      (planAccess.showcaseLocked && !planAccess.canChangeShowcase) ||
+                      (!productDetails.isShowcase && (planAccess.showcaseUsed ?? 0) >= (planAccess.showcaseLimit ?? 0))
+                    }
+                  />
+                  <span className="vendorShowcaseOption__box" aria-hidden="true" />
+                  <span className="vendorShowcaseOption__text">
+                    Product showcase ({planAccess.showcaseUsed ?? 0}/{planAccess.showcaseLimit ?? 0} used)
+                  </span>
+                </label>
+                {productDetails.publishStatus !== 'published' && (
+                  <p className="vendorShowcaseOption__hint">Publish the product first to enable showcase.</p>
+                )}
+                {planAccess.showcaseLocked && !planAccess.canChangeShowcase && (
+                  <p className="vendorShowcaseOption__hint">Showcase selection is locked. Upgrade to Pro to change showcased products.</p>
+                )}
+              </div>
             </div>
           )}
 

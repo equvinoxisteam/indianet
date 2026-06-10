@@ -53,6 +53,25 @@ function CheckUser(req, res, next) {
     }
 }
 
+/** Attach logged-in user when token is present; guests can still submit RFQs. */
+function optionalUser(req, res, next) {
+    const token = req.headers['x-access-token']
+    if (!token) return next()
+    try {
+        const userTkn = jwt.verify(token, process.env.JWT_SECRET)
+        user.getUser(userTkn._id).then((data) => {
+            if (data) {
+                req.body.userId = data._id.toString()
+                req.body.userName = req.body.userName || data.name || ''
+                req.body.userEmail = req.body.userEmail || data.email || ''
+            }
+            next()
+        }).catch(() => next())
+    } catch {
+        next()
+    }
+}
+
 // Layout & Product 
 
 router.get('/product/:slug/:proId', (req, res, next) => {
@@ -1203,24 +1222,35 @@ router.post('/returnOrder', CheckUser, (req, res) => {
 
 // RFQ
 
-router.post('/submitRfq', CheckUser, (req, res) => {
-    let details = {
-        userId: req.body.userId,
-        userName: req.body.userName,
-        userEmail: req.body.userEmail,
-        userNumber: req.body.userNumber,
+router.post('/submitRfq', optionalUser, (req, res) => {
+    const userName = String(req.body.userName || '').trim()
+    const userEmail = String(req.body.userEmail || '').trim().toLowerCase()
+    const userNumber = String(req.body.userNumber || '').trim()
+
+    if (!req.body.userId && (!userName || !userEmail || !userNumber)) {
+        return res.status(400).json({ error: 'Name, email and phone are required.' })
+    }
+
+    const details = {
+        userId: req.body.userId || null,
+        isGuest: !req.body.userId,
+        userName,
+        userEmail,
+        userNumber,
         productId: req.body.productId,
         productName: req.body.productName,
         productSlug: req.body.productSlug,
         productImage: req.body.productImage,
         vendorId: req.body.vendorId || null,
-        quantity: parseInt(req.body.quantity) || 1,
-        message: req.body.message || ''
+        quantity: parseInt(req.body.quantity, 10) || 1,
+        message: req.body.message || '',
+        variantSize: req.body.variantSize || '',
+        variantDetails: req.body.variantDetails || '',
     }
 
     rfqHelper.createRfq(details).then(() => {
         sendAdminNewRfq(details).catch(() => {})
-        res.status(200).json('done')
+        res.status(200).json({ ok: true })
     }).catch(() => {
         res.status(500).json('err')
     })
