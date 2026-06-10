@@ -170,7 +170,9 @@ export default {
                     }, {
                         $set: {
                             name: details.name,
-                            number: details.number
+                            number: String(details.number || '').replace(/\D/g, '').slice(0, 15),
+                            country: details.country || user.country || 'India',
+                            countryCode: details.countryCode || user.countryCode || '+91',
                         }
                     }).then(() => {
                         resolve(true)

@@ -103,6 +103,13 @@ export default {
     categories: multer({ storage: categoryStorage }),
     extra: multer({ storage: extraStorage }),
     banner: multer({ storage: bannerStorage }),
-    userProfile: multer({ storage: userProfileStorage }),
+    userProfile: multer({
+        storage: userProfileStorage,
+        limits: { fileSize: 2 * 1024 * 1024 },
+        fileFilter(req, file, cb) {
+            const ok = /^image\/(jpeg|jpg|png|gif)$/i.test(file.mimetype)
+            cb(ok ? null : new Error('invalid_image_type'), ok)
+        },
+    }),
     vendorProfile: multer({ storage: vendorProfileStorage }),
 }

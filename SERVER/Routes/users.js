@@ -23,11 +23,19 @@ import layout from "../Helpers/layout.js";
 import uploader from "../Helpers/uploader.js";
 var router = express.Router()
 
-router.post('/uploadProfileImage', CheckUser, uploader.userProfile.single("image"), (req, res) => {
-    user.updateUserProfileImage(req.userId || req.body.userId, req.file.filename).then(() => {
-        res.status(200).json({ status: true, filename: req.file.filename })
-    }).catch(() => {
-        res.status(500).json('err')
+router.post('/uploadProfileImage', CheckUser, (req, res) => {
+    uploader.userProfile.single('image')(req, res, (err) => {
+        if (err) {
+            return res.status(400).json({ status: false, message: err.message || 'upload_failed' })
+        }
+        if (!req.file) {
+            return res.status(400).json({ status: false, message: 'no_file' })
+        }
+        user.updateUserProfileImage(req.userId || req.body.userId, req.file.filename).then(() => {
+            res.status(200).json({ status: true, filename: req.file.filename })
+        }).catch(() => {
+            res.status(500).json('err')
+        })
     })
 })
 
