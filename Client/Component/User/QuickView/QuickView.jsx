@@ -11,11 +11,9 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useRouter } from 'next/router'
-import { userAxios } from '../../../Config/Server'
-import { toast } from 'react-hot-toast'
 
 function QuickView() {
-    const { setQuickVw, QuickVw, setLoginModal, LogOut, userLogged } = useContext(ContentControl)
+    const { setQuickVw, QuickVw } = useContext(ContentControl)
 
     const [images, setImages] = useState([])
 
@@ -207,42 +205,15 @@ function QuickView() {
                                 </div>
                             </div>
 
-                            <div className='qActions' style={{ display: 'flex', gap: '10px' }}>
-                                {QuickVw.product.available === "true" && QuickVw.product.allowRfq !== true ? (
-                                    <button onClick={() => {
-                                        userAxios((server) => {
-                                            server.post('/users/addToWishlist', {
-                                                userId: userLogged?._id || '',
-                                                item: { proId: QuickVw.product._id, price: QuickVw.product.price, mrp: QuickVw.product.mrp, variantSize: QuickVw.product.currVariantSize || '' }
-                                            }).then((res) => {
-                                                if (res.data.login) {
-                                                    LogOut();
-                                                    setLoginModal({ btn: true, active: true, member: true });
-                                                } else {
-                                                    toast.success("Added to wishlist");
-                                                }
-                                            }).catch(() => toast.error("Error"));
-                                        });
-                                    }} className='ShowMoreBtn' style={{ background: '#FF5722', borderColor: '#FF5722' }}>
-                                        Add to Wishlist
-                                    </button>
-                                ) : QuickVw.product.allowRfq === true ? (
-                                    <button onClick={() => {
+                            <div className='qActions'>
+                                <button
+                                    type="button"
+                                    onClick={() => {
                                         navigate.push(`/p/${QuickVw.product.slug}/${QuickVw.product._id}`)
                                         setQuickVw({ ...QuickVw, active: false })
-                                    }} className='ShowMoreBtn' style={{ background: '#FF5722', borderColor: '#FF5722' }}>
-                                        Full Details
-                                    </button>
-                                ) : (
-                                    <button className='ShowMoreBtn' style={{ opacity: 0.5, cursor: 'not-allowed' }} disabled>
-                                        Out of Stock
-                                    </button>
-                                )}
-
-                                <button onClick={() => {
-                                    navigate.push(`/p/${QuickVw.product.slug}/${QuickVw.product._id}`)
-                                    setQuickVw({ ...QuickVw, active: false })
-                                }} className='ShowMoreBtn'>
+                                    }}
+                                    className='ShowMoreBtn'
+                                >
                                     View Full Details
                                 </button>
                             </div>

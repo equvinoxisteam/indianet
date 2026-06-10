@@ -282,15 +282,6 @@ function Header() {
                                 </div>
                                 <div className={style.actionsCol}>
                                     <div className={style.headerActionsRow}>
-                                        <button
-                                            type="button"
-                                            className={style.iconBtn}
-                                            onClick={() => navigate.push('/wishlist')}
-                                            aria-label="Wishlist"
-                                        >
-                                            <i className="fa-solid fa-heart"></i>
-                                        </button>
-
                                         {userLogged.status ? (
                                             <button type="button" className={style.accountBtn} onClick={goAccount}>
                                                 {userLogged.profileImage ? (
@@ -421,9 +412,6 @@ function Header() {
                             </button>
                             <BrandLogo href="/" />
                             <div className={style.mobActions}>
-                                <button type="button" className={style.mobIconBtn} onClick={() => navigate.push('/wishlist')} aria-label="Wishlist">
-                                    <i className="fa-solid fa-heart UserBlackMain"></i>
-                                </button>
                                 <button type="button" className={style.mobIconBtn} onClick={goAccount} aria-label="Account">
                                     {userLogged.status && userLogged.profileImage ? (
                                         <img
