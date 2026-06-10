@@ -13,7 +13,7 @@ import { sendAdminLoginAlert } from "../Helpers/sendAuthEmail.js";
 import tokenShipRocket from '../ShipRocket/token.js'
 import trackProduct, { orderStatusControl } from "../ShipRocket/trackProduct.js";
 import vendorPlan from '../Helpers/vendorPlan.js'
-import { VENDOR_PLAN_KEYS, VENDOR_PLANS } from '../Config/vendorPlans.js'
+import { VENDOR_PLAN_KEYS, VENDOR_PLANS, getPlanCatalogForClient } from '../Config/vendorPlans.js'
 
 var router = express.Router()
 
@@ -862,16 +862,47 @@ router.get('/getVendorPlanRequests', CheckAdmin, async (req, res) => {
 })
 
 router.get('/getVendorPlanCatalog', CheckAdmin, (req, res) => {
-    res.status(200).json({
-        plans: VENDOR_PLAN_KEYS.map((key) => ({ key, ...VENDOR_PLANS[key] })),
-    })
+    res.status(200).json({ plans: getPlanCatalogForClient() })
 })
 
 router.put('/activateVendorPlan', CheckAdmin, async (req, res) => {
-    const { vendorId, plan } = req.body
+    const { vendorId, plan, period, expiresAt, preventAutoDowngrade, downgradeToPlan } = req.body
     if (!vendorId || vendorId.length !== 24) return res.status(400).json('err')
     try {
-        const fields = await vendorPlan.activatePlan(vendorId, plan)
+        const fields = await vendorPlan.activatePlan(vendorId, plan, {
+            period: period === 'semiannual' ? 'semiannual' : 'annual',
+            expiresAt: expiresAt || null,
+            preventAutoDowngrade: !!preventAutoDowngrade,
+            downgradeToPlan: downgradeToPlan || 'free',
+        })
+        res.status(200).json({ status: true, plan: fields.plan, expiresAt: fields.planExpiresAt })
+    } catch {
+        res.status(500).json('err')
+    }
+})
+
+router.put('/updateVendorPlan', CheckAdmin, async (req, res) => {
+    const { vendorId, plan, period, expiresAt, preventAutoDowngrade, downgradeToPlan } = req.body
+    if (!vendorId || vendorId.length !== 24) return res.status(400).json('err')
+    try {
+        const fields = await vendorPlan.updatePlanSubscription(vendorId, {
+            plan,
+            period,
+            expiresAt,
+            preventAutoDowngrade,
+            downgradeToPlan,
+        })
+        res.status(200).json({ status: true, plan: fields.plan, expiresAt: fields.planExpiresAt })
+    } catch {
+        res.status(500).json('err')
+    }
+})
+
+router.put('/downgradeVendorPlan', CheckAdmin, async (req, res) => {
+    const { vendorId, toPlan } = req.body
+    if (!vendorId || vendorId.length !== 24) return res.status(400).json('err')
+    try {
+        const fields = await vendorPlan.downgradePlan(vendorId, toPlan || 'free')
         res.status(200).json({ status: true, plan: fields.plan })
     } catch {
         res.status(500).json('err')
@@ -882,7 +913,7 @@ router.put('/deactivateVendorPlan', CheckAdmin, async (req, res) => {
     const { vendorId } = req.body
     if (!vendorId || vendorId.length !== 24) return res.status(400).json('err')
     try {
-        await vendorPlan.deactivatePlan(vendorId)
+        await vendorPlan.downgradePlan(vendorId, 'free')
         res.status(200).json({ status: true })
     } catch {
         res.status(500).json('err')

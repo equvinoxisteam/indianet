@@ -9,7 +9,9 @@ function DashboardComp({ response }) {
     const rfqTotal = analytics.rfqTotal ?? 0
     const responseRate = rfqTotal > 0 ? Math.round((rfqResponded / rfqTotal) * 100) : 0
     const showcaseUsed = plan.showcaseUsed ?? 0
+    const showcaseUnlimited = !!plan.showcaseUnlimited
     const showcaseLimit = plan.showcaseLimit ?? 0
+    const showcaseDisplay = showcaseUnlimited ? `${showcaseUsed} / Unlimited` : `${showcaseUsed} / ${showcaseLimit}`
 
     return (
         <div className='containerVendor'>
@@ -44,6 +46,12 @@ function DashboardComp({ response }) {
                             <div className="cardDash">
                                 <h6>Plan</h6>
                                 <h5>{plan.planLabel}</h5>
+                                {plan.planExpiresAt && (
+                                    <p className="text-muted small mb-0">
+                                        Until {new Date(plan.planExpiresAt).toLocaleDateString()}
+                                        {plan.planBillingPeriod === 'semiannual' ? ' (6-month)' : plan.planBillingPeriod === 'annual' ? ' (annual)' : ''}
+                                    </p>
+                                )}
                             </div>
                             <div className="cardDash">
                                 <h6>RFQ quota (month)</h6>
@@ -55,7 +63,7 @@ function DashboardComp({ response }) {
                             </div>
                             <div className="cardDash">
                                 <h6>Showcase slots</h6>
-                                <h5>{showcaseUsed} / {showcaseLimit}</h5>
+                                <h5>{showcaseDisplay}</h5>
                             </div>
                             <div className="cardDash">
                                 <h6>Showcase status</h6>

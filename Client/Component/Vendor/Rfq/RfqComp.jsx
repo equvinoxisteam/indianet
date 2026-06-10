@@ -170,7 +170,9 @@ function RfqComp({ loaded, setLoaded }) {
             <div className="alert alert-light border py-2 mb-3">
               <strong>{planAccess.planLabel}</strong> plan
               {' · '}
-              Showcase: {planAccess.showcaseUsed ?? 0}/{planAccess.showcaseLimit ?? 0}
+              Showcase: {planAccess.showcaseUnlimited
+                ? `${planAccess.showcaseUsed ?? 0} / Unlimited`
+                : `${planAccess.showcaseUsed ?? 0}/${planAccess.showcaseLimit ?? 0}`}
               {planAccess.showcaseLocked && !planAccess.canChangeShowcase && ' (locked)'}
             </div>
           )}

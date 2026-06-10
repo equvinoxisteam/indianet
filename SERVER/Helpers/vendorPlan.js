@@ -6,6 +6,7 @@ import {
     getMonthStart,
     getPlanAccess,
     getPlanConfig,
+    isPlanExpired,
     normalizePlanKey,
     planCanChangeShowcase,
     shouldResetQuota,
@@ -23,6 +24,48 @@ export default {
         return { ...vendor, rfqQuotaUsed: 0, rfqQuotaPeriodStart: getMonthStart() }
     },
 
+    async enforceShowcaseAfterPlanChange(vendorId, vendor) {
+        const access = getPlanAccess(vendor)
+        const limit = access.showcaseLimit
+        if (limit == null) {
+            await db.get().collection(collections.VENDORS).updateOne(
+                { _id: new ObjectId(vendorId) },
+                { $set: { showcaseLocked: false } }
+            )
+            return
+        }
+        const products = await db.get().collection(collections.PRODUCTS)
+            .find({
+                vendor: true,
+                vendorId: String(vendorId),
+                isShowcase: true,
+                publishStatus: 'published',
+            })
+            .sort({ _id: 1 })
+            .toArray()
+
+        if (products.length > limit) {
+            const excessIds = products.slice(limit).map((p) => p._id)
+            await db.get().collection(collections.PRODUCTS).updateMany(
+                { _id: { $in: excessIds } },
+                { $set: { isShowcase: false } }
+            )
+        }
+        await this.syncShowcaseLock(vendorId, vendor)
+    },
+
+    async ensurePlanCurrent(vendor) {
+        if (!vendor?._id) return vendor
+        let current = await this.refreshQuotaIfNeeded(vendor)
+        if (!isPlanExpired(current)) return current
+        if (!current.plan || current.plan === 'free') return current
+        if (current.planPreventAutoDowngrade) return current
+
+        const target = normalizePlanKey(current.planDowngradeTo) || 'free'
+        await this.downgradePlan(current._id.toString(), target)
+        return db.get().collection(collections.VENDORS).findOne({ _id: current._id })
+    },
+
     assertCanPublish(vendor) {
         const access = getPlanAccess(vendor)
         if (!access.isActive) {
@@ -31,7 +74,9 @@ export default {
                 code: 'PLAN_REQUIRED',
                 message: access.isPending
                     ? 'Your plan request is pending admin approval. You can save drafts until your plan is activated.'
-                    : 'An active subscription plan is required to publish products. Choose a plan from the Plans page.',
+                    : access.isExpired
+                        ? 'Your plan has expired. Request a new plan or contact admin.'
+                        : 'An active subscription plan is required to publish products. Choose a plan from the Plans page.',
             }
         }
         return { ok: true, access }
@@ -45,7 +90,9 @@ export default {
                 code: 'PLAN_REQUIRED',
                 message: access.isPending
                     ? 'Your plan request is pending admin approval.'
-                    : 'An active subscription plan is required to respond to RFQs.',
+                    : access.isExpired
+                        ? 'Your plan has expired.'
+                        : 'An active subscription plan is required to respond to RFQs.',
             }
         }
         if (access.rfqQuotaLimit != null && access.rfqQuotaRemaining <= 0) {
@@ -77,6 +124,7 @@ export default {
         if (!access.isActive) {
             return { ok: false, message: 'Active plan required to mark product showcases.' }
         }
+        if (access.showcaseUnlimited) return { ok: true }
         const current = await this.countShowcaseProducts(vendorId, excludeProductId)
         if (current >= access.showcaseLimit) {
             return {
@@ -100,7 +148,15 @@ export default {
 
     async syncShowcaseLock(vendorId, vendor) {
         const access = getPlanAccess(vendor)
-        if (!access.isActive || !access.showcaseLimit) return vendor
+        if (!access.isActive || access.showcaseUnlimited) {
+            if (vendor?.showcaseLocked) {
+                await db.get().collection(collections.VENDORS).updateOne(
+                    { _id: new ObjectId(vendorId) },
+                    { $set: { showcaseLocked: false } }
+                )
+            }
+            return { ...vendor, showcaseLocked: false }
+        }
         const used = await this.countShowcaseProducts(vendorId)
         const shouldLock = used >= access.showcaseLimit
         if (!!vendor.showcaseLocked === shouldLock) return vendor
@@ -119,6 +175,7 @@ export default {
                 return
             }
             const now = new Date()
+            const period = details.period === 'semiannual' ? 'semiannual' : 'annual'
             db.get().collection(collections.VENDORS).updateOne(
                 { _id: new ObjectId(vendorId) },
                 {
@@ -131,14 +188,14 @@ export default {
                             email: details.email || '',
                             phone: details.phone || '',
                             company: details.company || '',
-                            period: details.period || 'annual',
+                            period,
                             country: details.country || '',
                             currency: details.currency || '',
                             price: details.price || '',
                         },
                     },
                 }
-            ).then(() => resolve({ plan: planKey })).catch(() => reject())
+            ).then(() => resolve({ plan: planKey, period })).catch(() => reject())
         })
     },
 
@@ -157,48 +214,62 @@ export default {
         })
     },
 
-    activatePlan(vendorId, planKey) {
-        return new Promise((resolve, reject) => {
-            const fields = buildActivationFields(planKey)
-            if (!fields) {
-                reject(new Error('invalid_plan'))
-                return
-            }
-            db.get().collection(collections.VENDORS).updateOne(
-                { _id: new ObjectId(vendorId) },
-                { $set: fields }
-            ).then((result) => {
-                if (result.matchedCount === 0) reject(new Error('not_found'))
-                else resolve(fields)
-            }).catch(reject)
+    async activatePlan(vendorId, planKey, options = {}) {
+        const fields = buildActivationFields(planKey, options)
+        if (!fields) throw new Error('invalid_plan')
+        const result = await db.get().collection(collections.VENDORS).updateOne(
+            { _id: new ObjectId(vendorId) },
+            { $set: fields }
+        )
+        if (result.matchedCount === 0) throw new Error('not_found')
+        const vendor = await db.get().collection(collections.VENDORS).findOne({ _id: new ObjectId(vendorId) })
+        await this.enforceShowcaseAfterPlanChange(vendorId, vendor)
+        return fields
+    },
+
+    async downgradePlan(vendorId, toPlanKey = 'free') {
+        const target = normalizePlanKey(toPlanKey) || 'free'
+        const fields = buildActivationFields(target, { period: 'annual' })
+        if (!fields) throw new Error('invalid_plan')
+        await db.get().collection(collections.VENDORS).updateOne(
+            { _id: new ObjectId(vendorId) },
+            { $set: fields }
+        )
+        const vendor = await db.get().collection(collections.VENDORS).findOne({ _id: new ObjectId(vendorId) })
+        await this.enforceShowcaseAfterPlanChange(vendorId, vendor)
+        return fields
+    },
+
+    async updatePlanSubscription(vendorId, options = {}) {
+        const vendor = await db.get().collection(collections.VENDORS).findOne({ _id: new ObjectId(vendorId) })
+        if (!vendor) throw new Error('not_found')
+
+        const planKey = normalizePlanKey(options.plan) || vendor.plan || 'free'
+        const expiryOverride = options.expiresAt === '' || options.expiresAt == null
+            ? vendor.planExpiresAt
+            : options.expiresAt
+        const fields = buildActivationFields(planKey, {
+            period: options.period || vendor.planBillingPeriod || 'annual',
+            expiresAt: expiryOverride,
+            preventAutoDowngrade: options.preventAutoDowngrade ?? vendor.planPreventAutoDowngrade,
+            downgradeToPlan: options.downgradeToPlan || vendor.planDowngradeTo || 'free',
         })
+
+        if (expiryOverride) {
+            fields.planExpiresAt = new Date(expiryOverride)
+        }
+
+        await db.get().collection(collections.VENDORS).updateOne(
+            { _id: new ObjectId(vendorId) },
+            { $set: fields }
+        )
+        const updated = await db.get().collection(collections.VENDORS).findOne({ _id: new ObjectId(vendorId) })
+        await this.enforceShowcaseAfterPlanChange(vendorId, updated)
+        return fields
     },
 
     deactivatePlan(vendorId) {
-        return new Promise((resolve, reject) => {
-            db.get().collection(collections.VENDORS).updateOne(
-                { _id: new ObjectId(vendorId) },
-                {
-                    $set: {
-                        plan: null,
-                        planStatus: 'none',
-                        planRequested: null,
-                        planRequestedAt: null,
-                        planActivatedAt: null,
-                        planExpiresAt: null,
-                        rfqQuotaLimit: null,
-                        rfqQuotaUsed: 0,
-                        rfqQuotaPeriodStart: null,
-                        showcaseLimit: 0,
-                        showcaseLocked: false,
-                        adsEnabled: false,
-                        verifiedBadge: false,
-                        supplierRating: null,
-                        verificationTags: [],
-                    },
-                }
-            ).then(() => resolve()).catch(reject)
-        })
+        return this.downgradePlan(vendorId, 'free')
     },
 
     incrementRfqQuota(vendorId) {

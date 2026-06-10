@@ -251,7 +251,9 @@ function AddProduct() {
       {planAccess?.isActive && (
         <div className="alert alert-info py-2 mb-3">
           Plan: <strong>{planAccess.planLabel}</strong>
-          {planAccess.showcaseLimit > 0 && (
+          {planAccess.showcaseUnlimited ? (
+            <span> — Showcases: {planAccess.showcaseUsed || 0} / Unlimited</span>
+          ) : planAccess.showcaseLimit > 0 && (
             <span> — Showcases: {planAccess.showcaseUsed || 0}/{planAccess.showcaseLimit}</span>
           )}
         </div>
@@ -295,7 +297,7 @@ function AddProduct() {
                   className={`vendorShowcaseOption__label${
                     productDetails.publishStatus !== 'published' ||
                     (planAccess.showcaseLocked && !planAccess.canChangeShowcase) ||
-                    (!productDetails.isShowcase && (planAccess.showcaseUsed ?? 0) >= (planAccess.showcaseLimit ?? 0))
+                    (!planAccess.showcaseUnlimited && !productDetails.isShowcase && (planAccess.showcaseUsed ?? 0) >= (planAccess.showcaseLimit ?? 0))
                       ? ' vendorShowcaseOption__label--disabled' : ''
                   }`}
                 >
@@ -305,7 +307,7 @@ function AddProduct() {
                     checked={productDetails.isShowcase}
                     onChange={(e) => {
                       const checked = e.target.checked
-                      if (checked) {
+                      if (checked && !planAccess.showcaseUnlimited) {
                         const used = planAccess.showcaseUsed ?? 0
                         const limit = planAccess.showcaseLimit ?? 0
                         if (used + 1 >= limit) {
@@ -321,12 +323,14 @@ function AddProduct() {
                     disabled={
                       productDetails.publishStatus !== 'published' ||
                       (planAccess.showcaseLocked && !planAccess.canChangeShowcase) ||
-                      (!productDetails.isShowcase && (planAccess.showcaseUsed ?? 0) >= (planAccess.showcaseLimit ?? 0))
+                      (!planAccess.showcaseUnlimited && !productDetails.isShowcase && (planAccess.showcaseUsed ?? 0) >= (planAccess.showcaseLimit ?? 0))
                     }
                   />
                   <span className="vendorShowcaseOption__box" aria-hidden="true" />
                   <span className="vendorShowcaseOption__text">
-                    Mark as product showcase ({planAccess.showcaseUsed ?? 0}/{planAccess.showcaseLimit ?? 0} used)
+                    Mark as product showcase ({planAccess.showcaseUnlimited
+                      ? `${planAccess.showcaseUsed ?? 0} / Unlimited`
+                      : `${planAccess.showcaseUsed ?? 0}/${planAccess.showcaseLimit ?? 0} used`})
                   </span>
                 </label>
                 {productDetails.publishStatus !== 'published' && (

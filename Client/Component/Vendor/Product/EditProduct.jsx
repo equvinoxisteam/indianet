@@ -185,7 +185,7 @@ function EditProduct({
                   className={`vendorShowcaseOption__label${
                     productDetails.publishStatus !== 'published' ||
                     (planAccess.showcaseLocked && !planAccess.canChangeShowcase) ||
-                    (!productDetails.isShowcase && (planAccess.showcaseUsed ?? 0) >= (planAccess.showcaseLimit ?? 0))
+                    (!planAccess.showcaseUnlimited && !productDetails.isShowcase && (planAccess.showcaseUsed ?? 0) >= (planAccess.showcaseLimit ?? 0))
                       ? ' vendorShowcaseOption__label--disabled' : ''
                   }`}
                 >
@@ -195,7 +195,7 @@ function EditProduct({
                     checked={!!productDetails.isShowcase}
                     onChange={(e) => {
                       const checked = e.target.checked
-                      if (checked) {
+                      if (checked && !planAccess.showcaseUnlimited) {
                         const used = planAccess.showcaseUsed ?? 0
                         const limit = planAccess.showcaseLimit ?? 0
                         const alreadyShowcase = !!productDetails.isShowcase
@@ -213,12 +213,14 @@ function EditProduct({
                     disabled={
                       productDetails.publishStatus !== 'published' ||
                       (planAccess.showcaseLocked && !planAccess.canChangeShowcase) ||
-                      (!productDetails.isShowcase && (planAccess.showcaseUsed ?? 0) >= (planAccess.showcaseLimit ?? 0))
+                      (!planAccess.showcaseUnlimited && !productDetails.isShowcase && (planAccess.showcaseUsed ?? 0) >= (planAccess.showcaseLimit ?? 0))
                     }
                   />
                   <span className="vendorShowcaseOption__box" aria-hidden="true" />
                   <span className="vendorShowcaseOption__text">
-                    Product showcase ({planAccess.showcaseUsed ?? 0}/{planAccess.showcaseLimit ?? 0} used)
+                    Product showcase ({planAccess.showcaseUnlimited
+                      ? `${planAccess.showcaseUsed ?? 0} / Unlimited`
+                      : `${planAccess.showcaseUsed ?? 0}/${planAccess.showcaseLimit ?? 0} used`})
                   </span>
                 </label>
                 {productDetails.publishStatus !== 'published' && (

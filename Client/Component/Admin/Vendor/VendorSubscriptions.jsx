@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 const PLAN_OPTIONS = [
+    { key: 'free', label: 'Free' },
     { key: 'basic', label: 'Basic' },
     { key: 'plus', label: 'Plus' },
     { key: 'pro', label: 'Pro' },
@@ -21,14 +22,30 @@ function requestedLabel(vendor) {
     return found ? found.label : vendor.planRequested
 }
 
+function periodLabel(period) {
+    if (period === 'semiannual') return '6 months'
+    if (period === 'annual') return '1 year'
+    return '—'
+}
+
+function formatExpiry(vendor) {
+    if (!vendor?.planExpiresAt) return vendor?.plan === 'free' ? 'No expiry' : '—'
+    return new Date(vendor.planExpiresAt).toLocaleDateString()
+}
+
 function VendorSubscriptions({ logOut, onPlanChanged }) {
     const [pending, setPending] = useState([])
     const [pendingTotal, setPendingTotal] = useState(0)
     const [accepted, setAccepted] = useState([])
     const [loading, setLoading] = useState(true)
     const [activatePlan, setActivatePlan] = useState({})
+    const [activatePeriod, setActivatePeriod] = useState({})
     const [manageVendor, setManageVendor] = useState(null)
     const [managePlan, setManagePlan] = useState('basic')
+    const [managePeriod, setManagePeriod] = useState('annual')
+    const [manageExpiresAt, setManageExpiresAt] = useState('')
+    const [managePreventAutoDowngrade, setManagePreventAutoDowngrade] = useState(false)
+    const [manageDowngradeTo, setManageDowngradeTo] = useState('free')
 
     const loadData = () => {
         setLoading(true)
@@ -54,17 +71,29 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
         loadData()
     }, [])
 
-    const activate = (vendor, planKey) => {
+    const openManage = (v) => {
+        setManageVendor(v)
+        setManagePlan(v.plan || v.planRequested || 'basic')
+        setManagePeriod(v.planBillingPeriod || v.planRequestDetails?.period || 'annual')
+        setManageExpiresAt(v.planExpiresAt ? new Date(v.planExpiresAt).toISOString().slice(0, 10) : '')
+        setManagePreventAutoDowngrade(!!v.planPreventAutoDowngrade)
+        setManageDowngradeTo(v.planDowngradeTo || 'free')
+    }
+
+    const activate = (vendor, planKey, period) => {
         const plan = planKey || activatePlan[vendor._id] || vendor.planRequested || 'basic'
+        const billingPeriod = period || activatePeriod[vendor._id] || vendor.planRequestDetails?.period || 'annual'
         adminAxios((server) => {
             server.put('/admin/activateVendorPlan', {
                 vendorId: vendor._id,
                 plan,
+                period: billingPeriod,
             }).then((res) => {
                 if (res.data.login) {
                     logOut()
                 } else {
-                    toast.success(`${vendor.companyName || vendor.adharName}: ${plan} plan activated`)
+                    const exp = res.data.expiresAt ? ` until ${new Date(res.data.expiresAt).toLocaleDateString()}` : ''
+                    toast.success(`${vendor.companyName || vendor.adharName}: ${plan} (${periodLabel(billingPeriod)})${exp}`)
                     loadData()
                     onPlanChanged?.()
                 }
@@ -74,19 +103,46 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
         })
     }
 
-    const deactivate = (vendor) => {
-        if (!window.confirm(`Remove plan access for ${vendor.companyName || vendor.adharName}?`)) return
+    const saveSubscription = () => {
+        if (!manageVendor) return
         adminAxios((server) => {
-            server.put('/admin/deactivateVendorPlan', { vendorId: vendor._id }).then((res) => {
+            server.put('/admin/updateVendorPlan', {
+                vendorId: manageVendor._id,
+                plan: managePlan,
+                period: managePeriod,
+                expiresAt: manageExpiresAt || null,
+                preventAutoDowngrade: managePreventAutoDowngrade,
+                downgradeToPlan: manageDowngradeTo,
+            }).then((res) => {
                 if (res.data.login) {
                     logOut()
                 } else {
-                    toast.success('Plan access removed')
+                    toast.success('Subscription updated')
+                    setManageVendor(null)
                     loadData()
                     onPlanChanged?.()
                 }
             }).catch((err) => {
-                toast.error(apiUnreachableMessage(err) || 'Failed to deactivate')
+                toast.error(apiUnreachableMessage(err) || 'Update failed')
+            })
+        })
+    }
+
+    const downgradeNow = (vendor, toPlan = 'free') => {
+        const label = PLAN_OPTIONS.find((p) => p.key === toPlan)?.label || toPlan
+        if (!window.confirm(`Downgrade ${vendor.companyName || vendor.adharName} to ${label} now? Showcase slots will be trimmed automatically.`)) return
+        adminAxios((server) => {
+            server.put('/admin/downgradeVendorPlan', { vendorId: vendor._id, toPlan }).then((res) => {
+                if (res.data.login) {
+                    logOut()
+                } else {
+                    toast.success(`Downgraded to ${label}`)
+                    setManageVendor(null)
+                    loadData()
+                    onPlanChanged?.()
+                }
+            }).catch((err) => {
+                toast.error(apiUnreachableMessage(err) || 'Downgrade failed')
             })
         })
     }
@@ -99,7 +155,10 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
         <div className="vendorSubscriptionsAdmin mt-4">
             <div className="adminPageHeader mb-3">
                 <h2>Vendor Subscriptions</h2>
-                <p>After external payment, activate the plan the vendor requested. Vendors only get RFQ and publish access with an active plan.</p>
+                <p>
+                    Activate plans after external payment. Annual = full yearly price; 6-month = half price + 10%.
+                    When a plan expires the system auto-downgrades unless &quot;Pause auto-downgrade&quot; is on.
+                </p>
             </div>
 
             <div className="settingsProfileCard mb-4">
@@ -114,8 +173,10 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
                                     <th>Company</th>
                                     <th>Email</th>
                                     <th>Requested plan</th>
+                                    <th>Billing</th>
                                     <th>Requested on</th>
                                     <th>Activate as</th>
+                                    <th>Period</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -125,6 +186,7 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
                                         <td>{v.companyName || v.adharName}</td>
                                         <td>{v.email}</td>
                                         <td><strong>{requestedLabel(v)}</strong></td>
+                                        <td>{periodLabel(v.planRequestDetails?.period)}</td>
                                         <td>{v.planRequestedAt ? new Date(v.planRequestedAt).toLocaleDateString() : '—'}</td>
                                         <td>
                                             <select
@@ -132,18 +194,32 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
                                                 value={activatePlan[v._id] || v.planRequested || 'basic'}
                                                 onChange={(e) => setActivatePlan({ ...activatePlan, [v._id]: e.target.value })}
                                             >
-                                                {PLAN_OPTIONS.map((p) => (
+                                                {PLAN_OPTIONS.filter((p) => p.key !== 'free').map((p) => (
                                                     <option key={p.key} value={p.key}>{p.label}</option>
                                                 ))}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select
+                                                className="form-select form-select-sm"
+                                                value={activatePeriod[v._id] || v.planRequestDetails?.period || 'annual'}
+                                                onChange={(e) => setActivatePeriod({ ...activatePeriod, [v._id]: e.target.value })}
+                                            >
+                                                <option value="annual">1 year</option>
+                                                <option value="semiannual">6 months</option>
                                             </select>
                                         </td>
                                         <td>
                                             <button
                                                 type="button"
                                                 className="ActionBtn"
-                                                onClick={() => activate(v, activatePlan[v._id] || v.planRequested)}
+                                                onClick={() => activate(
+                                                    v,
+                                                    activatePlan[v._id] || v.planRequested,
+                                                    activatePeriod[v._id] || v.planRequestDetails?.period
+                                                )}
                                             >
-                                                Activate plan
+                                                Activate
                                             </button>
                                         </td>
                                     </tr>
@@ -163,6 +239,8 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
                                 <th>Company</th>
                                 <th>Email</th>
                                 <th>Current plan</th>
+                                <th>Billing</th>
+                                <th>Expires</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -173,25 +251,25 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
                                     <td>{v.companyName || v.adharName}</td>
                                     <td>{v.email}</td>
                                     <td>{planLabel(v)}</td>
+                                    <td>{periodLabel(v.planBillingPeriod)}</td>
+                                    <td>
+                                        {formatExpiry(v)}
+                                        {v.planPreventAutoDowngrade && (
+                                            <span className="badge bg-secondary ms-1" title="Auto-downgrade paused">Paused</span>
+                                        )}
+                                    </td>
                                     <td>
                                         {v.planStatus === 'active' && <span className="text-success">Active</span>}
                                         {v.planStatus === 'pending' && <span className="text-warning">Pending</span>}
                                         {(!v.planStatus || v.planStatus === 'none') && <span className="text-muted">No plan</span>}
                                     </td>
                                     <td className="d-flex flex-wrap gap-2">
-                                        <button
-                                            type="button"
-                                            className="ActionBtn"
-                                            onClick={() => {
-                                                setManageVendor(v)
-                                                setManagePlan(v.plan || v.planRequested || 'basic')
-                                            }}
-                                        >
-                                            {v.planStatus === 'active' ? 'Change plan' : 'Assign plan'}
+                                        <button type="button" className="ActionBtn" onClick={() => openManage(v)}>
+                                            {v.planStatus === 'active' ? 'Manage' : 'Assign plan'}
                                         </button>
-                                        {v.planStatus === 'active' && (
-                                            <button type="button" className="ActionBtn" onClick={() => deactivate(v)}>
-                                                Revoke
+                                        {v.planStatus === 'active' && v.plan !== 'free' && (
+                                            <button type="button" className="ActionBtn" onClick={() => downgradeNow(v, 'free')}>
+                                                Downgrade
                                             </button>
                                         )}
                                     </td>
@@ -204,30 +282,88 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
 
             {manageVendor && (
                 <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,.45)' }} tabIndex="-1">
-                    <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-dialog modal-dialog-centered modal-lg">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h5 className="modal-title">Manage plan — {manageVendor.companyName || manageVendor.adharName}</h5>
+                                <h5 className="modal-title">Manage subscription — {manageVendor.companyName || manageVendor.adharName}</h5>
                                 <button type="button" className="btn-close" onClick={() => setManageVendor(null)} />
                             </div>
                             <div className="modal-body">
-                                <p className="small text-muted">Vendor pays externally. Switch on the plan here to grant platform access.</p>
-                                <label className="form-label">Plan</label>
-                                <select className="form-select mb-3" value={managePlan} onChange={(e) => setManagePlan(e.target.value)}>
-                                    {PLAN_OPTIONS.map((p) => (
-                                        <option key={p.key} value={p.key}>{p.label}</option>
-                                    ))}
-                                </select>
-                                <button
-                                    type="button"
-                                    className="ActionBtn w-100"
-                                    onClick={() => {
-                                        activate(manageVendor, managePlan)
-                                        setManageVendor(null)
-                                    }}
-                                >
-                                    Activate {PLAN_OPTIONS.find((p) => p.key === managePlan)?.label} plan
-                                </button>
+                                <p className="small text-muted">
+                                    Change plan, set custom expiry, pause auto-downgrade mid-term, or downgrade immediately.
+                                    Showcase slots are enforced automatically when the plan changes.
+                                </p>
+                                <div className="row g-3">
+                                    <div className="col-md-6">
+                                        <label className="form-label">Plan</label>
+                                        <select className="form-select" value={managePlan} onChange={(e) => setManagePlan(e.target.value)}>
+                                            {PLAN_OPTIONS.map((p) => (
+                                                <option key={p.key} value={p.key}>{p.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Billing period</label>
+                                        <select
+                                            className="form-select"
+                                            value={managePeriod}
+                                            onChange={(e) => setManagePeriod(e.target.value)}
+                                            disabled={managePlan === 'free'}
+                                        >
+                                            <option value="annual">1 year (full annual price)</option>
+                                            <option value="semiannual">6 months (half + 10%)</option>
+                                        </select>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Expiry date (optional override)</label>
+                                        <input
+                                            type="date"
+                                            className="form-control"
+                                            value={manageExpiresAt}
+                                            onChange={(e) => setManageExpiresAt(e.target.value)}
+                                            disabled={managePlan === 'free'}
+                                        />
+                                        <div className="form-text">Leave blank to auto-calculate from billing period on save.</div>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Auto-downgrade to</label>
+                                        <select
+                                            className="form-select"
+                                            value={manageDowngradeTo}
+                                            onChange={(e) => setManageDowngradeTo(e.target.value)}
+                                            disabled={managePlan === 'free'}
+                                        >
+                                            {PLAN_OPTIONS.map((p) => (
+                                                <option key={p.key} value={p.key}>{p.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="col-12">
+                                        <div className="form-check">
+                                            <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                id="preventAutoDowngrade"
+                                                checked={managePreventAutoDowngrade}
+                                                onChange={(e) => setManagePreventAutoDowngrade(e.target.checked)}
+                                                disabled={managePlan === 'free'}
+                                            />
+                                            <label className="form-check-label" htmlFor="preventAutoDowngrade">
+                                                Pause auto-downgrade when plan expires (admin must downgrade manually)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="d-flex flex-wrap gap-2 mt-4">
+                                    <button type="button" className="ActionBtn" onClick={saveSubscription}>
+                                        Save subscription
+                                    </button>
+                                    {managePlan !== 'free' && (
+                                        <button type="button" className="ActionBtn" onClick={() => downgradeNow(manageVendor, manageDowngradeTo)}>
+                                            Downgrade now
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>

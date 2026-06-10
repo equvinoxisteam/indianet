@@ -5,7 +5,7 @@ import { sendVendorLoginOtp } from '../Helpers/sendAuthEmail.js'
 import product from "../Helpers/product.js";
 import rfqHelper from "../Helpers/rfq.js";
 import vendorPlan from "../Helpers/vendorPlan.js";
-import { getPlanAccess, getVerificationTagsForPlan, getPlanConfig } from "../Config/vendorPlans.js";
+import { getPlanAccess, getVerificationTagsForPlan, getPlanConfig, getPlanCatalogForClient } from "../Config/vendorPlans.js";
 import db from "../Config/Connection.js";
 import collections from "../Config/Collection.js";
 import { ObjectId } from "mongodb";
@@ -68,10 +68,11 @@ function CheckVendor(req, res, next) {
     try {
         let vendorTkn = jwt.verify(token, process.env.JWT_SECRET)
 
-        vendor.getVendor(vendorTkn._id).then((data) => {
+        vendor.getVendor(vendorTkn._id).then(async (data) => {
             if (data) {
-                req.body.vendorId = data._id.toString()
-                req.query.vendorId = data._id.toString()
+                const current = await vendorPlan.ensurePlanCurrent(data).catch(() => data)
+                req.body.vendorId = current._id.toString()
+                req.query.vendorId = current._id.toString()
                 next()
             } else {
                 res.status(200).json({ login: true })
@@ -107,7 +108,7 @@ router.get('/getDashboard', CheckVendor, async (req, res) => {
     let planAccess = null
     try {
         let vendorDoc = await vendor.getVendor(req.body.vendorId)
-        vendorDoc = await vendorPlan.refreshQuotaIfNeeded(vendorDoc)
+        vendorDoc = await vendorPlan.ensurePlanCurrent(vendorDoc)
         const showcaseUsed = await vendorPlan.countShowcaseProducts(req.body.vendorId)
         planAccess = { ...vendorPlan.getPlanAccess(vendorDoc), showcaseUsed }
     } catch (_) { /* optional */ }
@@ -301,9 +302,10 @@ router.get('/getVendorData', (req, res) => {
         let vendorTkn = jwt.verify(token, process.env.JWT_SECRET)
         vendor.getVendor(vendorTkn._id).then(async (vendorData) => {
             if (vendorData) {
-                const refreshed = await vendorPlan.refreshQuotaIfNeeded(vendorData).catch(() => vendorData)
+                const refreshed = await vendorPlan.ensurePlanCurrent(vendorData).catch(() => vendorData)
+                const showcaseUsed = await vendorPlan.countShowcaseProducts(refreshed._id.toString()).catch(() => 0)
                 vendorData.status = true
-                vendorData.planAccess = vendorPlan.getPlanAccess(refreshed)
+                vendorData.planAccess = { ...vendorPlan.getPlanAccess(refreshed), showcaseUsed }
                 res.status(200).json(vendorData)
             } else {
                 res.status(200).json({
@@ -1017,13 +1019,17 @@ router.put('/quoteRfq', CheckVendor, async (req, res) => {
 router.get('/getPlanAccess', CheckVendor, async (req, res) => {
     try {
         let vendorDoc = await vendor.getVendor(req.body.vendorId)
-        vendorDoc = await vendorPlan.refreshQuotaIfNeeded(vendorDoc)
+        vendorDoc = await vendorPlan.ensurePlanCurrent(vendorDoc)
         const showcaseUsed = await vendorPlan.countShowcaseProducts(req.body.vendorId)
         const access = vendorPlan.getPlanAccess(vendorDoc)
         res.status(200).json({ ...access, showcaseUsed })
     } catch {
         res.status(500).json('err')
     }
+})
+
+router.get('/planCatalog', (req, res) => {
+    res.status(200).json({ plans: getPlanCatalogForClient() })
 })
 
 // Vendor Profile Management
