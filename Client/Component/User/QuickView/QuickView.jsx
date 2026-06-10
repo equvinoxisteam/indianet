@@ -231,7 +231,7 @@ function QuickView() {
                                         navigate.push(`/p/${QuickVw.product.slug}/${QuickVw.product._id}`)
                                         setQuickVw({ ...QuickVw, active: false })
                                     }} className='ShowMoreBtn' style={{ background: '#FF5722', borderColor: '#FF5722' }}>
-                                        Send Enquiry
+                                        Full Details
                                     </button>
                                 ) : (
                                     <button className='ShowMoreBtn' style={{ opacity: 0.5, cursor: 'not-allowed' }} disabled>

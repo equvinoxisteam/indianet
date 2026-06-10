@@ -8,6 +8,7 @@ import Server from '../../../Config/Server'
 import ContentControl from '../../../ContentControl/ContentControl'
 import toast from 'react-hot-toast';
 import { Countries } from '../../../Config/GlobalData';
+import { flushPendingRfq } from '@/Helpers/pendingRfq';
 
 function Login({ LoginModal, setLoginModal }) {
 
@@ -152,6 +153,7 @@ function Login({ LoginModal, setLoginModal }) {
                             setUserLogged(res.data)
                             setLoginModal({ ...LoginModal, active: false })
                             toast.success("Login successful")
+                            flushPendingRfq(res.data)
                         } else {
                             extraErrorRef.current.style.display = 'block'
                             setExtraError('Wrong user data')

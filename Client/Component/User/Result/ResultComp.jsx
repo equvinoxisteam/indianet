@@ -144,7 +144,7 @@ function ResultComp({
                       </div>
                     ) : displayedProducts.map((obj, key) => (
                       <div className={style.UserMainProCard} key={key}>
-                        <div className={style.UserMainProimgDiv + ' text-center'}>
+                        <div className={style.UserMainProimgDiv}>
                           {obj.discount > 0 && <span className={style.offerGreen}>{obj.discount}%</span>}
                           <Link className='LinkTagNonDec' href={'/p/' + obj.slug + '/' + obj._id}>
                             <img src={ServerId + '/product/' + obj.uni_id_1 + obj.uni_id_2 + '/' + obj.files[0].filename} alt={obj.name} loading="lazy" />
@@ -173,13 +173,13 @@ function ResultComp({
                                 setQuickVw({ ...QuickVw, active: true, btn: true, product: item.data.product })
                               }).catch(() => toast.error('Facing An Error'))
                             }}>
-                              <i className="fa-regular fa-eye"></i> Quick View
+                              Quick View
                             </button>
 
                             {obj.allowRfq === true ? (
                                 <Link href={'/p/' + obj.slug + '/' + obj._id} className={style.rfqBtnLink}>
                                   <button className={style.rfqBtn}>
-                                    Send Enquiry
+                                    Full Details
                                   </button>
                                 </Link>
                               ) : obj.available === "true" ? (

@@ -67,7 +67,7 @@ function ProductHead() {
                                 onClick={() => setRfqModalOpen(true)}
                                 disabled={variants.length > 0 && !selectedVariant}
                             >
-                                Send Enquiry
+                                Request Quote
                             </button>
                         </div>
                     </div>

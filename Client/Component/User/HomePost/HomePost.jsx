@@ -33,9 +33,17 @@ function HomePost({ layout }) {
         localStorage.removeItem('token')
     }
 
+    const validItems = (items) => (items || []).filter((obj) => obj?._id !== undefined)
+    const catItems = validItems(sectionone.items)
+    const sectionTwoItems = validItems(sectiontwo.items)
+    const sectionThreeItems = validItems(sectionthree.items)
+    const sectionFourItems = validItems(sectionfour.items)
+    const slider2Items = (sliderTwo.items || []).filter((obj) => obj?.file?.filename)
+
     return (
         <div className={style.HomePost}>
             {/* SECTION 1 - Categories - Full Width */}
+            {catItems.length > 0 && (
             <div className={style.sectionFullWidth}>
                 <div className={style.sectionHeader}>
                     <h2 className='text-center font-bold UserBlackMain mb-2'>{sectionone.title}</h2>
@@ -67,7 +75,7 @@ function HomePost({ layout }) {
                         }}
                     >
                         {
-                            (sectionone.items || []).map((obj, key) => {
+                            catItems.map((obj, key) => {
                                 if (obj._id !== undefined) {
                                     return (
                                         <SwiperSlide key={key}>
@@ -95,8 +103,10 @@ function HomePost({ layout }) {
                     </Swiper>
                 </div>
             </div>
+            )}
 
             {/* SECTION 2 - Products */}
+            {sectionTwoItems.length > 0 && (
             <div className={style.sectionFullWidthBg}>
                 <div className={style.fullWidthContainer}>
                     <div className={style.sectionHeader}>
@@ -118,7 +128,7 @@ function HomePost({ layout }) {
                                 1205: { slidesPerView: 5 },
                             }}
                         >
-                            {(sectiontwo.items || []).map((obj, key) => {
+                            {sectionTwoItems.map((obj, key) => {
                                 if (obj._id !== undefined) {
                                     return (
                                         <SwiperSlide key={key}>
@@ -166,7 +176,7 @@ function HomePost({ layout }) {
                                                         <h6 className={style.proName + ' oneLineTxt'}>{obj.name}</h6>
                                                         <div className={style.PriceSpan}>
                                                             {obj.allowRfq === true ? (
-                                                                <span className={style.sale}>Send Enquiry</span>
+                                                                <span className={style.sale}>RFQ Product</span>
                                                             ) : (
                                                                 <>
                                                                     <span className={style.sale}>₹ {obj.price}</span>
@@ -187,8 +197,10 @@ function HomePost({ layout }) {
                     </div>
                 </div>
             </div>
+            )}
 
             {/* Slider Two - Full Width Banner Slider */}
+            {slider2Items.length > 0 && (
             <div className={style.sliderTwoContainer}>
                 <div className={style.sliderTwoNavPrev} id='slider2-nav-prev'>
                     <i className="fa-solid fa-chevron-left"></i>
@@ -212,7 +224,7 @@ function HomePost({ layout }) {
                     loop={true}
                     className={style.sliderTwoSwiper}
                 >
-                    {(sliderTwo.items || []).map((obj, key) => {
+                    {slider2Items.map((obj, key) => {
                         return (
                             <SwiperSlide key={key}>
                                 <div 
@@ -233,6 +245,7 @@ function HomePost({ layout }) {
                     })}
                 </Swiper>
             </div>
+            )}
 
             {
                 banner?.file?.filename && (
@@ -255,6 +268,7 @@ function HomePost({ layout }) {
             }
 
             {/* SECTION 3 - Products - Full Width */}
+            {sectionThreeItems.length > 0 && (
             <div className={style.sectionFullWidthBg}>
                 <div className={style.sectionHeader}>
                     <h2 className='text-center font-bold UserBlackMain mb-2'>{sectionthree.title}</h2>
@@ -275,7 +289,7 @@ function HomePost({ layout }) {
                             1205: { slidesPerView: 5 },
                         }}
                     >
-                        {(sectionthree.items || []).map((obj, key) => {
+                        {sectionThreeItems.map((obj, key) => {
                             if (obj._id !== undefined) {
                                 return (
                                     <SwiperSlide key={key}>
@@ -327,7 +341,7 @@ function HomePost({ layout }) {
                                                     <h6 className={style.proName + ' oneLineTxt'}>{obj.name}</h6>
                                                     <div className={style.PriceSpan}>
                                                         {obj.allowRfq === true ? (
-                                                            <span className={style.sale}>Send Enquiry</span>
+                                                            <span className={style.sale}>RFQ Product</span>
                                                         ) : (
                                                             <>
                                                                 <span className={style.sale}>₹ {obj.price}</span>
@@ -348,8 +362,10 @@ function HomePost({ layout }) {
                     </Swiper>
                 </div>
             </div>
+            )}
 
             {/* SECTION 4 - Products - Full Width */}
+            {sectionFourItems.length > 0 && (
             <div className={style.sectionFullWidth}>
                 <div className={style.sectionHeader}>
                     <h2 className='text-center font-bold UserBlackMain mb-2'>{sectionfour.title}</h2>
@@ -371,7 +387,7 @@ function HomePost({ layout }) {
                         }}
                     >
                             {
-                                (sectionfour.items || []).map((obj, key) => {
+                                sectionFourItems.map((obj, key) => {
                                     if (obj._id !== undefined) {
                                         return (
                                             <SwiperSlide key={key}>
@@ -391,7 +407,7 @@ function HomePost({ layout }) {
                                                                 <h6 className={style.proName + ' oneLineTxt'}>{obj.name}</h6>
                                                                 <div className={style.PriceSpan}>
                                                                     {obj.allowRfq === true ? (
-                                                                        <span className={style.sale}>Send Enquiry</span>
+                                                                        <span className={style.sale}>RFQ Product</span>
                                                                     ) : (
                                                                         <>
                                                                             <span className={style.sale}>₹ {obj.price}</span>
@@ -415,6 +431,7 @@ function HomePost({ layout }) {
                         </Swiper>
                 </div>
             </div>
+            )}
         </div>
     )
 }

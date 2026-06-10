@@ -398,7 +398,7 @@ function ProductComp() {
 
                   {canRfq && (
                     <button className="btn btn-dark rounded-pill font-bold py-2" onClick={() => setRfqModalOpen(true)}>
-                      Send Enquiry
+                      Request Quote
                     </button>
                   )}
 
@@ -830,7 +830,7 @@ function ProductComp() {
                         });
                       }}
                     >
-                      {obj.allowRfq === true ? 'Send Enquiry' : 'Add to Wishlist'}
+                      {obj.allowRfq === true ? 'Full Details' : 'Add to Wishlist'}
                     </button>
                   </div>
                 </SwiperSlide>

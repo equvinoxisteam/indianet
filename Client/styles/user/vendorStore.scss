@@ -46,6 +46,35 @@
       transform: translateY(-3px);
       box-shadow: $shadow-md !important;
     }
+
+    .vendorStoreProductImg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  .vendorStoreNav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    .d-flex {
+      flex-wrap: nowrap;
+      min-width: min-content;
+    }
+  }
+
+  .vendorStoreHero {
+    .h3 {
+      word-break: break-word;
+    }
+
+    .badge {
+      max-width: 100%;
+      white-space: normal;
+      text-align: left;
+    }
   }
 
   .text-truncate-2 {

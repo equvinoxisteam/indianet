@@ -121,7 +121,7 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
   const verifications = verifiedVendorBadge && Array.isArray(vendor.verificationTags) ? vendor.verificationTags : []
   const markets = showCompanyProfile && Array.isArray(vendor.mainMarkets) ? vendor.mainMarkets : []
   const certs = showCompanyProfile ? (Array.isArray(vendor.certificateImages) ? vendor.certificateImages : []).slice(0, 5) : []
-  const navTabs = ['home', 'products', ...(showCompanyProfile ? ['company'] : []), 'contacts']
+  const navTabs = ['home', 'products', ...(showCompanyProfile ? ['company', 'contacts'] : [])]
 
   return (
     <Fragment>
@@ -193,12 +193,12 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
                   </div>
                 </div>
                 <div className="col-lg-4 text-lg-end">
-                  {vendor.email && (
+                  {showCompanyProfile && vendor.email && (
                     <a className="btn btn-light btn-sm rounded-pill px-3 me-2 mb-2" href={`mailto:${vendor.email}`}>
                       <i className="fa-solid fa-envelope me-1" /> Contact supplier
                     </a>
                   )}
-                  {vendorPhone && (
+                  {showCompanyProfile && vendorPhone && (
                     <a className="btn btn-outline-light btn-sm rounded-pill px-3 mb-2" href={`tel:${vendorPhone}`}>
                       <i className="fa-solid fa-phone me-1" /> Call
                     </a>
@@ -235,7 +235,7 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
                   {!showCompanyProfile && (
                     <div className="alert alert-light border mb-4">
                       <p className="mb-0 small text-muted">
-                        Browse products from this supplier. Full company profile is available on Plus, Pro, and Premium plans.
+                        Company profile is not available for this supplier.
                       </p>
                     </div>
                   )}
@@ -360,7 +360,7 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
                             <div className="card h-100 border-0 shadow-sm vendorStoreProductCard">
                               <div className="ratio ratio-1x1 bg-light">
                                 {imgSrc ? (
-                                  <img src={imgSrc} alt="" className="object-fit-contain p-2" />
+                                  <img src={imgSrc} alt="" className="vendorStoreProductImg" />
                                 ) : (
                                   <div className="d-flex align-items-center justify-content-center h-100 text-muted">
                                     <i className="fa-solid fa-image fa-2x opacity-50" />
