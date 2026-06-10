@@ -1128,10 +1128,12 @@ router.put('/updateProfile', CheckVendor, uploader.vendorProfile.fields([
 })
 
 // Public vendor profile endpoint
-router.get('/public/:vendorId', (req, res) => {
+router.get('/public/:vendorId', async (req, res) => {
     if (req.params['vendorId'].length === 24) {
-        vendor.getVendorById(req.params.vendorId).then((vendorData) => {
+        try {
+            let vendorData = await vendor.getVendorById(req.params.vendorId)
             if (vendorData) {
+                vendorData = await vendorPlan.ensurePlanCurrent(vendorData).catch(() => vendorData)
                 const planAccess = getPlanAccess(vendorData)
                 const verificationTags = planAccess.verifiedBadge
                     ? getVerificationTagsForPlan(getPlanConfig(vendorData.plan))
@@ -1184,9 +1186,9 @@ router.get('/public/:vendorId', (req, res) => {
             } else {
                 res.status(200).json({ status: false })
             }
-        }).catch(() => {
+        } catch {
             res.status(500).json('err')
-        })
+        }
     } else {
         res.status(500).json('err')
     }
