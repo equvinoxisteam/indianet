@@ -142,15 +142,17 @@ export default function VendorPlans() {
         })
     }, [])
 
-    const convert = (inrAmount) => {
+    const planInrAmount = (plan, period) => (
+        period === 'semiannual' ? semiannualPrice(plan.annualPrice) : plan.annualPrice
+    )
+
+    const formatPrice = (inrAmount) => {
         const amount = Math.round((inrAmount || 0) * country.rate)
-        return amount.toLocaleString(country.code === 'IN' ? 'en-IN' : 'en-US')
+        if (!amount) return ''
+        return `${country.symbol}${amount.toLocaleString(country.code === 'IN' ? 'en-IN' : 'en-US')}`
     }
 
-    const priceForPlan = (plan, period) => {
-        const inr = period === 'semiannual' ? semiannualPrice(plan.annualPrice) : plan.annualPrice
-        return convert(inr)
-    }
+    const priceForPlan = (plan, period) => formatPrice(planInrAmount(plan, period))
 
     const periodSuffix = (period) => (period === 'semiannual' ? ' / 6 Months' : ' / Year')
 
@@ -181,7 +183,7 @@ export default function VendorPlans() {
             period: selectedPlan.billingPeriod,
             country: country.name,
             currency: country.currency,
-            price: selectedPlan.calcPrice,
+            price: selectedPlan.calcPrice || '0',
         }).then(() => {
             toast.dismiss(loadToast)
             toast.success('Plan request sent. Admin will activate after external payment.')
@@ -296,16 +298,20 @@ export default function VendorPlans() {
                             <div className="col-12 col-md-6 col-xl-3" key={plan.name}>
                                 <div className={`vendorPricingCard h-100${plan.highlighted ? ' vendorPricingCard--highlighted' : ''}`}>
                                     <h4 className="vendorPricingCardName" style={{ color: plan.color }}>{plan.name}</h4>
-                                    <p className="vendorPricingCardPrice">
-                                        {country.symbol}{priceForPlan(plan, billingView)}
-                                        <span className="vendorPricingCardPeriod">{periodSuffix(billingView)}</span>
-                                    </p>
-                                    {plan.annualPrice > 0 && billingView === 'semiannual' && (
-                                        <p className="small text-muted mb-1">
-                                            Annual equivalent: {country.symbol}{convert(plan.annualPrice)}/year
+                                    {priceForPlan(plan, billingView) && (
+                                        <p className="vendorPricingCardPrice">
+                                            {priceForPlan(plan, billingView)}
+                                            <span className="vendorPricingCardPeriod">{periodSuffix(billingView)}</span>
                                         </p>
                                     )}
-                                    <p className="vendorPricingCardTax">Tax Exclusive</p>
+                                    {plan.annualPrice > 0 && billingView === 'semiannual' && (
+                                        <p className="small text-muted mb-1">
+                                            Annual equivalent: {formatPrice(plan.annualPrice)}/year
+                                        </p>
+                                    )}
+                                    {plan.annualPrice > 0 && (
+                                        <p className="vendorPricingCardTax">Tax Exclusive</p>
+                                    )}
 
                                     {plan.includes && (
                                         <p className="vendorPricingCardIncludes">
@@ -355,27 +361,33 @@ export default function VendorPlans() {
                                     <button type="button" className="btn-close" onClick={() => setShowModal(false)} />
                                 </div>
                                 <div className="modal-body">
-                                    <label className="form-label small">Billing period</label>
-                                    <div className="btn-group mb-3 w-100" role="group">
-                                        <button
-                                            type="button"
-                                            className={`btn btn-sm ${selectedPlan.billingPeriod === 'annual' ? 'btn-primary' : 'btn-outline-primary'}`}
-                                            onClick={() => setModalPeriod('annual')}
-                                        >
-                                            1 year — {country.symbol}{priceForPlan(selectedPlan, 'annual')}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`btn btn-sm ${selectedPlan.billingPeriod === 'semiannual' ? 'btn-primary' : 'btn-outline-primary'}`}
-                                            onClick={() => setModalPeriod('semiannual')}
-                                        >
-                                            6 months — {country.symbol}{priceForPlan(selectedPlan, 'semiannual')}
-                                        </button>
-                                    </div>
-                                    <p className="small text-muted mb-3">
-                                        {country.symbol}{selectedPlan.calcPrice}
-                                        {periodSuffix(selectedPlan.billingPeriod)} ({country.currency}, tax exclusive)
-                                    </p>
+                                    {selectedPlan.annualPrice > 0 && (
+                                        <>
+                                            <label className="form-label small">Billing period</label>
+                                            <div className="btn-group mb-3 w-100" role="group">
+                                                <button
+                                                    type="button"
+                                                    className={`btn btn-sm ${selectedPlan.billingPeriod === 'annual' ? 'btn-primary' : 'btn-outline-primary'}`}
+                                                    onClick={() => setModalPeriod('annual')}
+                                                >
+                                                    1 year — {priceForPlan(selectedPlan, 'annual')}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={`btn btn-sm ${selectedPlan.billingPeriod === 'semiannual' ? 'btn-primary' : 'btn-outline-primary'}`}
+                                                    onClick={() => setModalPeriod('semiannual')}
+                                                >
+                                                    6 months — {priceForPlan(selectedPlan, 'semiannual')}
+                                                </button>
+                                            </div>
+                                            {selectedPlan.calcPrice && (
+                                                <p className="small text-muted mb-3">
+                                                    {selectedPlan.calcPrice}
+                                                    {periodSuffix(selectedPlan.billingPeriod)} ({country.currency}, tax exclusive)
+                                                </p>
+                                            )}
+                                        </>
+                                    )}
                                     <form onSubmit={submitLead}>
                                         <input className="form-control mb-2" required placeholder="Name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                                         <input className="form-control mb-2" required type="email" placeholder="Email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
