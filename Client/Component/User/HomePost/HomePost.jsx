@@ -135,39 +135,18 @@ function HomePost({ layout }) {
                                             <div className={style.UserMainProCard}>
                                                 <div className={style.UserMainProimgDiv}>
                                                     {obj.discount > 0 && <span className={style.offerGreen}>{obj.discount}% OFF</span>}
-                                                    {obj.available === "true" && obj.allowRfq !== true ? (
-                                                        <button className={style.cartBtn} onClick={() => {
-                                                            userAxios((server) => {
-                                                                server.post('/users/addToCart', {
-                                                                    item: { quantity: 1, proId: obj._id, price: obj.price, mrp: obj.mrp }
-                                                                }).then((res) => {
-                                                                    if (res.data.login) {
-                                                                        LogOut();
-                                                                        setLoginModal({ btn: true, active: true, member: true });
-                                                                    } else if (res.data.found) {
-                                                                        toast.error("Already in cart");
-                                                                    } else {
-                                                                        toast.success("Added to cart");
-                                                                        setCartTotal(amt => amt + parseInt(obj.price));
-                                                                    }
-                                                                }).catch(() => toast.error("Error"));
-                                                            });
-                                                        }}><i className="fa-solid fa-cart-plus"></i></button>
-                                                    ) : (
-                                                        <div className={style.cartBtn} style={{ opacity: 0.5, cursor: 'not-allowed' }}><i className="fa-solid fa-lock"></i></div>
-                                                    )}
                                                     <Link href={`/p/${obj.slug}/${obj._id}`}>
                                                         <img
                                                             src={`${ServerId}/product/${obj.uni_id_1}${obj.uni_id_2}/${obj.files[0].filename}`}
                                                             loading="lazy" alt={obj.name}
                                                         />
                                                     </Link>
-                                                    <button className={style.QuickViewDiv} onClick={() => {
+                                                    <button type="button" className={style.QuickViewDiv} onClick={() => {
                                                         Server.get('/users/product/' + obj.slug + '/' + obj._id).then((item) => {
                                                             setQuickVw({ ...QuickVw, active: true, btn: true, product: item.data.product });
                                                         }).catch(() => toast.error('Error'));
                                                     }}>
-                                                        QUICK VIEW
+                                                        Quick View
                                                     </button>
                                                 </div>
                                                 <Link href={`/p/${obj.slug}/${obj._id}`} className="LinkTagNonDec">
@@ -293,45 +272,21 @@ function HomePost({ layout }) {
                             if (obj._id !== undefined) {
                                 return (
                                     <SwiperSlide key={key}>
-                                        <div className={style.UserMainProCard}>
-                                            <div className={style.UserMainProimgDiv}>
-                                                {obj.discount > 0 && <span className={style.offerGreen}>{obj.discount}% OFF</span>}
-                                                
-                                                {obj.available === "true" && obj.allowRfq !== true ? (
-                                                    <button className={style.cartBtn} onClick={() => {
-                                                        userAxios((server) => {
-                                                            server.post('/users/addToCart', {
-                                                                item: { quantity: 1, proId: obj._id, price: obj.price, mrp: obj.mrp }
-                                                            }).then((res) => {
-                                                                if (res.data.login) {
-                                                                    LogOut();
-                                                                    setLoginModal({ btn: true, active: true, member: true });
-                                                                } else if (res.data.found) {
-                                                                    toast.error("Already in cart");
-                                                                } else {
-                                                                    toast.success("Added to cart");
-                                                                    setCartTotal(amt => amt + parseInt(obj.price));
-                                                                }
-                                                            }).catch(() => toast.error("Error"));
-                                                        });
-                                                    }}><i className="fa-solid fa-cart-plus"></i></button>
-                                                ) : (
-                                                    <div className={style.cartBtn} style={{ opacity: 0.5, cursor: 'not-allowed' }}><i className="fa-solid fa-lock"></i></div>
-                                                )}
-
+                                            <div className={style.UserMainProCard}>
+                                                <div className={style.UserMainProimgDiv}>
+                                                    {obj.discount > 0 && <span className={style.offerGreen}>{obj.discount}% OFF</span>}
                                                 <Link href={`/p/${obj.slug}/${obj._id}`}>
                                                     <img
                                                         src={`${ServerId}/product/${obj.uni_id_1}${obj.uni_id_2}/${obj.files[0].filename}`}
                                                         loading="lazy" alt={obj.name}
                                                     />
                                                 </Link>
-                                                
-                                                <button className={style.QuickViewDiv} onClick={() => {
+                                                <button type="button" className={style.QuickViewDiv} onClick={() => {
                                                     Server.get('/users/product/' + obj.slug + '/' + obj._id).then((item) => {
                                                         setQuickVw({ ...QuickVw, active: true, btn: true, product: item.data.product });
                                                     }).catch(() => toast.error('Error'));
                                                 }}>
-                                                    QUICK VIEW
+                                                    Quick View
                                                 </button>
                                             </div>
 
