@@ -218,7 +218,7 @@ export default function VendorPlans() {
                     <div className="vendorPageHeader">
                         <h1 className="vendorPageTitle">Pricing Plans</h1>
                         <p className="vendorPageSubtitle">
-                            Choose annual or 6-month billing. Six-month plans are half the yearly price plus 10%. All prices are tax exclusive.
+                            Choose annual or 6-month billing. All prices are tax exclusive.
                         </p>
                     </div>
 
@@ -271,7 +271,7 @@ export default function VendorPlans() {
                                 className={`btn btn-sm ${billingView === 'semiannual' ? 'btn-primary' : 'btn-outline-primary'}`}
                                 onClick={() => setBillingView('semiannual')}
                             >
-                                6 months (half + 10%)
+                                6 months
                             </button>
                         </div>
                         <div className="d-flex flex-wrap gap-2 align-items-center">
