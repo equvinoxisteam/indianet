@@ -301,6 +301,10 @@ function Header() {
                                                     <i className="fa-solid fa-right-to-bracket"></i>
                                                     <span>Sign In</span>
                                                 </button>
+                                                <Link href="/vendor/login" className={style.signInBtn}>
+                                                    <i className="fa-solid fa-store"></i>
+                                                    <span>Sell Now</span>
+                                                </Link>
                                                 <button type="button" className={style.signUpBtn} onClick={() => openLoginModal(false)}>
                                                     Join Free
                                                 </button>
