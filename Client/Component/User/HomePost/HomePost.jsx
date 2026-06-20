@@ -10,6 +10,7 @@ import Link from 'next/link';
 import Server, { ServerId, userAxios } from '@/Config/Server';
 import ContentControl from '@/ContentControl/ContentControl';
 import toast from 'react-hot-toast';
+import CategoryPath from '@/Component/Common/CategoryPath';
 
 function HomePost({ layout }) {
     const sectionfour = layout?.sectionfour || { title: '', subTitle: '', items: [], items2: [] }
@@ -151,7 +152,7 @@ function HomePost({ layout }) {
                                                 </div>
                                                 <Link href={`/p/${obj.slug}/${obj._id}`} className="LinkTagNonDec">
                                                     <div className={style.textArea}>
-                                                        <h6 className={style.category}>{obj.category}</h6>
+                                                        <CategoryPath category={obj.category} variant="card" />
                                                         <h6 className={style.proName + ' oneLineTxt'}>{obj.name}</h6>
                                                         <div className={style.PriceSpan}>
                                                             {obj.allowRfq === true ? (
@@ -292,7 +293,7 @@ function HomePost({ layout }) {
 
                                             <Link href={`/p/${obj.slug}/${obj._id}`} className="LinkTagNonDec">
                                                 <div className={style.textArea}>
-                                                    <h6 className={style.category}>{obj.category}</h6>
+                                                    <CategoryPath category={obj.category} variant="card" />
                                                     <h6 className={style.proName + ' oneLineTxt'}>{obj.name}</h6>
                                                     <div className={style.PriceSpan}>
                                                         {obj.allowRfq === true ? (
@@ -362,7 +363,7 @@ function HomePost({ layout }) {
                                         </div>
                                         <Link href={`/p/${obj.slug}/${obj._id}`} className="LinkTagNonDec">
                                             <div className={style.textArea}>
-                                                <h6 className={style.category + ' oneLineTxt'} title={obj.category}>{obj.category}</h6>
+                                                <CategoryPath category={obj.category} variant="card" className="oneLineTxt" />
                                                 <h6 className={style.proName + ' oneLineTxt'} title={obj.name}>{obj.name}</h6>
                                                 <div className={style.PriceSpan}>
                                                     {obj.allowRfq === true ? (

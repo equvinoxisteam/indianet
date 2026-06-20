@@ -6,6 +6,7 @@ import style from './ResultComp.module.scss'
 import { useRouter } from 'next/router';
 import ContentControl from '@/ContentControl/ContentControl';
 import toast from 'react-hot-toast';
+import CategoryPath from '@/Component/Common/CategoryPath';
 
 function ResultComp({
   setPageNum, products,
@@ -154,7 +155,7 @@ function ResultComp({
                         <div className='pt-2 textArea d-flex flex-column flex-grow-1 justify-content-between'>
                           <Link className='LinkTagNonDec' href={'/p/' + obj.slug + '/' + obj._id}>
                             <div>
-                              <h6 className={style.UserGrayMain + ' ' + style.categoryLine} style={{ marginBottom: '4px' }}>{obj.category}</h6>
+                              <CategoryPath category={obj.category} variant="card" />
                               <h6 className={style.oneLineTxt + ' ' + style.productTitle}>{obj.name}</h6>
                               {obj.allowRfq === true ? (
                                 <div className={style.PriceSpan}><span className={style.sale + ' ' + style.enquiryText}>RFQ Product</span></div>

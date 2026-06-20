@@ -14,12 +14,26 @@ main {
     // Avoid overflow-x: hidden here — it forces overflow-y: auto and clips header mega-menus over the hero.
 }
 
-// Fluid container padding on small screens
-.container,
+// Full-width layout — use the full viewport with comfortable edge padding
+.container {
+    width: 100%;
+    max-width: 100% !important;
+    padding-left: clamp(0.75rem, 2vw, 2rem);
+    padding-right: clamp(0.75rem, 2vw, 2rem);
+}
+
 .container-fluid {
-    @include respond-to(mobile) {
-        padding-left: 1rem;
-        padding-right: 1rem;
+    width: 100%;
+    max-width: 100%;
+    padding-left: clamp(0.75rem, 2vw, 2rem);
+    padding-right: clamp(0.75rem, 2vw, 2rem);
+}
+
+@media (min-width: 1400px) {
+    .container,
+    .container-fluid {
+        padding-left: clamp(1rem, 2.5vw, 2.5rem);
+        padding-right: clamp(1rem, 2.5vw, 2.5rem);
     }
 }
 

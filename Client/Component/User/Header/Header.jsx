@@ -400,17 +400,19 @@ function Header() {
                 <div className={style.MainMob}>
                     <div className="container">
                         <div className={style.mobTopRow}>
-                            <button className={style.MobMenuBar} type="button" onClick={() => {
-                                setMenuBar({
-                                    ...menuBar,
-                                    active: true,
-                                    btn: true,
-                                    categories: headerCategories
-                                })
-                            }} aria-label="Open menu">
-                                <i className="fa-solid fa-bars UserBlackMain"></i>
-                            </button>
-                            <BrandLogo href="/" />
+                            <div className={style.mobLeftGroup}>
+                                <button className={style.MobMenuBar} type="button" onClick={() => {
+                                    setMenuBar({
+                                        ...menuBar,
+                                        active: true,
+                                        btn: true,
+                                        categories: headerCategories
+                                    })
+                                }} aria-label="Open menu">
+                                    <i className="fa-solid fa-bars UserBlackMain"></i>
+                                </button>
+                                <BrandLogo href="/" />
+                            </div>
                             <div className={style.mobActions}>
                                 <button type="button" className={style.mobIconBtn} onClick={goAccount} aria-label="Account">
                                     {userLogged.status && userLogged.profileImage ? (

@@ -8,6 +8,11 @@
     position: relative;
     z-index: 1000;
     isolation: isolate;
+    --site-header-height: 132px;
+
+    @media (max-width: 767px) {
+        --site-header-height: 108px;
+    }
 }
 
 /* ---- DESKTOP HEADER ---- */
@@ -114,6 +119,7 @@
         .logoCol {
             flex-shrink: 0;
             min-width: 0;
+            justify-self: start;
         }
 
         .searchCol {
@@ -742,9 +748,17 @@
 
         .mobTopRow {
             display: grid;
-            grid-template-columns: 40px 1fr auto;
+            grid-template-columns: 1fr auto;
             align-items: center;
             gap: 8px;
+        }
+
+        .mobLeftGroup {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            justify-self: start;
         }
 
         .mobActions {

@@ -14,6 +14,7 @@ import { useRouter } from 'next/router'
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import RfqModal from './RfqModal';
+import CategoryPath, { splitCategoryPath } from '@/Component/Common/CategoryPath';
 
 function VendorLogoAvatar({ logo, size = 60 }) {
   const url = logo ? `${ServerId}${logo}` : null
@@ -246,8 +247,8 @@ function ProductComp() {
                         <img 
                           src={`${ServerId}/product/${product.uni_id_1}${product.uni_id_2}/${item.filename}`} 
                           alt={product.name}
-                          className="img-fluid"
-                          style={{ maxHeight: '500px', objectFit: 'contain', width: '100%' }}
+                          className="img-fluid w-100 h-100"
+                          style={{ objectFit: 'contain' }}
                         />
                       </div>
                     </SwiperSlide>
@@ -280,9 +281,17 @@ function ProductComp() {
             <div className="col-lg-6">
               <div className="ProductDetail glass-card p-4">
                 <nav aria-label="breadcrumb" className="mb-2">
-                  <ol className="breadcrumb mb-0">
+                  <ol className="breadcrumb mb-0 product-category-breadcrumb">
                     <li className="breadcrumb-item"><Link href="/">Home</Link></li>
-                    <li className="breadcrumb-item active">{product.category}</li>
+                    {splitCategoryPath(product.category).map((part, index, parts) => (
+                      <li
+                        key={`${part}-${index}`}
+                        className={`breadcrumb-item${index === parts.length - 1 ? ' active' : ''}`}
+                        aria-current={index === parts.length - 1 ? 'page' : undefined}
+                      >
+                        {part}
+                      </li>
+                    ))}
                   </ol>
                 </nav>
                 <h1 className="h2 font-bold mb-2 text-dark d-flex flex-wrap align-items-center gap-2">
@@ -785,7 +794,7 @@ function ProductComp() {
                       <div className="Badge position-absolute top-0 start-0 bg-danger text-white small px-2">-{obj.discount}%</div>
                     </div>
                     <div className="p-2 flex-grow-1">
-                      <h6 className='small text-muted mb-1'>{obj.category}</h6>
+                      <CategoryPath category={obj.category} variant="card" className="mb-1" />
                       <h6 className='font-bold small mb-1 text-dark truncate-2'>{obj.name}</h6>
                       <div className='small'>
                         {obj.allowRfq === true ? (

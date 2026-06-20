@@ -14,8 +14,8 @@
 
     .SlideImgDiv {
         width: 100%;
-        height: clamp(320px, 55vw, 720px);
-        min-height: 320px;
+        height: calc(100dvh - var(--site-header-height, 132px));
+        min-height: clamp(360px, 70vh, 520px);
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center;
@@ -24,11 +24,13 @@
         position: relative;
 
         @media (max-width: 991px) {
-            height: clamp(300px, 50vw, 550px);
+            height: calc(100dvh - var(--site-header-height, 120px));
+            min-height: clamp(320px, 62vh, 480px);
             background-position: center right;
         }
         @media (max-width: 767px) {
-            height: clamp(280px, 65vw, 420px);
+            height: calc(100dvh - var(--site-header-height, 108px));
+            min-height: clamp(300px, 58vh, 440px);
             align-items: flex-end;
             padding-bottom: 2rem;
         }
