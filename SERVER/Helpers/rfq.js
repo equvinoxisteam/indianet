@@ -8,7 +8,8 @@ export default {
         return new Promise((resolve, reject) => {
             details.createdAt = new Date()
             details.updatedAt = new Date()
-            details.status = 'pending'
+            details.status = 'approved'
+            details.autoApproved = true
             details.adminNotes = ''
             details.quotedPrice = null
             db.get().collection(collections.RFQ).insertOne(details).then((done) => {

@@ -154,7 +154,7 @@ function RfqComp({ loaded, setLoaded }) {
         <div className="OrdersComp containerVendor">
           <div className="vendorPageHeader">
             <h1 className="vendorPageTitle">Request for quotes</h1>
-            <p className="vendorPageSubtitle">Review enquiries and send pricing</p>
+            <p className="vendorPageSubtitle">New buyer enquiries arrive automatically — respond within your monthly plan quota</p>
           </div>
 
           {planAccess && !planAccess.isActive && (

@@ -101,7 +101,7 @@ function RfqModal({ show, setShow, product, selectedVariant, selectedVariantLabe
           </div>
           <div className='rfq-modal-form'>
             <p className='mb-3'>
-              Your request has been sent. Our team will review it and forward it to the supplier.
+              Your request has been sent to the supplier. They will respond based on their plan quota. Our team also receives a copy for support.
             </p>
             {!userLogged.status && (
               <div className='rfq-login-prompt p-3 mb-3 rounded border'>

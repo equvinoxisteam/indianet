@@ -130,6 +130,10 @@ function RfqComp({ loaded, setLoaded }) {
                 <div className='OrdersComp'>
                     <div className='AdminContainer pb-3'>
 
+                        <div className="alert alert-info text-start small mb-3">
+                            RFQs are auto-sent to vendors by plan quota when buyers submit. You see all requests here — use Rejected only if you need to block one.
+                        </div>
+
                         <div className="BtnsSections text-center pt-3">
                             <div className="row">
                                 <div className="col-12 col-md-4 pb-2">

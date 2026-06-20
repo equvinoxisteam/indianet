@@ -8,6 +8,8 @@ import { toast } from 'react-hot-toast'
 
 import PlanExpiryCountdown from '@/Component/Common/PlanExpiryCountdown'
 
+const Header = dynamic(() => import('@/Component/Vendor/Header/Header'))
+
 /** 6-month price = half of annual + 10% */
 function semiannualPrice(annualPrice) {
     const annual = Number(annualPrice) || 0
