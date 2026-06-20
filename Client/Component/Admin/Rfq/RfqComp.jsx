@@ -203,7 +203,7 @@ function RfqComp({ loaded, setLoaded }) {
             {/* Modal for RFQ Details */}
             {selectedRfq && (
                 <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                    <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">RFQ Details</h5>

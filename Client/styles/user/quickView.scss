@@ -27,6 +27,9 @@
     @media (max-width: 767px) {
         padding: 0.75rem;
         align-items: flex-end;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
     }
 
     .Item {
@@ -34,7 +37,7 @@
         border-radius: $radius-xl;
         width: 100%;
         max-width: 880px;
-        max-height: 90vh;
+        max-height: 90dvh;
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -43,7 +46,7 @@
 
         @media (max-width: 767px) {
             border-radius: $radius-xl $radius-xl 0 0;
-            max-height: 92vh;
+            max-height: 92dvh;
         }
 
         // Header bar

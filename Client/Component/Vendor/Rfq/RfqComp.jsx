@@ -112,7 +112,7 @@ function RfqComp({ loaded, setLoaded }) {
 
     return (
       <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2000 }}>
-        <div className="modal-dialog modal-dialog-centered modal-lg">
+        <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
           <div className="modal-content border-0 shadow-lg rounded-3">
             <div className="modal-header border-0 pb-0">
               <h5 className="modal-title fw-bold">RFQ details</h5>

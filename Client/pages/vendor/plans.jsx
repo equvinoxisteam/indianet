@@ -365,7 +365,7 @@ export default function VendorPlans() {
 
                 {showModal && selectedPlan && (
                     <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,.45)' }} tabIndex="-1">
-                        <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                             <div className="modal-content">
                                 <div className="modal-header">
                                     <h5 className="modal-title">Request {selectedPlan.name} Plan</h5>

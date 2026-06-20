@@ -1,16 +1,26 @@
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    inset: 0;
+    width: 100%;
+    min-height: 100dvh;
     background: rgba($neutral-900, 0.58);
     backdrop-filter: blur(4px);
     z-index: 9999;
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 1rem;
+    align-items: flex-start;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding:
+        max(1rem, env(safe-area-inset-top, 0px))
+        max(1rem, env(safe-area-inset-right, 0px))
+        max(1rem, env(safe-area-inset-bottom, 0px))
+        max(1rem, env(safe-area-inset-left, 0px));
+
+    @media (min-width: 768px) {
+        align-items: center;
+    }
 }
 
 .rfq-login-prompt {
@@ -21,6 +31,12 @@
 .rfq-modal-card {
     max-width: 560px;
     width: 100%;
+    max-height: min(92dvh, calc(100dvh - 2rem));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
+    margin: auto 0;
     padding: 1.5rem;
     border-radius: 18px !important;
     border: 1px solid #e6edf5 !important;
@@ -36,6 +52,10 @@
     gap: 1rem;
     padding-bottom: 0.85rem;
     border-bottom: 1px solid #eef3f8;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
 }
 
 .rfq-modal-title {
@@ -60,6 +80,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     transition: background $transit-fast, color $transit-fast, border-color $transit-fast;
 
     &:hover {
@@ -78,6 +99,7 @@
     padding: 0.85rem;
     border-radius: 12px;
     border: 1px solid #dbe7f3;
+    min-width: 0;
 }
 
 .rfq-modal-product-img {
@@ -88,6 +110,7 @@
     border: 1px solid #e5edf6;
     background: #fff;
     padding: 3px;
+    flex-shrink: 0;
 }
 
 .rfq-modal-product-name {
@@ -95,6 +118,7 @@
     font-size: 0.92rem;
     font-weight: $font-weight-semibold;
     color: $neutral-800;
+    word-break: break-word;
 }
 
 .rfq-modal-product-variant {
@@ -106,6 +130,8 @@
     border: 1px solid #dbe7f3;
     border-radius: 999px;
     padding: 0.18rem 0.55rem;
+    max-width: 100%;
+    word-break: break-word;
 }
 
 .rfq-form-group {
@@ -134,6 +160,7 @@
         min-height: 42px;
         font-size: 0.88rem;
         color: #0f172a;
+        width: 100%;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
         transition: border-color .18s ease, box-shadow .18s ease;
 
@@ -144,7 +171,7 @@
     }
 
     textarea.input-field {
-        min-height: 92px;
+        min-height: 72px;
         resize: vertical;
     }
 }
@@ -161,13 +188,30 @@
 }
 
 @media (max-width: 480px) {
+    .modal-overlay {
+        padding:
+            max(0.75rem, env(safe-area-inset-top, 0px))
+            max(0.75rem, env(safe-area-inset-right, 0px))
+            max(0.75rem, env(safe-area-inset-bottom, 0px))
+            max(0.75rem, env(safe-area-inset-left, 0px));
+    }
+
     .rfq-modal-card {
+        max-height: calc(100dvh - 1.5rem);
         padding: 1.25rem;
+        border-radius: 16px !important;
     }
 
     .rfq-modal-product-img {
         width: 52px;
         height: 52px;
     }
-}
 
+    .rfq-modal-title {
+        font-size: 1.05rem;
+    }
+
+    .rfq-modal-form textarea.input-field {
+        min-height: 64px;
+    }
+}

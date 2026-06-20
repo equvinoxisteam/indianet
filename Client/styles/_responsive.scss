@@ -115,3 +115,34 @@ main {
         margin-bottom: 0;
     }
 }
+
+// ============================================
+// MOBILE-FRIENDLY MODALS & POPUPS
+// ============================================
+
+@include respond-to(mobile) {
+    .modal.show,
+    .modal.fade.show {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+        padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+    }
+
+    .modal-dialog {
+        margin: 0.5rem auto;
+        max-width: calc(100% - 1rem);
+    }
+
+    .modal-dialog-centered {
+        align-items: flex-start;
+        min-height: calc(100% - 1rem);
+    }
+
+    .modal-content {
+        max-height: calc(100dvh - 1rem);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}

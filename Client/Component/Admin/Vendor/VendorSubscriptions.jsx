@@ -353,7 +353,7 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
 
             {manageVendor && (
                 <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,.45)' }} tabIndex="-1">
-                    <div className="modal-dialog modal-dialog-centered modal-lg">
+                    <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">Manage subscription — {manageVendor.companyName || manageVendor.adharName}</h5>
