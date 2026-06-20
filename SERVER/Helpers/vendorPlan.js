@@ -3,6 +3,7 @@ import collections from '../Config/Collection.js'
 import { ObjectId } from 'mongodb'
 import {
     buildActivationFields,
+    computePlanExpiry,
     getMonthStart,
     getPlanAccess,
     getPlanConfig,
@@ -234,7 +235,10 @@ export default {
         if (!fields) throw new Error('invalid_plan')
         const result = await db.get().collection(collections.VENDORS).updateOne(
             { _id: new ObjectId(vendorId) },
-            { $set: fields }
+            {
+                $set: fields,
+                $unset: { planRequestDetails: '' },
+            }
         )
         if (result.matchedCount === 0) throw new Error('not_found')
         const vendor = await db.get().collection(collections.VENDORS).findOne({ _id: new ObjectId(vendorId) })
@@ -260,23 +264,52 @@ export default {
         if (!vendor) throw new Error('not_found')
 
         const planKey = normalizePlanKey(options.plan) || vendor.plan || 'free'
-        const expiryOverride = options.expiresAt === '' || options.expiresAt == null
-            ? vendor.planExpiresAt
-            : options.expiresAt
+        const period = options.period === 'semiannual' ? 'semiannual' : 'annual'
+        const hasCustomExpiry = options.expiresAt != null && String(options.expiresAt).trim() !== ''
+        const previousPlan = normalizePlanKey(vendor.plan)
+        const planTierChanged = planKey !== previousPlan
+        const periodChanged = period !== vendor.planBillingPeriod
+        let useCustomExpiry = hasCustomExpiry
+        if (useCustomExpiry && vendor.planExpiresAt && (planTierChanged || periodChanged)) {
+            const nextExpiry = new Date(options.expiresAt)
+            const currentExpiry = new Date(vendor.planExpiresAt)
+            if (nextExpiry.toDateString() === currentExpiry.toDateString()) {
+                useCustomExpiry = false
+            }
+        }
+
         const fields = buildActivationFields(planKey, {
-            period: options.period || vendor.planBillingPeriod || 'annual',
-            expiresAt: expiryOverride,
+            period,
+            expiresAt: null,
             preventAutoDowngrade: options.preventAutoDowngrade ?? vendor.planPreventAutoDowngrade,
             downgradeToPlan: options.downgradeToPlan || vendor.planDowngradeTo || 'free',
         })
 
-        if (expiryOverride) {
-            fields.planExpiresAt = new Date(expiryOverride)
+        if (planKey === 'free') {
+            fields.planExpiresAt = null
+            fields.planBillingPeriod = null
+        } else if (useCustomExpiry) {
+            fields.planExpiresAt = new Date(options.expiresAt)
+        } else if (planTierChanged || periodChanged || !vendor.planExpiresAt) {
+            fields.planExpiresAt = computePlanExpiry(new Date(), planKey, period, null)
+            fields.planActivatedAt = new Date()
+            fields.planExpiryWarningSentAt = null
+        } else {
+            fields.planExpiresAt = new Date(vendor.planExpiresAt)
+            fields.planActivatedAt = vendor.planActivatedAt || new Date()
+        }
+
+        if (!planTierChanged) {
+            fields.rfqQuotaUsed = vendor.rfqQuotaUsed || 0
+            fields.rfqQuotaPeriodStart = vendor.rfqQuotaPeriodStart || getMonthStart()
         }
 
         await db.get().collection(collections.VENDORS).updateOne(
             { _id: new ObjectId(vendorId) },
-            { $set: fields }
+            {
+                $set: fields,
+                $unset: { planRequestDetails: '' },
+            }
         )
         const updated = await db.get().collection(collections.VENDORS).findOne({ _id: new ObjectId(vendorId) })
         await this.enforceShowcaseAfterPlanChange(vendorId, updated)
