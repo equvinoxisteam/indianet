@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link';
 import style from './Footer.module.scss'
 import BrandLogo from '@/Component/Common/BrandLogo';
+import { SITE_SOCIAL_LINKS } from '@/Config/GlobalData';
 
 function Footer() {
     const [year, setYear] = useState('')
@@ -65,7 +66,7 @@ function Footer() {
                         <ul className={style.FooterSMicons}>
                             <li>
                                 <a
-                                    href="https://www.instagram.com/equvinoxis?utm_source=qr"
+                                    href={SITE_SOCIAL_LINKS.instagram}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-label="Instagram"
@@ -75,7 +76,7 @@ function Footer() {
                             </li>
                             <li>
                                 <a
-                                    href="https://www.linkedin.com/company/equvinoxis/?viewAsMember=true"
+                                    href={SITE_SOCIAL_LINKS.linkedin}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-label="LinkedIn"

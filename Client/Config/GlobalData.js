@@ -197,3 +197,8 @@ export const Countries = [
     { name: "Zambia", code: "+260" },
     { name: "Zimbabwe", code: "+263" }
 ];
+
+export const SITE_SOCIAL_LINKS = {
+    instagram: 'https://www.instagram.com/equvinoxis?utm_source=qr',
+    linkedin: 'https://www.linkedin.com/company/equvinoxis/?viewAsMember=true',
+};

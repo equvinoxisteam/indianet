@@ -4,6 +4,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import React, { Fragment, useState } from 'react'
 import style from './help.module.scss'
+import { SITE_SOCIAL_LINKS } from '@/Config/GlobalData'
 
 const faqs = {
     clients: {
@@ -88,6 +89,20 @@ function Help() {
                                     <div className={style.contactLabel}>Email</div>
                                     <div className={style.contactValue}>
                                         <a href="mailto:team@equvinoxis.com">team@equvinoxis.com</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className={style.contactRow}>
+                                <div className={style.contactIcon}>
+                                    <i className="fa-brands fa-linkedin-in"></i>
+                                </div>
+                                <div>
+                                    <div className={style.contactLabel}>LinkedIn</div>
+                                    <div className={style.contactValue}>
+                                        <a href={SITE_SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer">
+                                            Equvinoxis on LinkedIn
+                                        </a>
                                     </div>
                                 </div>
                             </div>
