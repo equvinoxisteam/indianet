@@ -10,6 +10,7 @@
     min-height: 100vh;
     background: $surface-bg;
     margin-top: 0;
+    overflow-x: hidden;
 
     // ---- SIDEBAR ----
     .VendorSidebar {
@@ -213,6 +214,7 @@
     .containerVendor {
         margin-left: $sidebar-width;
         padding-top: calc(#{$vendor-topbar-height} + 3rem);
+        padding-bottom: 3rem;
         min-height: 100vh;
         @media (max-width: 991px) { margin-left: 0; }
     }

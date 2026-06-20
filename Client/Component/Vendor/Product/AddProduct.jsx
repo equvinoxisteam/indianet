@@ -386,7 +386,7 @@ function AddProduct() {
                   </div>
                 </div>
               ))}
-              <button data-for="variantAdd" type='button' onClick={() => {
+              <button className="editorAddBtn" data-for="variantAdd" type='button' onClick={() => {
                 setProductDetails({
                   ...productDetails,
                   rfqTiers: [...productDetails.rfqTiers, {
@@ -432,7 +432,7 @@ function AddProduct() {
                 </div>
               ))}
               {productDetails['rfqAttributes'].length < 10 && (
-                <button data-for="variantAdd" type='button' onClick={() => {
+                <button className="editorAddBtn" data-for="variantAdd" type='button' onClick={() => {
                     setProductDetails({
                     ...productDetails,
                     rfqAttributes: [...productDetails.rfqAttributes, { key: '', value: '' }]
@@ -496,7 +496,7 @@ function AddProduct() {
                     </div>
                     <div className="col-md-2">
                       <label> </label><br />
-                      <button type="button" onClick={() => {
+                      <button type="button" className="editorRemoveBtn" onClick={() => {
                         setProductDetails({
                           ...productDetails,
                           rfqCertificates: (productDetails.rfqCertificates || []).filter((_, i) => i !== key)
@@ -506,7 +506,7 @@ function AddProduct() {
                   </div>
                 </div>
               ))}
-              <button type="button" data-for="variantAdd" onClick={() => {
+              <button type="button" className="editorAddBtn" data-for="variantAdd" onClick={() => {
                 setProductDetails({
                   ...productDetails,
                   rfqCertificates: [...(productDetails.rfqCertificates || []), { name: '', description: '' }]
@@ -595,7 +595,7 @@ function AddProduct() {
                 )
               })
             }
-            <button data-for="variantAdd" type='button' onClick={() => {
+            <button className="editorAddBtn" data-for="variantAdd" type='button' onClick={() => {
               setProductDetails({
                 ...productDetails,
                 variant: [...productDetails.variant, {
