@@ -175,3 +175,40 @@ export function adminPlanRequest(details) {
     const text = `Plan request: ${details.plan} from ${details.name} (${details.email})`
     return { html, text, subject: `${BRAND} – Vendor plan request: ${details.plan}` }
 }
+
+export function vendorPlanExpiryWarning({ name, planLabel, expiresAt }) {
+    const expiryStr = expiresAt ? new Date(expiresAt).toLocaleString('en-IN') : 'soon'
+    const html = baseLayout({
+        title: `${BRAND} – Plan expiring soon`,
+        preview: `Your ${planLabel} plan expires within 24 hours`,
+        bodyHtml: `
+          <h1 style="margin:0 0 12px;font-size:20px;color:${ACCENT};">Plan expiring soon</h1>
+          <p style="margin:0 0 12px;font-size:14px;line-height:1.7;">
+            Hi ${name || 'Vendor'}, your <strong>${planLabel}</strong> plan on ${BRAND} expires on <strong>${expiryStr}</strong>.
+          </p>
+          <p style="margin:0;font-size:14px;color:#6b7280;">
+            Renew or upgrade from your vendor dashboard to avoid automatic downgrade to the Free plan.
+          </p>
+        `,
+    })
+    const text = `Your ${planLabel} plan expires on ${expiryStr}. Renew from the vendor Plans page.`
+    return { html, text, subject: `${BRAND} – Your plan expires within 24 hours` }
+}
+
+export function vendorPlanExpired({ name, planLabel }) {
+    const html = baseLayout({
+        title: `${BRAND} – Plan ended`,
+        preview: `Your ${planLabel} plan has ended`,
+        bodyHtml: `
+          <h1 style="margin:0 0 12px;font-size:20px;color:${ACCENT};">Plan ended</h1>
+          <p style="margin:0 0 12px;font-size:14px;line-height:1.7;">
+            Hi ${name || 'Vendor'}, your <strong>${planLabel}</strong> plan on ${BRAND} has ended and your account was moved to the <strong>Free</strong> plan.
+          </p>
+          <p style="margin:0;font-size:14px;color:#6b7280;">
+            Request a new plan from the vendor dashboard to restore paid features.
+          </p>
+        `,
+    })
+    const text = `Your ${planLabel} plan has ended. You are now on the Free plan.`
+    return { html, text, subject: `${BRAND} – Your paid plan has ended` }
+}

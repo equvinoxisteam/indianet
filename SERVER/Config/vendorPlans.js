@@ -6,7 +6,7 @@ export const VENDOR_PLANS = {
     free: {
         label: 'Free',
         annualPrice: 0,
-        rfqQuotaMonthly: 5,
+        rfqQuotaMonthly: 2,
         showcaseLimit: 1,
         adsEnabled: false,
         verifiedBadge: false,
@@ -16,7 +16,7 @@ export const VENDOR_PLANS = {
     },
     basic: {
         label: 'Basic',
-        annualPrice: 110000,
+        annualPrice: 165000,
         rfqQuotaMonthly: 20,
         showcaseLimit: 5,
         adsEnabled: false,
@@ -27,7 +27,7 @@ export const VENDOR_PLANS = {
     },
     plus: {
         label: 'Plus',
-        annualPrice: 165000,
+        annualPrice: 247500,
         rfqQuotaMonthly: 40,
         showcaseLimit: 20,
         adsEnabled: 'basic',
@@ -38,7 +38,7 @@ export const VENDOR_PLANS = {
     },
     pro: {
         label: 'Pro',
-        annualPrice: 234000,
+        annualPrice: 351000,
         rfqQuotaMonthly: 60,
         showcaseLimit: 20,
         adsEnabled: 'product',
@@ -49,7 +49,7 @@ export const VENDOR_PLANS = {
     },
     premium: {
         label: 'Premium',
-        annualPrice: 750000,
+        annualPrice: 1125000,
         rfqQuotaMonthly: null,
         showcaseLimit: null,
         adsEnabled: 'full',
@@ -151,6 +151,8 @@ export function buildActivationFields(planKey, options = {}) {
         planPreventAutoDowngrade: !!options.preventAutoDowngrade,
         planDowngradeTo: normalizePlanKey(options.downgradeToPlan) || 'free',
         planUpgradePending: false,
+        planExpiryWarningSentAt: null,
+        planPausedAt: null,
         rfqQuotaLimit: config.rfqQuotaMonthly,
         rfqQuotaUsed: 0,
         rfqQuotaPeriodStart: getMonthStart(now),
@@ -176,21 +178,34 @@ export function getPlanCatalogForClient() {
     })
 }
 
+export function getPlanDaysRemaining(vendor) {
+    if (!vendor?.planExpiresAt || vendor?.plan === 'free') return null
+    const ms = new Date(vendor.planExpiresAt).getTime() - Date.now()
+    if (ms <= 0) return 0
+    return Math.ceil(ms / (24 * 60 * 60 * 1000))
+}
+
 export function getPlanAccess(vendor) {
     const status = vendor?.planStatus || 'none'
     const planKey = normalizePlanKey(vendor?.plan)
     const config = planKey ? getPlanConfig(planKey) : null
+    const paused = status === 'paused'
     const expired = status === 'active' && isPlanExpired(vendor)
-    const active = status === 'active' && planKey && config && !expired
+    const active = status === 'active' && planKey && config && !expired && !paused
 
     const rfqLimit = active ? config.rfqQuotaMonthly : null
     const rfqUsed = vendor?.rfqQuotaUsed || 0
     const showcaseLimit = active ? config.showcaseLimit : 0
 
+    const daysRemaining = active && vendor?.planExpiresAt ? getPlanDaysRemaining(vendor) : (expired ? 0 : null)
+
     return {
-        planStatus: expired ? 'expired' : status,
+        planStatus: paused ? 'paused' : (expired ? 'expired' : status),
         plan: planKey,
         planLabel: config?.label || null,
+        isPaused: paused,
+        planDaysRemaining: daysRemaining,
+        planExpiryWarningSentAt: vendor?.planExpiryWarningSentAt || null,
         planRequested: normalizePlanKey(vendor?.planRequested),
         planRequestedLabel: getPlanConfig(vendor?.planRequested)?.label || null,
         planRequestedAt: vendor?.planRequestedAt || null,
@@ -202,6 +217,7 @@ export function getPlanAccess(vendor) {
         isActive: !!active,
         isPending: status === 'pending' || !!vendor?.planUpgradePending,
         isExpired: expired,
+        isExpiringSoon: !!active && daysRemaining != null && daysRemaining > 0 && daysRemaining <= 1,
         canAccessRfq: !!active && (rfqLimit == null || rfqLimit > 0),
         canPublishProducts: !!active,
         rfqQuotaLimit: rfqLimit,
@@ -215,5 +231,6 @@ export function getPlanAccess(vendor) {
         verifiedBadge: active ? config.verifiedBadge : false,
         showCompanyProfile: active ? !!config.showCompanyProfile : false,
         supplierRating: active ? config.supplierRating : null,
+        canLinkStorefront: !!active && planKey && planKey !== 'free',
     }
 }

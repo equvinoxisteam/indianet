@@ -1159,6 +1159,9 @@ router.get('/public/:vendorId', async (req, res) => {
                     showCompanyProfile: planAccess.showCompanyProfile,
                     verifiedVendorBadge: planAccess.verifiedBadge,
                     planLabel: planAccess.planLabel,
+                    plan: planAccess.plan,
+                    canLinkStorefront: planAccess.canLinkStorefront,
+                    supplierRating: planAccess.supplierRating,
                     status: true,
                 }
 

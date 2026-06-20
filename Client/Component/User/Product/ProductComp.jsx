@@ -98,6 +98,7 @@ function ProductComp() {
   const hasVendorProfile = typeof vendorProfileId === 'string' && vendorProfileId.length === 24
   const showCompanyProfile = product?.showCompanyProfile === true
   const verifiedVendorBadge = product?.verifiedVendorBadge === true
+  const canLinkStorefront = product?.canLinkStorefront === true
   const vendorLogo = product?.vendorLogo || ''
   // For RFQ items, we never show buy/cart actions (privacy).
   const canBuyOnline = !canRfq && product?.allowOnline !== false;
@@ -671,13 +672,9 @@ function ProductComp() {
                         </div>
                       </div>
                       <div className="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                        {showCompanyProfile ? (
-                          <Link href={`/vendor/${vendorProfileId}`} className="btn btn-primary rounded-pill px-4">
-                            Company profile
-                          </Link>
-                        ) : (
-                          <Link href={`/vendor/${vendorProfileId}`} className="btn btn-outline-primary rounded-pill px-4">
-                            View store
+                        {canLinkStorefront && (
+                          <Link href={`/vendor/${vendorProfileId}`} className={`btn rounded-pill px-4 ${showCompanyProfile ? 'btn-primary' : 'btn-outline-primary'}`}>
+                            {showCompanyProfile ? 'Company profile' : 'View store'}
                           </Link>
                         )}
                       </div>
@@ -696,7 +693,7 @@ function ProductComp() {
                   <h4 className='font-bold mb-0'>
                     Sold By
                   </h4>
-                  {showCompanyProfile && (
+                  {showCompanyProfile && canLinkStorefront && (
                     <Link href={`/vendor/${vendorProfileId}`} className="btn btn-sm btn-outline-primary rounded-pill px-3">
                       View Full Profile
                     </Link>
@@ -731,23 +728,26 @@ function ProductComp() {
                     </div>
                     
                     <div className="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                      <div className="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
-                        <Link href={`/vendor/${vendorProfileId}`} className="btn btn-primary rounded-pill px-4">
-                          {showCompanyProfile ? 'Contact Seller' : 'View store'}
-                        </Link>
-                      </div>
+                      {canLinkStorefront && (
+                        <div className="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
+                          <Link href={`/vendor/${vendorProfileId}`} className="btn btn-primary rounded-pill px-4">
+                            {showCompanyProfile ? 'Contact Seller' : 'View store'}
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
               
               {/* Additional Info */}
+              {canLinkStorefront && (
               <div className="px-4 py-3 bg-light">
                 <div className="row g-3">
                   <div className="col-md-4">
                     <div className="d-flex align-items-center gap-2">
                       <i className="fa-solid fa-shield-halved text-success"></i>
-                      <small className="text-muted">Verified Seller</small>
+                      <small className="text-muted">{verifiedVendorBadge ? 'Verified Seller' : 'Trusted Seller'}</small>
                     </div>
                   </div>
                   <div className="col-md-4">
@@ -764,6 +764,7 @@ function ProductComp() {
                   </div>
                 </div>
               </div>
+              )}
             </div>
           )}
 

@@ -113,6 +113,7 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
   const bannerUrl = vendor.backgroundImage ? `${ServerId}${vendor.backgroundImage}` : null
   const showCompanyProfile = vendor.showCompanyProfile === true
   const verifiedVendorBadge = vendor.verifiedVendorBadge === true
+  const supplierRating = vendor.supplierRating || null
   const highlights = Array.isArray(vendor.companyHighlights) ? vendor.companyHighlights.filter(Boolean) : []
   const verifications = verifiedVendorBadge && Array.isArray(vendor.verificationTags) ? vendor.verificationTags : []
   const markets = Array.isArray(vendor.mainMarkets) ? vendor.mainMarkets.filter(Boolean) : []
@@ -159,7 +160,13 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
                             Verified vendor
                           </span>
                         )}
+                        {supplierRating > 0 && (
+                          <span className="badge rounded-pill bg-warning text-dark">
+                            {supplierRating}-Star Supplier
+                          </span>
+                        )}
                       </h1>
+                      {showCompanyProfile ? (
                       <div className="d-flex flex-wrap gap-2 small">
                         {vendor.countryRegion && (
                           <span className="badge rounded-pill bg-white bg-opacity-10 border border-white border-opacity-25">
@@ -178,22 +185,27 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
                           </span>
                         )}
                       </div>
-                      {vendor.mainCategories && (
+                      ) : (
+                        <p className="small text-white-50 mb-0">Industrial supplier on Indianet</p>
+                      )}
+                      {showCompanyProfile && vendor.mainCategories && (
                         <p className="small mt-3 mb-0 text-white-75">
                           <strong className="text-white">Main categories:</strong> {vendor.mainCategories}
                         </p>
                       )}
+                      {showCompanyProfile && (
                       <div className="d-flex flex-wrap gap-2 mt-3">
                         {vendor.designCustomization && (
                           <span className="badge bg-warning text-dark">Design-based customization</span>
                         )}
                         {vendor.fullCustomization && <span className="badge bg-info text-dark">Full customization</span>}
                       </div>
+                      )}
                     </div>
                   </div>
                 </div>
                 <div className="col-lg-4 text-lg-end">
-                  {vendor.website && (
+                  {showCompanyProfile && vendor.website && (
                     <a
                       className="btn btn-light btn-sm rounded-pill px-3 mb-2"
                       href={vendor.website.startsWith('http') ? vendor.website : `https://${vendor.website}`}
@@ -247,13 +259,20 @@ export default function PublicVendorPage({ vendorId, initialVendor }) {
                       </div>
                     </div>
                   )}
-                  {aboutText && (
+                  {aboutText ? (
                   <div className="card border-0 shadow-sm">
                     <div className="card-body">
-                      <h5 className="fw-bold mb-3">About</h5>
+                      <h5 className="fw-bold mb-3">{showCompanyProfile ? 'About' : 'Supplier'}</h5>
                       <div className="text-secondary" style={{ whiteSpace: 'pre-wrap' }}>
-                        {aboutText}
+                        {showCompanyProfile ? aboutText : `${displayName} supplies industrial products on Indianet. Browse the catalogue below or request a quote on any product.`}
                       </div>
+                    </div>
+                  </div>
+                  ) : !showCompanyProfile && (
+                  <div className="card border-0 shadow-sm">
+                    <div className="card-body">
+                      <h5 className="fw-bold mb-3">Supplier</h5>
+                      <p className="text-secondary mb-0">Browse products from {displayName} or request a quote on any listing.</p>
                     </div>
                   </div>
                   )}

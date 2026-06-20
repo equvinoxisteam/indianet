@@ -1,6 +1,7 @@
 import { adminAxios, apiUnreachableMessage } from '../../../Config/Server'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import PlanExpiryCountdown from '@/Component/Common/PlanExpiryCountdown'
 
 const PLAN_OPTIONS = [
     { key: 'free', label: 'Free' },
@@ -31,6 +32,13 @@ function periodLabel(period) {
 function formatExpiry(vendor) {
     if (!vendor?.planExpiresAt) return vendor?.plan === 'free' ? 'No expiry' : '—'
     return new Date(vendor.planExpiresAt).toLocaleDateString()
+}
+
+function planDaysRemaining(vendor) {
+    if (!vendor?.planExpiresAt || vendor?.plan === 'free') return null
+    const ms = new Date(vendor.planExpiresAt).getTime() - Date.now()
+    if (ms <= 0) return 0
+    return Math.ceil(ms / (24 * 60 * 60 * 1000))
 }
 
 function VendorSubscriptions({ logOut, onPlanChanged }) {
@@ -128,6 +136,48 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
         })
     }
 
+    const pausePlan = (vendor) => {
+        if (!window.confirm(`Pause ${vendor.companyName || vendor.adharName}'s plan? Vendor loses paid features until resumed.`)) return
+        adminAxios((server) => {
+            server.put('/admin/pauseVendorPlan', { vendorId: vendor._id }).then((res) => {
+                if (res.data.login) logOut()
+                else {
+                    toast.success('Plan paused')
+                    loadData()
+                    onPlanChanged?.()
+                }
+            }).catch((err) => toast.error(apiUnreachableMessage(err) || 'Pause failed'))
+        })
+    }
+
+    const resumePlan = (vendor) => {
+        adminAxios((server) => {
+            server.put('/admin/resumeVendorPlan', { vendorId: vendor._id }).then((res) => {
+                if (res.data.login) logOut()
+                else {
+                    toast.success('Plan resumed')
+                    loadData()
+                    onPlanChanged?.()
+                }
+            }).catch((err) => toast.error(apiUnreachableMessage(err) || 'Resume failed'))
+        })
+    }
+
+    const deactivatePlan = (vendor) => {
+        if (!window.confirm(`Deactivate plan and move ${vendor.companyName || vendor.adharName} to Free?`)) return
+        adminAxios((server) => {
+            server.put('/admin/deactivateVendorPlan', { vendorId: vendor._id }).then((res) => {
+                if (res.data.login) logOut()
+                else {
+                    toast.success('Plan deactivated — vendor on Free')
+                    setManageVendor(null)
+                    loadData()
+                    onPlanChanged?.()
+                }
+            }).catch((err) => toast.error(apiUnreachableMessage(err) || 'Deactivate failed'))
+        })
+    }
+
     const downgradeNow = (vendor, toPlan = 'free') => {
         const label = PLAN_OPTIONS.find((p) => p.key === toPlan)?.label || toPlan
         if (!window.confirm(`Downgrade ${vendor.companyName || vendor.adharName} to ${label} now? Showcase slots will be trimmed automatically.`)) return
@@ -157,7 +207,7 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
                 <h2>Vendor Subscriptions</h2>
                 <p>
                     Activate plans after external payment. Annual = full yearly price; 6-month = half price + 10%.
-                    When a plan expires the system auto-downgrades unless &quot;Pause auto-downgrade&quot; is on.
+                    Vendors receive an email 24 hours before expiry. After expiry, plans auto-downgrade to Free unless auto-downgrade is paused.
                 </p>
             </div>
 
@@ -241,6 +291,7 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
                                 <th>Current plan</th>
                                 <th>Billing</th>
                                 <th>Expires</th>
+                                <th>Timer</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -255,21 +306,41 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
                                     <td>
                                         {formatExpiry(v)}
                                         {v.planPreventAutoDowngrade && (
-                                            <span className="badge bg-secondary ms-1" title="Auto-downgrade paused">Paused</span>
+                                            <span className="badge bg-secondary ms-1" title="Auto-downgrade paused">Paused auto</span>
                                         )}
                                     </td>
                                     <td>
+                                        {v.planExpiresAt && v.plan !== 'free' ? (
+                                            <PlanExpiryCountdown expiresAt={v.planExpiresAt} />
+                                        ) : '—'}
+                                        {planDaysRemaining(v) === 1 && (
+                                            <div className="small text-warning">Warning email sent</div>
+                                        )}
+                                    </td>
+                                    <td>
+                                        {v.planStatus === 'paused' && <span className="text-secondary">Paused</span>}
                                         {v.planStatus === 'active' && <span className="text-success">Active</span>}
                                         {v.planStatus === 'pending' && <span className="text-warning">Pending</span>}
                                         {(!v.planStatus || v.planStatus === 'none') && <span className="text-muted">No plan</span>}
                                     </td>
                                     <td className="d-flex flex-wrap gap-2">
                                         <button type="button" className="ActionBtn" onClick={() => openManage(v)}>
-                                            {v.planStatus === 'active' ? 'Manage' : 'Assign plan'}
+                                            {v.planStatus === 'active' || v.planStatus === 'paused' ? 'Manage' : 'Assign plan'}
                                         </button>
+                                        {v.planStatus === 'active' && v.plan !== 'free' && (
+                                            <button type="button" className="ActionBtn" onClick={() => pausePlan(v)}>Pause</button>
+                                        )}
+                                        {v.planStatus === 'paused' && (
+                                            <button type="button" className="ActionBtn" onClick={() => resumePlan(v)}>Resume</button>
+                                        )}
                                         {v.planStatus === 'active' && v.plan !== 'free' && (
                                             <button type="button" className="ActionBtn" onClick={() => downgradeNow(v, 'free')}>
                                                 Downgrade
+                                            </button>
+                                        )}
+                                        {v.plan !== 'free' && v.planStatus !== 'none' && (
+                                            <button type="button" className="ActionBtn" onClick={() => deactivatePlan(v)}>
+                                                Deactivate
                                             </button>
                                         )}
                                     </td>
@@ -358,9 +429,24 @@ function VendorSubscriptions({ logOut, onPlanChanged }) {
                                     <button type="button" className="ActionBtn" onClick={saveSubscription}>
                                         Save subscription
                                     </button>
+                                    {manageVendor.planStatus === 'active' && managePlan !== 'free' && (
+                                        <button type="button" className="ActionBtn" onClick={() => pausePlan(manageVendor)}>
+                                            Pause plan
+                                        </button>
+                                    )}
+                                    {manageVendor.planStatus === 'paused' && (
+                                        <button type="button" className="ActionBtn" onClick={() => resumePlan(manageVendor)}>
+                                            Resume plan
+                                        </button>
+                                    )}
                                     {managePlan !== 'free' && (
                                         <button type="button" className="ActionBtn" onClick={() => downgradeNow(manageVendor, manageDowngradeTo)}>
                                             Downgrade now
+                                        </button>
+                                    )}
+                                    {managePlan !== 'free' && (
+                                        <button type="button" className="ActionBtn" onClick={() => deactivatePlan(manageVendor)}>
+                                            Deactivate (Free)
                                         </button>
                                     )}
                                 </div>

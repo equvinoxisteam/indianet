@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import { Fragment, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 
-const Header = dynamic(() => import('@/Component/Vendor/Header/Header'))
+import PlanExpiryCountdown from '@/Component/Common/PlanExpiryCountdown'
 
 /** 6-month price = half of annual + 10% */
 function semiannualPrice(annualPrice) {
@@ -27,7 +27,7 @@ const plans = [
         features: [
             'Unlimited product uploads',
             '1 product showcase (locked when used)',
-            'See & respond to 5 buyer RFQs per month',
+            'See & respond to 2 buyer RFQs per month',
             'Store page (products & contacts only — no company profile)',
             'Draft & publish catalogue',
         ],
@@ -36,7 +36,7 @@ const plans = [
         name: 'Basic',
         planKey: 'basic',
         color: '#4f46e5',
-        annualPrice: 110000,
+        annualPrice: 165000,
         includes: null,
         bestFor: 'New suppliers starting their B2B journey.',
         features: [
@@ -52,7 +52,7 @@ const plans = [
         name: 'Plus',
         planKey: 'plus',
         color: '#0284c7',
-        annualPrice: 165000,
+        annualPrice: 247500,
         includes: 'Basic',
         bestFor: 'Growing businesses seeking greater product visibility and more buyer inquiries.',
         features: [
@@ -67,7 +67,7 @@ const plans = [
         name: 'Pro',
         planKey: 'pro',
         color: '#7c3aed',
-        annualPrice: 234000,
+        annualPrice: 351000,
         includes: 'Plus',
         bestFor: 'Suppliers who need more RFQ volume and flexible showcase control.',
         features: [
@@ -83,7 +83,7 @@ const plans = [
         name: 'Premium',
         planKey: 'premium',
         color: '#ea580c',
-        annualPrice: 750000,
+        annualPrice: 1125000,
         includes: 'Pro',
         highlighted: true,
         bestFor: 'Established manufacturers seeking maximum visibility, trust, and buyer reach.',
@@ -233,6 +233,9 @@ export default function VendorPlans() {
                             {vendorData.planAccess.planExpiresAt && (
                                 <span> — valid until {new Date(vendorData.planAccess.planExpiresAt).toLocaleDateString()}</span>
                             )}
+                            {vendorData.planAccess.planExpiresAt && vendorData.planAccess.plan !== 'free' && (
+                                <span className="ms-2"><PlanExpiryCountdown expiresAt={vendorData.planAccess.planExpiresAt} /></span>
+                            )}
                         </div>
                     )}
                     {vendorData?.planAccess?.isPending && vendorData?.planAccess?.isActive && (
@@ -254,7 +257,7 @@ export default function VendorPlans() {
                     )}
                     {vendorData?.planAccess?.plan === 'free' && vendorData?.planAccess?.isActive && (
                         <div className="alert alert-info">
-                            You are on the <strong>Free</strong> plan: unlimited uploads, 1 showcase (locked when used), 5 RFQ/month.
+                            You are on the <strong>Free</strong> plan: unlimited uploads, 1 showcase (locked when used), 2 RFQ/month.
                             Upgrade below for more showcases, RFQ quota, and Pro showcase flexibility.
                         </div>
                     )}

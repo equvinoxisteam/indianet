@@ -920,6 +920,28 @@ router.put('/deactivateVendorPlan', CheckAdmin, async (req, res) => {
     }
 })
 
+router.put('/pauseVendorPlan', CheckAdmin, async (req, res) => {
+    const { vendorId } = req.body
+    if (!vendorId || vendorId.length !== 24) return res.status(400).json('err')
+    try {
+        await vendorPlan.pausePlan(vendorId)
+        res.status(200).json({ status: true, planStatus: 'paused' })
+    } catch {
+        res.status(500).json('err')
+    }
+})
+
+router.put('/resumeVendorPlan', CheckAdmin, async (req, res) => {
+    const { vendorId } = req.body
+    if (!vendorId || vendorId.length !== 24) return res.status(400).json('err')
+    try {
+        await vendorPlan.resumePlan(vendorId)
+        res.status(200).json({ status: true, planStatus: 'active' })
+    } catch {
+        res.status(500).json('err')
+    }
+})
+
 router.delete('/deleteVendor', CheckAdmin, (req, res) => {
     admin.deleteVendor(req.body.email).then(() => {
         admin.hideVendorProducts(req.body.vendorId).then(() => {

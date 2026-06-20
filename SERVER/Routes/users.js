@@ -103,6 +103,9 @@ router.get('/product/:slug/:proId', (req, res, next) => {
                             item.showCompanyProfile = access.showCompanyProfile
                             item.verifiedVendorBadge = access.verifiedBadge
                             item.vendorPlanLabel = access.planLabel
+                            item.vendorPlan = access.plan
+                            item.vendorPlanActive = access.isActive
+                            item.canLinkStorefront = access.canLinkStorefront
                         }
                     } catch {
                         // product still loads without vendor enrichment

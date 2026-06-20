@@ -1,4 +1,5 @@
 import { useRouter } from "next/router"
+import PlanExpiryCountdown from "@/Component/Common/PlanExpiryCountdown"
 
 function DashboardComp({ response }) {
     const navigate = useRouter()
@@ -32,7 +33,9 @@ function DashboardComp({ response }) {
                     </div>
                     {!plan.isActive ? (
                         <div className="alert alert-warning mb-0">
-                            {plan.isPending
+                            {plan.isPaused
+                                ? 'Your plan is paused by admin. Contact support to resume paid features.'
+                                : plan.isPending
                                 ? `Your ${plan.planRequestedLabel || 'plan'} request is pending admin approval.`
                                 : plan.isExpired
                                     ? 'Your plan has expired. Request a new plan to publish products and quote RFQs.'
@@ -47,10 +50,16 @@ function DashboardComp({ response }) {
                                 <h6>Plan</h6>
                                 <h5>{plan.planLabel}</h5>
                                 {plan.planExpiresAt && (
-                                    <p className="text-muted small mb-0">
+                                    <p className="text-muted small mb-2">
                                         Until {new Date(plan.planExpiresAt).toLocaleDateString()}
                                         {plan.planBillingPeriod === 'semiannual' ? ' (6-month)' : plan.planBillingPeriod === 'annual' ? ' (annual)' : ''}
                                     </p>
+                                )}
+                                {plan.planExpiresAt && plan.plan !== 'free' && (
+                                    <PlanExpiryCountdown expiresAt={plan.planExpiresAt} />
+                                )}
+                                {plan.isExpiringSoon && (
+                                    <p className="text-warning small mb-0 mt-2">Your plan expires within 24 hours. Renew to avoid downgrade to Free.</p>
                                 )}
                             </div>
                             <div className="cardDash">

@@ -72,7 +72,9 @@ export default {
             return {
                 ok: false,
                 code: 'PLAN_REQUIRED',
-                message: access.isPending
+                message: access.isPaused
+                    ? 'Your plan is paused by admin. Contact support to resume.'
+                    : access.isPending
                     ? 'Your plan request is pending admin approval. You can save drafts until your plan is activated.'
                     : access.isExpired
                         ? 'Your plan has expired. Request a new plan or contact admin.'
@@ -88,7 +90,9 @@ export default {
             return {
                 ok: false,
                 code: 'PLAN_REQUIRED',
-                message: access.isPending
+                message: access.isPaused
+                    ? 'Your plan is paused by admin. Contact support to resume.'
+                    : access.isPending
                     ? 'Your plan request is pending admin approval.'
                     : access.isExpired
                         ? 'Your plan has expired.'
@@ -281,6 +285,31 @@ export default {
 
     deactivatePlan(vendorId) {
         return this.downgradePlan(vendorId, 'free')
+    },
+
+    async pausePlan(vendorId) {
+        const vendor = await db.get().collection(collections.VENDORS).findOne({ _id: new ObjectId(vendorId) })
+        if (!vendor) throw new Error('not_found')
+        if (vendor.planStatus !== 'active' || vendor.plan === 'free') {
+            throw new Error('cannot_pause')
+        }
+        await db.get().collection(collections.VENDORS).updateOne(
+            { _id: new ObjectId(vendorId) },
+            { $set: { planStatus: 'paused', planPausedAt: new Date() } }
+        )
+        return { planStatus: 'paused' }
+    },
+
+    async resumePlan(vendorId) {
+        const vendor = await db.get().collection(collections.VENDORS).findOne({ _id: new ObjectId(vendorId) })
+        if (!vendor) throw new Error('not_found')
+        if (vendor.planStatus !== 'paused') throw new Error('not_paused')
+        if (isPlanExpired(vendor)) throw new Error('plan_expired')
+        await db.get().collection(collections.VENDORS).updateOne(
+            { _id: new ObjectId(vendorId) },
+            { $set: { planStatus: 'active', planPausedAt: null } }
+        )
+        return { planStatus: 'active' }
     },
 
     incrementRfqQuota(vendorId) {

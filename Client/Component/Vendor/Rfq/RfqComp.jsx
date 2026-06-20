@@ -159,7 +159,9 @@ function RfqComp({ loaded, setLoaded }) {
 
           {planAccess && !planAccess.isActive && (
             <div className="alert alert-warning">
-              {planAccess.isPending
+              {planAccess.isPaused
+                ? 'Your plan is paused by admin. You cannot view or quote RFQs until it is resumed.'
+                : planAccess.isPending
                 ? 'Your plan request is pending admin activation. You cannot quote RFQs until your plan is active.'
                 : planAccess.isExpired
                   ? 'Your plan has expired. Request a new plan from the Plans page.'

@@ -7,6 +7,7 @@ import db from "./Config/Connection.js";
 import bodyParser from 'body-parser'
 import * as dotenv from 'dotenv'
 import { seedDefaultAdmin } from './Helpers/seedAdmin.js'
+import { startPlanLifecycleScheduler } from './Helpers/planLifecycle.js'
 import { isS3Enabled } from './Helpers/s3Client.js'
 import { getMailProvider, isMailConfigured } from './Helpers/mailService.js'
 import { ensureOtpTtlIndex } from './Helpers/otpIndex.js'
@@ -42,6 +43,7 @@ db.connect((err) => {
         }
         ensureOtpTtlIndex(db.get()).catch((e) => console.error('OTP index:', e.message))
         seedDefaultAdmin(db.get()).catch((e) => console.error(e))
+        startPlanLifecycleScheduler()
     }
 })
 
