@@ -37,9 +37,9 @@ function AddProduct() {
       seoTitle: '',
       seoKeyword: '',
       variant: [],
-      allowCod: false,
-      allowOnline: false,
-      allowRfq: true,
+      allowCod: true,
+      allowOnline: true,
+      allowRfq: false,
       publishStatus: 'draft',
       rfqTiers: [{ minQty: '1', maxQty: '', price: '' }],
       rfqAttributes: [{ key: '', value: '' }],
@@ -166,13 +166,17 @@ function AddProduct() {
       return
     }
 
+    const firstVariant = productDetails.variant[0]
+    const listPrice = firstVariant ? Number(firstVariant.price) || 0 : Number(productDetails.price) || 0
+    const listMrp = firstVariant ? Number(firstVariant.mrp) || 0 : Number(productDetails.mrp) || 0
+
     let formData = new FormData();
 
     formData.append("uni_id_1", productDetails.uni_id_1)
     formData.append("uni_id_2", Date.now() + Math.random())
     formData.append("name", productDetails.name)
-    formData.append("price", 0)
-    formData.append("mrp", 0)
+    formData.append("price", listPrice)
+    formData.append("mrp", listMrp)
     formData.append("available", productDetails.available)
     formData.append("cancellation", false)
     formData.append("category", productDetails.category)
@@ -183,10 +187,10 @@ function AddProduct() {
     formData.append("seoDescription", productDetails.seoDescription)
     formData.append("seoKeyword", productDetails.seoKeyword)
     formData.append("seoTitle", productDetails.seoTitle)
-    formData.append('return', false)
-    formData.append('allowCod', false)
-    formData.append('allowOnline', false)
-    formData.append('allowRfq', true)
+    formData.append('return', productDetails.return || 'false')
+    formData.append('allowCod', productDetails.allowRfq ? 'false' : String(!!productDetails.allowCod))
+    formData.append('allowOnline', productDetails.allowRfq ? 'false' : String(!!productDetails.allowOnline))
+    formData.append('allowRfq', String(!!productDetails.allowRfq))
     formData.append('publishStatus', finalStatus)
     formData.append('rfqTiers', JSON.stringify(productDetails.rfqTiers))
     formData.append('rfqAttributes', JSON.stringify(productDetails.rfqAttributes))
@@ -342,6 +346,44 @@ function AddProduct() {
               </div>
             </div>
           )}
+
+          <div className="col-md-12">
+            <label className="fw-semibold">Sales mode</label>
+            <div className="d-flex flex-wrap gap-3 mb-2">
+              <label className="form-check">
+                <input
+                  type="radio"
+                  className="form-check-input"
+                  name="salesMode"
+                  checked={!productDetails.allowRfq}
+                  onChange={() => setProductDetails({ ...productDetails, allowRfq: false, allowCod: true, allowOnline: true })}
+                />
+                <span className="form-check-label">E-commerce (sell online with price)</span>
+              </label>
+              <label className="form-check">
+                <input
+                  type="radio"
+                  className="form-check-input"
+                  name="salesMode"
+                  checked={!!productDetails.allowRfq}
+                  onChange={() => setProductDetails({ ...productDetails, allowRfq: true, allowCod: false, allowOnline: false })}
+                />
+                <span className="form-check-label">RFQ only (quote on request)</span>
+              </label>
+            </div>
+            {!productDetails.allowRfq && (
+              <div className="d-flex flex-wrap gap-4 mb-3">
+                <label className="form-check">
+                  <input type="checkbox" className="form-check-input" checked={!!productDetails.allowOnline} onChange={(e) => setProductDetails({ ...productDetails, allowOnline: e.target.checked })} />
+                  <span className="form-check-label">Accept online payment (Razorpay)</span>
+                </label>
+                <label className="form-check">
+                  <input type="checkbox" className="form-check-input" checked={!!productDetails.allowCod} onChange={(e) => setProductDetails({ ...productDetails, allowCod: e.target.checked })} />
+                  <span className="form-check-label">Accept cash on delivery</span>
+                </label>
+              </div>
+            )}
+          </div>
 
           {productDetails.allowRfq && (
             <>
@@ -551,7 +593,23 @@ function AddProduct() {
                       </div>
                       <div className="col-md-6">
                         <div className="row">
-                          <div className="col-9 col-md-6">
+                          <div className="col-9 col-md-3">
+                            <label>Selling price (₹)</label>
+                            <input type="number" min="0" value={obj.price} onChange={(e) => {
+                              var newArr = [...productDetails['variant']]
+                              newArr[key].price = e.target.value
+                              setProductDetails({ ...productDetails, variant: newArr })
+                            }} required={!productDetails.allowRfq} />
+                          </div>
+                          <div className="col-9 col-md-3">
+                            <label>MRP (₹)</label>
+                            <input type="number" min="0" value={obj.mrp} onChange={(e) => {
+                              var newArr = [...productDetails['variant']]
+                              newArr[key].mrp = e.target.value
+                              setProductDetails({ ...productDetails, variant: newArr })
+                            }} />
+                          </div>
+                          <div className="col-9 col-md-3">
                             <label>Details</label>
                             <input type="text" value={obj.details} onChange={(e) => {
                               var newArr = [...productDetails['variant']]

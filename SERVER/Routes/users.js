@@ -21,7 +21,16 @@ import getInvoice from "../ShipRocket/getInvoice.js";
 import trackProduct, { orderStatusControl } from "../ShipRocket/trackProduct.js";
 import layout from "../Helpers/layout.js";
 import uploader from "../Helpers/uploader.js";
+import { notifyOrderPlaced } from "../Helpers/orderNotifications.js";
 var router = express.Router()
+
+function afterOrderPlaced(userId, orderPayload, customer) {
+    notifyOrderPlaced({
+        userId,
+        orderItems: orderPayload?.order || [],
+        customer,
+    }).catch((err) => console.error('[orderNotify] placed:', err?.message))
+}
 
 router.post('/uploadProfileImage', CheckUser, (req, res) => {
     uploader.userProfile.single('image')(req, res, (err) => {
@@ -957,6 +966,7 @@ router.post('/order-item-razorpay', async (req, res) => {
                 }
 
                 user.createOrder(orderItems).then(() => {
+                    afterOrderPlaced(razorpayRes.userId, orderItems, details)
                     user.emtyCart(razorpayRes.userId).then(() => {
                         res.status(200).json('done')
                     }).catch(() => {
@@ -982,6 +992,7 @@ router.post('/order-item-razorpay', async (req, res) => {
                 }
 
                 user.createOrder(orderItems).then(() => {
+                    afterOrderPlaced(razorpayRes.userId, orderItems, details)
                     res.status(200).json('done')
                 }).catch(() => {
                     console.log("error")
@@ -1054,6 +1065,7 @@ router.post('/order-item-cod', async (req, res) => {
                 }
 
         user.createOrder(orderItems).then(() => {
+            afterOrderPlaced(userId, orderItems, details)
             user.emtyCart(userId).then(() => {
                 res.status(200).json('done')
             }).catch(() => {
@@ -1084,6 +1096,7 @@ router.post('/order-item-cod', async (req, res) => {
                 }
 
         user.createOrder(orderItems).then(() => {
+            afterOrderPlaced(userId, orderItems, details)
             res.status(200).json('done')
         }).catch(() => {
             console.log("error")

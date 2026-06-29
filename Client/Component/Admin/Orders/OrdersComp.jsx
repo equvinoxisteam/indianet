@@ -5,6 +5,21 @@ import { useRouter } from 'next/router'
 import Loading from '@/Component/Loading/Loading'
 import ContentControl from '@/ContentControl/ContentControl'
 
+function statusBadge(status) {
+    const map = {
+        Pending: 'badge-warning',
+        Processing: 'badge-info',
+        Shipped: 'badge-primary',
+        'In Transit': 'badge-primary',
+        'Out For Delivery': 'badge-primary',
+        Delivered: 'badge-success',
+        Cancelled: 'badge-danger',
+        Return: 'badge-danger',
+    }
+    const cls = map[status] || 'badge-secondary'
+    return <span className={`badge ${cls}`}>{status || '—'}</span>
+}
+
 function OrdersComp({ loaded, setLoaded }) {
     const { setAdminLogged } = useContext(ContentControl)
     const [search, setSearch] = useState('')
@@ -49,8 +64,8 @@ function OrdersComp({ loaded, setLoaded }) {
                     <div className='OrdersComp'>
                         <div className='AdminContainer pb-3'>
                             <div className="adminPageHeader mb-3 pt-3">
-                                <h1>Orders management</h1>
-                                <p>Track all marketplace orders, payment mode and status updates</p>
+                                <h1>E-commerce orders</h1>
+                                <p>All buyer orders — COD & Razorpay — update status to send email & WhatsApp notifications</p>
                             </div>
 
                             <div className="BtnsSections text-center pt-3">
@@ -68,12 +83,13 @@ function OrdersComp({ loaded, setLoaded }) {
                                 <table className="table align-middle">
                                     <thead>
                                         <tr>
+                                            <th>Product</th>
                                             <th>Date</th>
                                             <th>Customer</th>
                                             <th>Price</th>
-                                            <th>Pay</th>
-                                            <th>Order</th>
-                                            <th>Id-Secret</th>
+                                            <th>Payment</th>
+                                            <th>Status</th>
+                                            <th>Order ID</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -83,12 +99,13 @@ function OrdersComp({ loaded, setLoaded }) {
                                             Orders.map((obj, key) => {
                                                 return (
                                                     <tr key={key}>
+                                                        <td className="small">{obj.proName || '—'}</td>
                                                         <td>{obj.date}</td>
                                                         <td>{obj.customer}</td>
-                                                        <td>{obj.price}</td>
-                                                        <td>{obj.payType}</td>
-                                                        <td>{obj.OrderStatus}</td>
-                                                        <td>{obj.secretOrderId}</td>
+                                                        <td>₹{obj.price}</td>
+                                                        <td>{obj.payType === 'online' ? 'Razorpay' : 'COD'}</td>
+                                                        <td>{statusBadge(obj.OrderStatus)}</td>
+                                                        <td className="small text-muted">{obj.secretOrderId}</td>
                                                         <td>
                                                             <button className='ActionBtn' onClick={() => {
                                                                 navigate.push(`/admin/orders/${obj.secretOrderId}/${obj.userId}`)

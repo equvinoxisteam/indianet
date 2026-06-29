@@ -78,11 +78,14 @@ function EditOrder({ Order, setOrder }) {
                                                 OrderStatus: e.target.value
                                             })
                                         }}>
-                                            <option value={Order.OrderStatus}>{Order.OrderStatus}</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Processing">Processing</option>
+                                            <option value="Shipped">Shipped</option>
+                                            <option value="In Transit">In Transit</option>
+                                            <option value="Out For Delivery">Out For Delivery</option>
+                                            <option value="Delivered">Delivered</option>
                                             <option value="Cancelled">Cancelled</option>
                                             <option value="Return">Return</option>
-                                            <option value="Pending">Pending</option>
-                                            <option value="Delivered">Delivered</option>
                                         </select>
                                     </div>
 

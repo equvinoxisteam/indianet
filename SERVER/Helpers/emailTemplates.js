@@ -212,3 +212,82 @@ export function vendorPlanExpired({ name, planLabel }) {
     const text = `Your ${planLabel} plan has ended. You are now on the Free plan.`
     return { html, text, subject: `${BRAND} – Your paid plan has ended` }
 }
+
+export function orderPlaced({ customerName, orderId, items, totalAmount, payType, address }) {
+    const lines = (items || []).map((it) =>
+        `<tr><td style="padding:6px 0;border-bottom:1px solid #f1f5f9;">${it.proName || 'Product'}</td>
+         <td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;text-align:center;">${it.quantity || 1}</td>
+         <td style="padding:6px 0;border-bottom:1px solid #f1f5f9;text-align:right;">₹${it.price ?? it.selling_price ?? '—'}</td></tr>`
+    ).join('')
+    const addr = address ? `${address.address || ''}, ${address.locality || ''}, ${address.city || ''} - ${address.pin || ''}` : '—'
+    const html = baseLayout({
+        title: `${BRAND} – Order confirmed`,
+        preview: `Order ${orderId} confirmed`,
+        bodyHtml: `
+          <h1 style="margin:0 0 12px;font-size:20px;color:${ACCENT};">Thank you for your order</h1>
+          <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Hi ${customerName || 'there'}, your order <strong>#${orderId}</strong> is confirmed and being processed.</p>
+          <table role="presentation" width="100%" style="font-size:14px;margin-bottom:16px;">
+            <tr style="font-weight:600;color:#6b7280;"><td>Product</td><td style="text-align:center;">Qty</td><td style="text-align:right;">Price</td></tr>
+            ${lines}
+          </table>
+          <p style="margin:0 0 8px;font-size:14px;"><strong>Payment:</strong> ${payType === 'online' ? 'Paid online (Razorpay)' : 'Cash on delivery'}</p>
+          <p style="margin:0 0 8px;font-size:14px;"><strong>Total:</strong> ₹${totalAmount ?? '—'}</p>
+          <p style="margin:0 0 16px;font-size:14px;"><strong>Ship to:</strong> ${addr}</p>
+          <p style="margin:0;font-size:13px;color:#6b7280;">Track your order anytime from My Orders on ${BRAND}.</p>
+        `,
+    })
+    const text = `Order #${orderId} confirmed. Total ₹${totalAmount}. Payment: ${payType}.`
+    return { html, text, subject: `${BRAND} – Order confirmed #${orderId}` }
+}
+
+export function orderStatusUpdate({ customerName, orderId, productName, status, trackUrl }) {
+    const statusLabels = {
+        Pending: 'received and pending processing',
+        Processing: 'being processed',
+        Shipped: 'shipped',
+        'In Transit': 'in transit',
+        'Out For Delivery': 'out for delivery',
+        Delivered: 'delivered',
+        Cancelled: 'cancelled',
+    }
+    const label = statusLabels[status] || status
+    const trackLink = trackUrl
+        ? `<p style="margin:16px 0 0;"><a href="${trackUrl}" style="color:${ACCENT_LIGHT};font-weight:600;">Track shipment</a></p>`
+        : ''
+    const html = baseLayout({
+        title: `${BRAND} – Order update`,
+        preview: `Order ${orderId}: ${status}`,
+        bodyHtml: `
+          <h1 style="margin:0 0 12px;font-size:20px;color:${ACCENT};">Order update</h1>
+          <p style="margin:0 0 12px;font-size:15px;line-height:1.6;">Hi ${customerName || 'there'},</p>
+          <p style="margin:0 0 12px;font-size:15px;line-height:1.6;">
+            Your order <strong>#${orderId}</strong>${productName ? ` (${productName})` : ''} is <strong>${label}</strong>.
+          </p>
+          ${trackLink}
+        `,
+    })
+    const text = `Order #${orderId} update: ${status}.${trackUrl ? ` Track: ${trackUrl}` : ''}`
+    return { html, text, subject: `${BRAND} – Order ${status}: #${orderId}` }
+}
+
+export function vendorNewOrder({ vendorName, orderId, productName, quantity, customerName, customerPhone }) {
+    const html = baseLayout({
+        title: `${BRAND} – New order`,
+        preview: `New order #${orderId}`,
+        bodyHtml: `
+          <h1 style="margin:0 0 12px;font-size:20px;color:${ACCENT};">New order received</h1>
+          <p style="margin:0 0 16px;font-size:14px;">Hi ${vendorName || 'Vendor'}, you have a new order on ${BRAND}.</p>
+          <table role="presentation" width="100%" style="font-size:14px;line-height:1.7;">
+            <tr><td style="color:#6b7280;width:120px;">Order ID</td><td><strong>${orderId}</strong></td></tr>
+            <tr><td style="color:#6b7280;">Product</td><td>${productName || '—'}</td></tr>
+            <tr><td style="color:#6b7280;">Quantity</td><td>${quantity || 1}</td></tr>
+            <tr><td style="color:#6b7280;">Customer</td><td>${customerName || '—'}</td></tr>
+            <tr><td style="color:#6b7280;">Phone</td><td>${customerPhone || '—'}</td></tr>
+          </table>
+          <p style="margin:16px 0 0;font-size:13px;color:#6b7280;">Log in to your vendor dashboard to process and ship this order.</p>
+        `,
+    })
+    const text = `New order #${orderId}: ${productName} x${quantity} from ${customerName}`
+    return { html, text, subject: `${BRAND} – New order #${orderId}` }
+}
+

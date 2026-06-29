@@ -15,6 +15,7 @@ import slugify from 'slug-generator'
 import deleteFile from '../Helpers/deleteFile.js'
 import deleteFolder from "../Helpers/deleteFolder.js";
 import trackProduct, { orderStatusControl } from "../ShipRocket/trackProduct.js";
+import { notifyOrderStatusChanged, getOrderLineForNotify } from "../Helpers/orderNotifications.js";
 import tokenShipRocket from "../ShipRocket/token.js";
 import XLSX from "xlsx";
 
@@ -51,8 +52,15 @@ const COUNTRY_RULES = {
     }
 }
 
-function digitsOnly(s) {
-    return String(s ?? '').replace(/\D/g, '')
+function parseVendorCommerceFlags(body) {
+    body.allowCod = body.allowCod === 'true' || body.allowCod === true
+    body.allowOnline = body.allowOnline === 'true' || body.allowOnline === true
+    body.allowRfq = body.allowRfq === 'true' || body.allowRfq === true
+    if (body.allowRfq) {
+        body.allowCod = false
+        body.allowOnline = false
+    }
+    return body
 }
 
 function normalizeText(s) {
@@ -410,10 +418,7 @@ router.post('/addProduct', CheckVendor, uploader.products.any(), (req, res, next
     req.body.mrp = safeMrp
     req.body.price = safePrice
     req.body.discount = discountPerc
-    // Vendor listings are RFQ-only by business rule.
-    req.body.allowCod = false
-    req.body.allowOnline = false
-    req.body.allowRfq = true
+    parseVendorCommerceFlags(req.body)
 
     if (req.body.rfqTiers) {
         try {
@@ -459,12 +464,6 @@ router.post('/addProduct', CheckVendor, uploader.products.any(), (req, res, next
         }
     } else {
         req.body.rfqCertificates = []
-    }
-
-    // RFQ products are private-price only; never allow cart checkout actions.
-    if (req.body.allowRfq === true) {
-        req.body.allowCod = false
-        req.body.allowOnline = false
     }
 
     // ShipRocket shipment weight/dim (used for shipping estimate + label creation)
@@ -735,10 +734,7 @@ router.put('/editProduct/:id', CheckVendor, uploader.products.any(), (req, res) 
         data.mrp = safeMrp2
         data.price = safePrice2
         data.discount = discountPerc2
-        // Vendor listings are RFQ-only by business rule.
-        data.allowCod = false
-        data.allowOnline = false
-        data.allowRfq = true
+        parseVendorCommerceFlags(data)
 
         if (data.rfqTiers) {
             try {
@@ -784,12 +780,6 @@ router.put('/editProduct/:id', CheckVendor, uploader.products.any(), (req, res) 
             }
         } else {
             data.rfqCertificates = []
-        }
-
-        // RFQ products are private-price only; never allow cart checkout actions.
-        if (data.allowRfq === true) {
-            data.allowCod = false
-            data.allowOnline = false
         }
 
         // ShipRocket shipment weight/dim (used for shipping estimate + label creation)
@@ -948,6 +938,31 @@ router.get('/getOrderSpecific', CheckVendor, async (req, res) => {
     })
 
     res.status(200).json(order)
+})
+
+router.put('/updateOrderStatus', CheckVendor, async (req, res) => {
+    const { userId, secretOrderId, OrderStatus } = req.body
+    if (!userId || userId.length !== 24 || !secretOrderId || !OrderStatus) {
+        return res.status(400).json('err')
+    }
+    try {
+        await vendor.updateOrderStatus({
+            userId,
+            secretOrderId,
+            vendorId: req.body.vendorId,
+            OrderStatus,
+        })
+        const orderLine = await getOrderLineForNotify(userId, secretOrderId)
+        await notifyOrderStatusChanged({
+            userId,
+            secretOrderId,
+            newStatus: OrderStatus,
+            orderLine,
+        })
+        res.status(200).json({ status: true, OrderStatus })
+    } catch {
+        res.status(500).json('err')
+    }
 })
 
 // RFQ (vendor quotes are private to admin)

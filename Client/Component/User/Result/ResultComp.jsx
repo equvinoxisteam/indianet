@@ -185,21 +185,33 @@ function ResultComp({
                                 </Link>
                               ) : obj.available === "true" ? (
                                 <button className={style.addToCartBtn} onClick={() => {
+                                  if (!userLogged.status) {
+                                    setLoginModal(obj => ({ ...obj, btn: true, active: true, member: true, forgot: false }))
+                                    return
+                                  }
                                   userAxios((server) => {
-                                    server.post('/users/addToWishlist', {
-                                      userId: userLogged._id,
-                                      item: { proId: obj._id, price: obj.price, mrp: obj.mrp, variantSize: obj.currVariantSize }
+                                    server.post('/users/addToCart', {
+                                      item: {
+                                        quantity: 1,
+                                        proId: obj._id,
+                                        price: obj.price,
+                                        mrp: obj.mrp,
+                                        variantSize: obj.currVariantSize || '',
+                                      },
                                     }).then((res) => {
                                       if (res.data.login) {
                                         LogOut()
-                                        setLoginModal(obj => ({ ...obj, btn: true, active: true, member: true, forgot: false }))
+                                        setLoginModal(o => ({ ...o, btn: true, active: true, member: true, forgot: false }))
+                                      } else if (res.data.found) {
+                                        toast.error('Already in cart')
                                       } else {
-                                        toast.success("Added to wishlist")
+                                        toast.success('Added to cart')
+                                        setCartTotal(amt => amt + (obj.price || 0))
                                       }
-                                    }).catch(() => setLoginModal(obj => ({ ...obj, btn: true, active: true, member: true, forgot: false })))
+                                    }).catch(() => setLoginModal(o => ({ ...o, btn: true, active: true, member: true, forgot: false })))
                                   })
                                 }}>
-                                  Add to Wishlist
+                                  Add to Cart
                                 </button>
                               ) : (
                                 <button className={style.addToCartBtnDisabled} disabled>

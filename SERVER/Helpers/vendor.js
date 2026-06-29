@@ -509,6 +509,27 @@ export default {
             }
         })
     },
+    updateOrderStatus: ({ userId, secretOrderId, vendorId, OrderStatus }) => {
+        const allowed = new Set(['Pending', 'Processing', 'Shipped', 'In Transit', 'Out For Delivery', 'Delivered', 'Cancelled'])
+        if (!allowed.has(OrderStatus)) {
+            return Promise.reject(new Error('invalid_status'))
+        }
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.ORDERS).updateOne({
+                _id: ObjectId(userId),
+                'order.secretOrderId': secretOrderId,
+                'order.vendorId': vendorId,
+            }, {
+                $set: {
+                    'order.$.OrderStatus': OrderStatus,
+                    'order.$.updated': `${new Date().getMonth() + 1}-${new Date().getDate()}-${new Date().getFullYear()}`,
+                },
+            }).then((result) => {
+                if (result.matchedCount === 0) reject(new Error('not_found'))
+                else resolve()
+            }).catch(() => reject())
+        })
+    },
     updateUserDetails: (details) => {
         return new Promise(async (resolve, reject) => {
             const email = String(details.email || '').toLowerCase().trim()

@@ -12,6 +12,7 @@ import vendor from "../Helpers/vendor.js";
 import { sendAdminLoginAlert } from "../Helpers/sendAuthEmail.js";
 import tokenShipRocket from '../ShipRocket/token.js'
 import trackProduct, { orderStatusControl } from "../ShipRocket/trackProduct.js";
+import { notifyOrderStatusChanged, getOrderLineForNotify } from "../Helpers/orderNotifications.js";
 import vendorPlan from '../Helpers/vendorPlan.js'
 import { VENDOR_PLAN_KEYS, VENDOR_PLANS, getPlanCatalogForClient } from '../Config/vendorPlans.js'
 
@@ -809,7 +810,20 @@ router.put('/editOrder', CheckAdmin, (req, res) => {
         updated = req.body.updated || null
     }
 
-    admin.editOrder(req.body, updated).then(() => {
+    admin.editOrder(req.body, updated).then(async () => {
+        if (req.body.OrderStatus && req.body.userId && req.body.secretOrderId) {
+            try {
+                const orderLine = await getOrderLineForNotify(req.body.userId, req.body.secretOrderId)
+                await notifyOrderStatusChanged({
+                    userId: req.body.userId,
+                    secretOrderId: req.body.secretOrderId,
+                    newStatus: req.body.OrderStatus,
+                    orderLine: orderLine ? { ...orderLine, track_url: orderLine.track_url } : { OrderId: req.body.secretOrderId },
+                })
+            } catch (err) {
+                console.error('[orderNotify] status:', err?.message)
+            }
+        }
         res.status(200).json('done')
     }).catch(() => {
         res.status(500).json('err')

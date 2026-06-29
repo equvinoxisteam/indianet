@@ -170,6 +170,57 @@ function ProductComp() {
     })
   }
 
+  const activePrice = selectedVariant?.price ?? product?.price ?? 0
+  const activeMrp = selectedVariant?.mrp ?? product?.mrp ?? 0
+
+  function addToCart() {
+    if (!userLogged.status) {
+      setLoginModal({ btn: true, active: true, member: true, forgot: false })
+      return
+    }
+    userAxios((server) => {
+      server.post('/users/addToCart', {
+        item: {
+          quantity: 1,
+          proId: product._id,
+          price: activePrice,
+          mrp: activeMrp,
+          variantSize: selectedVariantLabel || product.currVariantSize || '',
+        },
+      }).then((res) => {
+        if (res.data.login) {
+          LogOut()
+          setLoginModal({ btn: true, active: true, member: true, forgot: false })
+        } else if (res.data.found) {
+          toast.error('Already in cart')
+        } else {
+          toast.success('Added to cart')
+          setCartTotal((amt) => amt + Number(activePrice))
+        }
+      }).catch(() => toast.error('Could not add to cart'))
+    })
+  }
+
+  function buyNow() {
+    if (!userLogged.status) {
+      setLoginModal({ btn: true, active: true, member: true, forgot: false })
+      return
+    }
+    setOrderType({
+      order: true,
+      type: 'buy',
+      proId: product._id,
+      quantity: 1,
+      buyDetails: {
+        proId: product._id,
+        price: activePrice,
+        mrp: activeMrp,
+        variantSize: selectedVariantLabel || product.currVariantSize || '',
+      },
+    })
+    navigate.push('/checkout')
+  }
+
   useEffect(() => {
     getReviews()
   }, [userLogged])
@@ -408,19 +459,15 @@ function ProductComp() {
                 )}
 
                 <div className="ActionButtons d-grid gap-3">
-                  {product.available === 'true' && !canRfq && (
-                    <button className="btn btn-primary rounded-pill font-bold py-2" onClick={() => {
-                      userAxios((server) => {
-                        server.post('/users/addToWishlist', {
-                          userId: userLogged._id,
-                          item: { proId: product._id, price: product.price, mrp: product.mrp, variantSize: selectedVariantLabel || product.currVariantSize || '' }
-                        }).then(() => {
-                          toast.success("Added to wishlist");
-                        }).catch(() => {
-                          setLoginModal({ btn: true, active: true, member: true, forgot: false });
-                        });
-                      });
-                    }}>Add to Wishlist</button>
+                  {product.available === 'true' && canPurchase && (
+                    <>
+                      <button type="button" className="btn btn-primary rounded-pill font-bold py-2" onClick={addToCart}>
+                        <i className="fa-solid fa-cart-plus me-2" /> Add to Cart
+                      </button>
+                      <button type="button" className="btn btn-dark rounded-pill font-bold py-2" onClick={buyNow}>
+                        Buy Now
+                      </button>
+                    </>
                   )}
 
                   {canRfq && (

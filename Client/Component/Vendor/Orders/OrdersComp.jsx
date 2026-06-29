@@ -29,7 +29,7 @@ function OrdersComp({ search, setSearch, Orders, setOrders, setTotal, total }) {
     <div className='OrdersComp containerVendor'>
       <div className="vendorPageHeader">
         <h1 className="vendorPageTitle">Orders</h1>
-        <p className="vendorPageSubtitle">Track payments and fulfilment</p>
+        <p className="vendorPageSubtitle">Process orders, update shipping status — buyers get email & WhatsApp alerts</p>
       </div>
 
       <form className="vendorToolbar" onSubmit={submitSearch}>

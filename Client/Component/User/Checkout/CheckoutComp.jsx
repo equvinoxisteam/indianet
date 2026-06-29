@@ -5,6 +5,7 @@ import Loading from '../../Loading/Loading'
 import ContentControl from '../../../ContentControl/ContentControl'
 import { useRouter } from 'next/router'
 import Modal from './Modal'
+import toast from 'react-hot-toast'
 
 function CheckoutComp({
     amount, setAmount,
@@ -61,8 +62,8 @@ function CheckoutComp({
             "key": razorpayKey,
             "amount": data.totalAmount,
             "currency": "INR",
-            "name": "Aquariun",
-            "description": "Test Transaction",
+            "name": "Indianet",
+            "description": "Order payment",
             "order_id": data.razOrderId,
             "handler": function (response) {
                 response.userId = data.userId

@@ -37,14 +37,18 @@ function EditProduct({
       return
     }
 
+    const firstVariant = productDetails.variant?.[0]
+    const listPrice = firstVariant ? Number(firstVariant.price) || Number(productDetails.price) || 0 : Number(productDetails.price) || 0
+    const listMrp = firstVariant ? Number(firstVariant.mrp) || Number(productDetails.mrp) || 0 : Number(productDetails.mrp) || 0
+
     let formData = new FormData();
 
     formData.append("uni_id_1", productDetails.uni_id_1)
     formData.append("uni_id_2", productDetails.uni_id_2)
     formData.append("_id", productDetails._id)
     formData.append("name", productDetails.name)
-    formData.append("price", 0)
-    formData.append("mrp", 0)
+    formData.append("price", listPrice)
+    formData.append("mrp", listMrp)
     formData.append("variant", JSON.stringify(productDetails.variant))
     formData.append("available", productDetails.available)
     formData.append("publishStatus", productDetails.publishStatus || 'draft')
@@ -57,9 +61,9 @@ function EditProduct({
     formData.append("seoKeyword", productDetails.seoKeyword)
     formData.append("seoTitle", productDetails.seoTitle)
     formData.append("return", productDetails.return)
-    formData.append('allowCod', false)
-    formData.append('allowOnline', false)
-    formData.append('allowRfq', true)
+    formData.append('allowCod', productDetails.allowRfq ? 'false' : String(!!productDetails.allowCod))
+    formData.append('allowOnline', productDetails.allowRfq ? 'false' : String(!!productDetails.allowOnline))
+    formData.append('allowRfq', String(!!productDetails.allowRfq))
     formData.append('rfqTiers', JSON.stringify(productDetails.rfqTiers || []))
     formData.append('rfqAttributes', JSON.stringify(productDetails.rfqAttributes || []))
     formData.append('rfqCustomization', productDetails.rfqCustomization || false)
@@ -232,6 +236,32 @@ function EditProduct({
               </div>
             </div>
           )}
+
+          <div className="col-md-12 editorSection">
+            <h5 className="editorSectionTitle">Sales mode</h5>
+            <div className="d-flex flex-wrap gap-3 mb-2">
+              <label className="form-check">
+                <input type="radio" className="form-check-input" name="salesModeEdit" checked={!productDetails.allowRfq} onChange={() => setProductDetails({ ...productDetails, allowRfq: false, allowCod: true, allowOnline: true })} />
+                <span className="form-check-label">E-commerce (sell online)</span>
+              </label>
+              <label className="form-check">
+                <input type="radio" className="form-check-input" name="salesModeEdit" checked={!!productDetails.allowRfq} onChange={() => setProductDetails({ ...productDetails, allowRfq: true, allowCod: false, allowOnline: false })} />
+                <span className="form-check-label">RFQ only</span>
+              </label>
+            </div>
+            {!productDetails.allowRfq && (
+              <div className="d-flex flex-wrap gap-4 mb-3">
+                <label className="form-check">
+                  <input type="checkbox" className="form-check-input" checked={!!productDetails.allowOnline} onChange={(e) => setProductDetails({ ...productDetails, allowOnline: e.target.checked })} />
+                  <span className="form-check-label">Online payment (Razorpay)</span>
+                </label>
+                <label className="form-check">
+                  <input type="checkbox" className="form-check-input" checked={!!productDetails.allowCod} onChange={(e) => setProductDetails({ ...productDetails, allowCod: e.target.checked })} />
+                  <span className="form-check-label">Cash on delivery</span>
+                </label>
+              </div>
+            )}
+          </div>
 
           {productDetails.allowRfq && (
             <>
